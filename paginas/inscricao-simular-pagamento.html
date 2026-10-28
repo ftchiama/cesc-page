@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação de Pagamento — CESC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/inscricao.css">
+    <link rel="stylesheet" href="../css/inscricao-simular-pagamento.css">
+</head>
+<body class="inscricao-body">
+
+    <div class="inscricao-container">
+        <header class="inscricao-header">
+            <div class="inscricao-logo">
+                <div class="logo-icone"><i class="fas fa-graduation-cap"></i></div>
+                <div class="logo-texto">
+                    <span class="logo-nome">CESC</span>
+                    <span class="logo-sub">Pagamento</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Estado 1: simulação -->
+        <div class="inscricao-card simulacao-card" id="simulacao-inicial">
+            <h1 class="simulacao-titulo">
+                <i class="fas fa-credit-card simulacao-titulo-icone"></i> Simulação de Pagamento
+            </h1>
+            <p class="inscricao-intro-texto simulacao-intro">
+                Este é o modo de teste. Em produção, o candidato receberá uma notificação
+                no Multicaixa Express para confirmar o pagamento.
+            </p>
+
+            <div class="simulacao-valor" id="simulacao-valor">1.000 Kz</div>
+            <div class="simulacao-metodo">Multicaixa Express (GPO)</div>
+
+            <div class="referencia-box">
+                <span class="referencia-label">Referência da inscrição</span>
+                <span class="referencia-numero" id="simulacao-referencia">—</span>
+            </div>
+
+            <div class="simulacao-acoes">
+                <button class="botao-primario" id="btn-simular-pagamento">
+                    <i class="fas fa-check-circle"></i> Simular pagamento confirmado
+                </button>
+                <a href="../index.html" class="botao-secundario">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+            </div>
+
+            <div class="simulacao-info">
+                <i class="fas fa-info-circle"></i>
+                Em produção, este ecrã não aparece. O candidato confirma o pagamento no MCX App.
+            </div>
+        </div>
+
+        <!-- Estado 2: a processar -->
+        <div class="inscricao-card simulacao-card" id="simulacao-processando" style="display:none;">
+            <h1 class="simulacao-titulo simulacao-titulo-centro">A confirmar pagamento...</h1>
+            <div class="simulacao-polling">
+                <span class="simulacao-spinner"></span>
+                A verificar o estado do pagamento.
+            </div>
+            <p class="inscricao-intro-texto simulacao-intro">
+                Não feches esta página. O processo é automático.
+            </p>
+        </div>
+
+        <!-- Estado 3: sucesso -->
+        <div class="inscricao-card simulacao-card" id="simulacao-sucesso" style="display:none;">
+            <div class="simulacao-icone simulacao-icone-sucesso">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h1 class="simulacao-titulo simulacao-titulo-centro">Pagamento confirmado!</h1>
+            <p class="inscricao-intro-texto simulacao-intro">
+                A tua inscrição foi recebida e está agora a ser analisada pela secretaria.
+            </p>
+
+            <div class="referencia-box">
+                <span class="referencia-label">Referência da inscrição</span>
+                <span class="referencia-numero" id="sucesso-referencia">—</span>
+            </div>
+
+            <div class="simulacao-acoes">
+                <a href="candidato-login.html" class="botao-primario">
+                    <i class="fas fa-user-clock"></i> Ir para o painel do candidato
+                </a>
+                <a href="../index.html" class="botao-secundario">
+                    <i class="fas fa-home"></i> Voltar ao site
+                </a>
+            </div>
+        </div>
+
+        <!-- Estado 4: falha -->
+        <div class="inscricao-card simulacao-card" id="simulacao-falha" style="display:none;">
+            <div class="simulacao-icone simulacao-icone-falha">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <h1 class="simulacao-titulo simulacao-titulo-centro">Pagamento não confirmado</h1>
+            <p class="inscricao-intro-texto simulacao-intro" id="falha-mensagem">
+                O pagamento não foi confirmado. Podes tentar novamente.
+            </p>
+            <div class="simulacao-acoes">
+                <button class="botao-primario" id="btn-tentar-novamente">
+                    <i class="fas fa-redo"></i> Tentar novamente
+                </button>
+                <a href="candidato-login.html" class="botao-secundario">
+                    <i class="fas fa-user-clock"></i> Ir para o painel
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="../scripts/api.js"></script>
+    <script src="../scripts/inscricao-simular-pagamento.js"></script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar - CESC</title>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/auth.css">
+</head>
+<body>
+    <!--
+     Autor: Francisco Tchiama
+     Companhia: TCLabs
+     Data: 19/10/2026
+     Versão: 1.0
+     Descrição:
+     Página de login do CESC. Autenticação em dois passos:
+     1. E-mail + password (via Edge Function enviar-codigo)
+     2. Código de 6 dígitos recebido por e-mail (via RPC cesc_validar_codigo)
+    -->
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <div class="logo-icone"><i class="fas fa-graduation-cap"></i></div>
+                <h1>Área Reservada</h1>
+                <p>Acesso exclusivo para alunos e professores do CESC.</p>
+            </div>
+
+            <!-- PASSO 1: E-mail + password -->
+            <div id="passo-1">
+                <div class="campo-grupo">
+                    <label for="login-email">E-mail</label>
+                    <input type="email" id="login-email" placeholder="teu@email.com" autocomplete="email">
+                </div>
+                <div class="campo-grupo">
+                    <label for="login-password">Palavra-passe</label>
+                    <input type="password" id="login-password" placeholder="A tua password" autocomplete="current-password">
+                </div>
+                <button id="btn-enviar-codigo" class="botao-primario w-100">Receber código de acesso</button>
+                <p id="msg-erro-1" class="auth-erro"></p>
+            </div>
+
+            <!-- PASSO 2: Código de 6 dígitos -->
+            <div id="passo-2" style="display:none;">
+                <p class="auth-info">
+                    Enviámos um código de 6 dígitos para <strong id="email-mostrado">-</strong>.
+                    Abre o teu e-mail e insere o código abaixo.
+                </p>
+                <div class="campo-grupo">
+                    <label for="login-codigo">Código de verificação</label>
+                    <input type="text" id="login-codigo" placeholder="000000" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
+                </div>
+                <button id="btn-validar-codigo" class="botao-primario w-100">Entrar</button>
+                <button id="btn-voltar" class="botao-secundario w-100" style="margin-top:8px;">Voltar</button>
+                <p id="msg-erro-2" class="auth-erro"></p>
+            </div>
+
+            <div class="auth-footer">
+                <p>Ainda não tens conta? <a href="criar-conta.html">Criar conta</a></p>
+                <p>Problemas com o acesso? <a href="contacto.html">Contacta a secretaria</a>.</p>
+            </div>
+        </div>
+    </div>
+    <script src="../scripts/api.js"></script>
+<script src="../scripts/auth.js"></script>
+</body>
+</html>

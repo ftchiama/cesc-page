@@ -1,0 +1,176 @@
+/* ============================================================
+   Base e Variáveis
+   ============================================================ */
+:root {
+    --cor-fundo: #f8fafc;
+    --cor-fundo-alt: #ffffff;
+    --cor-texto: #0f172a;
+    --cor-texto-suave: #475569;
+    --cor-azul: #1e3a8a;
+    --cor-azul-claro: #3b82f6;
+    --cor-dourado: #d97706;
+    --cor-dourado-claro: #fbbf24;
+    --cor-borda: #e2e8f0;
+
+    --fonte-principal: 'Inter', sans-serif;
+    --fonte-titulos: 'Playfair Display', serif;
+    --max-largura: 1100px;
+    --raio: 12px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--fonte-principal); background-color: var(--cor-fundo); color: var(--cor-texto); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+.container { max-width: var(--max-largura); margin: 0 auto; padding: 0 24px; }
+a { text-decoration: none; color: inherit; }
+
+/* ============================================================
+   Cabeçalho
+   ============================================================ */
+.cabecalho {
+    background-color: rgba(255, 255, 255, 0.98);
+    border-bottom: 1px solid var(--cor-borda);
+    position: fixed; /* Fixo no topo */
+    top: 0; width: 100%;
+    z-index: 1000;
+    padding: 16px 0;
+}
+
+.cabecalho-conteudo { display: flex; align-items: center; justify-content: space-between; }
+.logo { display: flex; align-items: center; gap: 12px; }
+.logo-icone { width: 44px; height: 44px; background-color: var(--cor-azul); color: var(--cor-dourado-claro); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+.logo-texto { display: flex; flex-direction: column; }
+.logo-nome { font-family: var(--fonte-titulos); font-size: 1.4rem; font-weight: 700; color: var(--cor-azul); line-height: 1; }
+.logo-sub { font-size: 0.7rem; color: var(--cor-texto-suave); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-top: 2px; }
+
+.menu-desktop { display: flex; gap: 32px; }
+.menu-desktop a { font-size: 0.95rem; font-weight: 500; color: var(--cor-texto-suave); transition: color 0.2s; }
+.menu-desktop a:hover, .menu-desktop a.ativo { color: var(--cor-azul); font-weight: 600; }
+.menu-toggle { display: none; background: none; border: none; font-size: 1.5rem; color: var(--cor-azul); cursor: pointer; }
+
+/* Menu Mobile */
+.menu-mobile-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 998; }
+.menu-mobile-overlay.ativo { opacity: 1; pointer-events: auto; }
+.menu-mobile { position: fixed; top: 0; right: -300px; width: 280px; height: 100vh; background-color: var(--cor-fundo-alt); z-index: 999; transition: right 0.3s; display: flex; flex-direction: column; box-shadow: -5px 0 25px rgba(0,0,0,0.1); }
+.menu-mobile.aberto { right: 0; }
+.menu-mobile-topo { padding: 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--cor-borda); font-weight: 700; color: var(--cor-azul); }
+.menu-mobile-topo button { background: none; border: none; font-size: 1.3rem; color: var(--cor-texto-suave); }
+.menu-mobile-links { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+.menu-mobile-links a { font-weight: 500; color: var(--cor-texto-suave); font-size: 1.05rem; }
+
+/* ============================================================
+   Hero (Mais compacto para não empurrar o conteúdo)
+   ============================================================ */
+.hero {
+    padding: 160px 0 80px; /* Aumentei o topo por causa do header fixo */
+    background: linear-gradient(180deg, #ffffff 0%, var(--cor-fundo) 100%);
+    border-bottom: 1px solid var(--cor-borda);
+    text-align: center;
+}
+.hero-etiqueta { display: inline-block; padding: 6px 16px; background-color: rgba(217, 119, 6, 0.1); color: var(--cor-dourado); border: 1px solid rgba(217, 119, 6, 0.2); border-radius: 50px; font-size: 0.8rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 24px; }
+.hero-titulo { font-family: var(--fonte-titulos); font-size: 3rem; color: var(--cor-azul); line-height: 1.1; margin-bottom: 20px; }
+.hero-subtitulo { font-size: 1.1rem; color: var(--cor-texto-suave); max-width: 600px; margin: 0 auto; }
+
+/* Botões */
+.botao-secundario { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: var(--raio); font-weight: 600; font-size: 0.9rem; border: 1px solid var(--cor-borda); background-color: #fff; color: var(--cor-azul); transition: all 0.2s; cursor: pointer; }
+.botao-secundario:hover { border-color: var(--cor-azul); transform: translateY(-2px); }
+
+/* ============================================================
+   Secções Genéricas
+   ============================================================ */
+.seccao { padding: 80px 0; }
+.seccao-alt { background-color: var(--cor-fundo-alt); border-top: 1px solid var(--cor-borda); border-bottom: 1px solid var(--cor-borda); }
+.seccao-cabecalho { text-align: center; margin-bottom: 48px; }
+.seccao-cabecalho-flex { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; }
+.seccao-etiqueta { display: block; font-size: 0.8rem; font-weight: 700; color: var(--cor-dourado); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+.seccao-titulo { font-family: var(--fonte-titulos); font-size: 2.2rem; color: var(--cor-azul); margin-bottom: 12px; }
+.seccao-texto { color: var(--cor-texto-suave); max-width: 600px; margin: 0 auto; }
+
+/* ============================================================
+   Carrossel de Avisos (Scroll Horizontal)
+   ============================================================ */
+.carrossel-container {
+    overflow-x: auto;
+    padding-bottom: 24px; /* Espaço para a scrollbar */
+    scrollbar-width: thin; /* Firefox */
+}
+/* Esconder a scrollbar no Chrome/Safari mas manter o scroll */
+.carrossel-container::-webkit-scrollbar { height: 6px; }
+.carrossel-container::-webkit-scrollbar-track { background: var(--cor-fundo); border-radius: 10px; }
+.carrossel-container::-webkit-scrollbar-thumb { background: var(--cor-borda); border-radius: 10px; }
+
+.carrossel-track {
+    display: flex;
+    gap: 20px;
+    width: max-content; /* Faz os itens fluírem para a direita */
+}
+
+.cartao-aviso {
+    display: flex; flex-direction: column; gap: 16px;
+    background-color: var(--cor-fundo-alt);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    padding: 24px;
+    width: 320px; /* Largura fixa no carrossel */
+    flex-shrink: 0;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.cartao-aviso:hover { border-color: var(--cor-azul-claro); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+
+.aviso-data { display: inline-flex; align-items: center; gap: 8px; background-color: rgba(30, 58, 138, 0.05); color: var(--cor-azul); border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; width: fit-content; }
+.aviso-data span { font-size: 1.2rem; font-weight: 800; line-height: 1; }
+.aviso-info h3 { font-size: 1.1rem; color: var(--cor-azul); margin-bottom: 8px; }
+.aviso-info p { color: var(--cor-texto-suave); font-size: 0.9rem; margin-bottom: 16px; }
+.aviso-tag { display: inline-block; padding: 4px 10px; background-color: var(--cor-fundo); border: 1px solid var(--cor-borda); border-radius: 50px; font-size: 0.7rem; font-weight: 600; color: var(--cor-texto-suave); }
+
+/* Avisos em Lista Vertical (para a página avisos.html) */
+.grelha-avisos-vertical { display: flex; flex-direction: column; gap: 16px; max-width: 800px; margin: 0 auto; }
+.grelha-avisos-vertical .cartao-aviso { width: 100%; flex-direction: row; align-items: flex-start; }
+
+/* ============================================================
+   Calendário
+   ============================================================ */
+.grelha-calendario { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.evento { display: flex; gap: 16px; background-color: var(--cor-fundo-alt); border: 1px solid var(--cor-borda); border-radius: var(--raio); padding: 20px; align-items: center; }
+.evento-data { display: flex; flex-direction: column; align-items: center; color: var(--cor-dourado); font-weight: 600; min-width: 50px; }
+.evento-data span { font-size: 1.4rem; font-weight: 800; color: var(--cor-azul); }
+.evento-info h4 { color: var(--cor-azul); font-size: 1rem; }
+.evento-info p { font-size: 0.85rem; color: var(--cor-texto-suave); }
+
+/* ============================================================
+   Sobre
+   ============================================================ */
+.sobre-grelha { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+.sobre-texto p { color: var(--cor-texto-suave); margin-bottom: 16px; font-size: 1.05rem; }
+.sobre-estatisticas { display: flex; gap: 40px; margin-top: 32px; padding-top: 32px; border-top: 1px solid var(--cor-borda); }
+.sobre-estatisticas div { display: flex; flex-direction: column; }
+.sobre-estatisticas strong { font-family: var(--fonte-titulos); font-size: 2rem; color: var(--cor-dourado); line-height: 1; }
+.sobre-estatisticas span { font-size: 0.85rem; color: var(--cor-texto-suave); font-weight: 500; margin-top: 4px; }
+.sobre-imagem-placeholder { background-color: var(--cor-fundo); border: 2px dashed var(--cor-borda); border-radius: var(--raio); height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; color: var(--cor-texto-suave); }
+.sobre-imagem-placeholder i { font-size: 3rem; color: var(--cor-borda); }
+
+/* ============================================================
+   Rodapé
+   ============================================================ */
+.rodape { background-color: #ffffff; border-top: 1px solid var(--cor-borda); padding: 32px 0; }
+.rodape-base { display: flex; justify-content: space-between; color: var(--cor-texto-suave); font-size: 0.85rem; }
+.rodape-base a { color: var(--cor-azul); font-weight: 600; }
+
+/* ============================================================
+   Responsivo
+   ============================================================ */
+@media (max-width: 768px) {
+    .menu-desktop { display: none; }
+    .menu-toggle { display: block; }
+    
+    .hero { padding: 120px 0 60px; }
+    .hero-titulo { font-size: 2.2rem; }
+    
+    .seccao-cabecalho-flex { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .grelha-avisos-vertical .cartao-aviso { flex-direction: column; }
+    
+    .sobre-grelha { grid-template-columns: 1fr; gap: 32px; }
+    .sobre-imagem-placeholder { height: 250px; }
+    
+    .rodape-base { flex-direction: column; gap: 12px; text-align: center; }
+}

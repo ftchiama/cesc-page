@@ -1,0 +1,47 @@
+/*
+ Autor: Francisco Tchiama
+ Companhia: TCLabs
+ Data: 18/10/2026
+ Versão: 1.0
+ Descrição:
+ Estilos para as páginas internas (Sobre, Contacto, Biblioteca).
+ Contém o layout de duas colunas para o "Sobre" e a grelha de contactos.
+
+ Como faz:
+ - Define a classe .sobre-grelha (1fr 1fr) para o texto e a imagem.
+ - Define a classe .contacto-grelha para os cartões de contacto.
+ - Adiciona o placeholder visual para a foto da escola e o aviso da biblioteca.
+
+ Porque faz:
+ - Reutiliza a base e o layout, adicionando apenas o que é específico destas páginas.
+ - Mantém a coerência visual entre as páginas internas.
+*/
+
+/* Sobre */
+.sobre-grelha { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+.sobre-texto p { color: var(--cor-texto-suave); margin-bottom: 16px; font-size: 1.05rem; }
+.sobre-estatisticas { display: flex; gap: 40px; margin-top: 32px; padding-top: 32px; border-top: 1px solid var(--cor-borda); }
+.sobre-estatisticas div { display: flex; flex-direction: column; }
+.sobre-estatisticas strong { font-family: var(--fonte-titulos); font-size: 2rem; color: var(--cor-dourado); line-height: 1; }
+.sobre-estatisticas span { font-size: 0.85rem; color: var(--cor-texto-suave); font-weight: 500; margin-top: 4px; }
+.sobre-imagem-placeholder { background-color: var(--cor-fundo); border: 2px dashed var(--cor-borda); border-radius: var(--raio); height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; color: var(--cor-texto-suave); }
+.sobre-imagem-placeholder i { font-size: 3rem; color: var(--cor-borda); }
+
+/* Contacto */
+.contacto-grelha { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; max-width: 900px; margin: 0 auto; }
+.contacto-cartao { background-color: var(--cor-fundo-alt); border: 1px solid var(--cor-borda); border-radius: var(--raio); padding: 32px; text-align: center; }
+.contacto-cartao i { font-size: 2rem; color: var(--cor-dourado); margin-bottom: 16px; }
+.contacto-cartao h3 { color: var(--cor-azul); margin-bottom: 8px; }
+.contacto-cartao p { color: var(--cor-texto-suave); font-size: 0.95rem; }
+
+/* Biblioteca */
+.biblioteca-cta-box { background-color: var(--cor-fundo-alt); border: 1px solid var(--cor-borda); border-radius: var(--raio); padding: 48px; text-align: center; max-width: 600px; margin: 0 auto; }
+.biblioteca-cta-box i { font-size: 3rem; color: var(--cor-azul); margin-bottom: 16px; }
+.biblioteca-cta-box h2 { font-family: var(--fonte-titulos); color: var(--cor-azul); margin-bottom: 12px; }
+.biblioteca-cta-box p { color: var(--cor-texto-suave); }
+
+@media (max-width: 768px) {
+    .sobre-grelha { grid-template-columns: 1fr; gap: 32px; }
+    .sobre-imagem-placeholder { height: 250px; }
+    .biblioteca-cta-box { padding: 32px 24px; }
+}

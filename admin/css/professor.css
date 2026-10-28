@@ -1,0 +1,829 @@
+/*
+ Estilos específicos da área do professor.
+ Reaproveita dashboard.css (sidebar, cards, secções).
+ Acrescenta: tabela de notas expansível, filtros, turmas.
+ */
+
+/* ===== Filtros (turma / trimestre) ===== */
+.notas-filtros {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    align-items: flex-end;
+}
+
+.notas-filtros .campo-grupo {
+    flex: 1 1 220px;
+    margin-bottom: 0;
+}
+
+.notas-filtros label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--cor-texto-suave);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.notas-info {
+    padding: 14px 18px;
+    background-color: var(--cor-azul-muito-claro);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: var(--raio);
+    color: var(--cor-azul);
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+}
+
+/* ===== Tabela de notas ===== */
+.tabela-notas-wrapper {
+    overflow-x: auto;
+    background-color: #fff;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+}
+
+.tabela-notas {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    min-width: 720px;
+}
+
+.tabela-notas thead th {
+    background-color: var(--cor-fundo);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--cor-texto-suave);
+    font-weight: 700;
+    text-align: left;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--cor-borda);
+    white-space: nowrap;
+}
+
+.tabela-notas thead th.centro {
+    text-align: center;
+}
+
+.tabela-notas td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--cor-borda);
+    vertical-align: middle;
+}
+
+.tabela-notas tr:last-child td {
+    border-bottom: none;
+}
+
+.tabela-notas tr.aluno-aberto {
+    background-color: rgba(59, 130, 246, 0.03);
+}
+
+.col-expandir {
+    width: 40px;
+    text-align: center;
+}
+
+.btn-expandir {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--cor-borda);
+    border-radius: 6px;
+    background-color: #fff;
+    color: var(--cor-azul);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+}
+
+.btn-expandir:hover {
+    border-color: var(--cor-azul);
+    background-color: var(--cor-azul-muito-claro);
+}
+
+.btn-expandir i {
+    transition: transform 0.2s;
+}
+
+.btn-expandir.expandido i {
+    transform: rotate(90deg);
+}
+
+.aluno-nome-cell strong {
+    color: var(--cor-texto);
+    display: block;
+    font-size: 0.92rem;
+}
+
+.aluno-nome-cell span {
+    color: var(--cor-texto-suave);
+    font-size: 0.78rem;
+}
+
+.celula-nota {
+    text-align: center;
+    font-weight: 600;
+    color: var(--cor-azul);
+}
+
+.celula-nota.vazia {
+    color: var(--cor-texto-leve);
+    font-weight: 400;
+}
+
+.celula-fechada {
+    color: var(--cor-texto-leve);
+    font-size: 0.78rem;
+    font-style: italic;
+    text-align: center;
+}
+
+/* ===== Linha expandida (avaliações contínuas) ===== */
+.linha-expandida {
+    background-color: #f8fafc;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.linha-expandida > td {
+    padding: 20px 24px 24px;
+    border-bottom: none;
+}
+
+.expandido-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.expandido-titulo {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--cor-texto);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.expandido-titulo .mac-valor {
+    color: var(--cor-azul);
+    background-color: var(--cor-azul-muito-claro);
+    padding: 2px 10px;
+    border-radius: 100px;
+    font-size: 0.82rem;
+}
+
+.btn-adicionar-avaliacao {
+    padding: 8px 14px;
+    background-color: var(--cor-azul);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+    font-family: inherit;
+}
+
+.btn-adicionar-avaliacao:hover {
+    background-color: #172554;
+}
+
+.btn-adicionar-avaliacao:disabled {
+    background-color: var(--cor-texto-leve);
+    cursor: not-allowed;
+}
+
+.lista-avaliacoes {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.avaliacao-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 14px;
+    background-color: #fff;
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+    font-size: 0.86rem;
+}
+
+.avaliacao-item .av-desc {
+    flex: 1;
+    color: var(--cor-texto-suave);
+}
+
+.avaliacao-item .av-nota {
+    font-weight: 700;
+    color: var(--cor-azul);
+    font-size: 0.95rem;
+}
+
+.avaliacao-item .av-remover {
+    background: none;
+    border: none;
+    color: var(--cor-erro);
+    cursor: pointer;
+    padding: 4px;
+    font-size: 0.85rem;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.avaliacao-item .av-remover:hover {
+    background-color: var(--cor-erro-fundo);
+}
+
+.avaliacoes-vazio {
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    color: var(--cor-texto-leve);
+    font-style: italic;
+    background-color: #fff;
+    border: 1px dashed var(--cor-borda);
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+/* Formulário inline de nova avaliação */
+.form-nova-avaliacao {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    padding: 12px;
+    background-color: #fff;
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.form-nova-avaliacao .campo-grupo {
+    margin-bottom: 0;
+    flex: 1 1 140px;
+}
+
+.form-nova-avaliacao label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--cor-texto-suave);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.form-nova-avaliacao input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--cor-borda);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.form-nova-avaliacao input:focus {
+    outline: none;
+    border-color: var(--cor-azul);
+}
+
+.form-nova-avaliacao .btn-confirmar {
+    padding: 9px 16px;
+    background-color: var(--cor-azul);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s;
+}
+
+.form-nova-avaliacao .btn-confirmar:hover {
+    background-color: #172554;
+}
+
+.form-nova-avaliacao .btn-cancelar {
+    padding: 9px 16px;
+    background-color: transparent;
+    color: var(--cor-texto-suave);
+    border: 1px solid var(--cor-borda);
+    border-radius: 6px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.form-nova-avaliacao .btn-cancelar:hover {
+    background-color: var(--cor-fundo);
+}
+
+/* NPT inline */
+.npt-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.npt-wrapper input {
+    padding: 6px 8px;
+    border: 1px solid var(--cor-borda);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    width: 70px;
+    text-align: center;
+    font-family: inherit;
+}
+
+.npt-wrapper input:focus {
+    outline: none;
+    border-color: var(--cor-azul);
+}
+
+.btn-lancar-npt {
+    padding: 6px 10px;
+    background-color: var(--cor-azul);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.btn-lancar-npt:hover {
+    background-color: #172554;
+}
+
+.btn-lancar-npt:disabled {
+    background-color: var(--cor-texto-leve);
+    cursor: not-allowed;
+}
+
+/* ===== Grelha de turmas ===== */
+.turmas-grelha {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.turma-card {
+    background-color: #fff;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    padding: 22px;
+    transition: all 0.2s;
+}
+
+.turma-card:hover {
+    border-color: var(--cor-azul-claro);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+.turma-card-titulo {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--cor-azul);
+    margin: 0 0 4px;
+    font-family: 'Playfair Display', serif;
+}
+
+.turma-card-meta {
+    font-size: 0.82rem;
+    color: var(--cor-texto-suave);
+    margin-bottom: 16px;
+    line-height: 1.5;
+}
+
+.turma-card-acoes {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.turma-card-acoes button {
+    flex: 1 1 auto;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    border: 1px solid var(--cor-azul);
+    background-color: transparent;
+    color: var(--cor-azul);
+    transition: all 0.2s;
+}
+
+.turma-card-acoes button:hover {
+    background-color: var(--cor-azul);
+    color: #fff;
+}
+
+/* ===== Faltas ===== */
+.falta-btn {
+    padding: 6px 12px;
+    background-color: var(--cor-erro-fundo);
+    color: var(--cor-erro);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+}
+
+.falta-btn:hover {
+    background-color: var(--cor-erro);
+    color: #fff;
+}
+
+.faltas-contador {
+    font-weight: 700;
+    color: var(--cor-erro);
+    text-align: center;
+}
+
+/* ===== Responsivo ===== */
+@media (max-width: 768px) {
+    .notas-filtros {
+        flex-direction: column;
+    }
+
+    .notas-filtros .campo-grupo {
+        flex: 1 1 100%;
+    }
+
+    .form-nova-avaliacao {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .form-nova-avaliacao .campo-grupo {
+        flex: 1 1 100%;
+    }
+
+    .expandido-cabecalho {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .turma-card-acoes {
+        flex-direction: column;
+    }
+
+    .turma-card-acoes button {
+        flex: 1 1 100%;
+    }
+}
+/* ============================================================
+   Responsividade — mobile (professores com telemóvel)
+   ============================================================ */
+
+/* Por defeito: tabela visível, cartões escondidos */
+.tabela-desktop {
+    display: table;
+}
+.cartoes-alunos {
+    display: none;
+}
+
+/* Em mobile: tabela escondida, cartões visíveis */
+@media (max-width: 768px) {
+
+    /* Esconder tabela, mostrar cartões */
+    .tabela-desktop {
+        display: none;
+    }
+    .cartoes-alunos {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    /* ===== Filtros empilhados ===== */
+    .notas-filtros {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 16px;
+    }
+    .notas-filtros .campo-grupo {
+        flex: 1 1 100%;
+    }
+
+    /* ===== Cartão do aluno ===== */
+    .cartao-aluno {
+        background-color: #fff;
+        border: 1px solid var(--cor-borda);
+        border-radius: var(--raio);
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .cartao-aluno-topo {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .cartao-aluno-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+    }
+
+    .cartao-aluno-info strong {
+        font-size: 0.95rem;
+        color: var(--cor-texto);
+        line-height: 1.3;
+    }
+
+    .cartao-aluno-info span {
+        font-size: 0.75rem;
+        color: var(--cor-texto-suave);
+    }
+
+    /* Notas em grelha de 4 colunas compacta */
+    .cartao-aluno-notas {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+        background-color: var(--cor-fundo);
+        border: 1px solid var(--cor-borda);
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+    .cartao-nota {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .cartao-nota .rotulo {
+        font-size: 0.62rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--cor-texto-suave);
+        font-weight: 700;
+    }
+
+    .cartao-nota .valor {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--cor-azul);
+    }
+
+    .cartao-nota .valor.vazia {
+        color: var(--cor-texto-leve);
+        font-weight: 400;
+    }
+
+    /* Botão de toggle */
+    .cartao-aluno-toggle {
+        padding: 10px 14px;
+        background-color: transparent;
+        border: 1px solid var(--cor-borda);
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--cor-azul);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: background 0.2s, border-color 0.2s;
+    }
+
+    .cartao-aluno-toggle:hover {
+        background-color: var(--cor-azul-muito-claro);
+        border-color: var(--cor-azul);
+    }
+
+    /* Painel expandido dentro do cartão */
+    .cartao-aluno-expandido {
+        padding-top: 12px;
+        border-top: 1px solid var(--cor-borda);
+    }
+
+    /* ===== Formulário de avaliação empilhado ===== */
+    .form-nova-avaliacao {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .form-nova-avaliacao .campo-grupo {
+        flex: 1 1 100%;
+    }
+
+    /* ===== NPT empilhado ===== */
+    .npt-wrapper {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+    .npt-wrapper input {
+        width: 100% !important;
+    }
+    .btn-lancar-npt {
+        width: 100%;
+        padding: 10px 14px;
+    }
+
+    /* ===== Stats em coluna ===== */
+    .stats-grelha {
+        grid-template-columns: 1fr !important;
+    }
+    .stat-card {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 18px;
+    }
+    .stat-header {
+        margin-bottom: 0;
+    }
+    .stat-valor {
+        font-size: 1.6rem;
+    }
+    .stat-subtexto {
+        display: none;
+    }
+
+    /* ===== Turmas em coluna ===== */
+    .turmas-grelha {
+        grid-template-columns: 1fr;
+    }
+    .turma-card-acoes {
+        flex-direction: column;
+    }
+    .turma-card-acoes button {
+        flex: 1 1 100%;
+    }
+
+    /* ===== Lista de avaliações ===== */
+    .expandido-cabecalho {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .btn-adicionar-avaliacao {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Para ecrãs muito pequenos (320-380px) */
+@media (max-width: 380px) {
+    .cartao-aluno-notas {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .cartao-nota .valor {
+        font-size: 0.95rem;
+    }
+}
+/* Botão de falta grande (mobile) */
+.falta-btn-grande {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* As tabelas marcadas como "tabela-desktop" escondem-se em mobile */
+@media (max-width: 768px) {
+    .tabela-notas.tabela-desktop {
+        display: none;
+    }
+    .cartoes-alunos {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+}
+/* ===== Faltas ===== */
+.falta-total-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    padding: 4px 10px;
+    background-color: var(--cor-erro-fundo);
+    color: var(--cor-erro);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.falta-status {
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 100px;
+    white-space: nowrap;
+}
+
+.falta-status.justificada {
+    background-color: var(--cor-sucesso-fundo);
+    color: #065f46;
+}
+
+.falta-status.nao-justificada {
+    background-color: var(--cor-erro-fundo);
+    color: var(--cor-erro);
+}
+
+.form-nova-falta {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    padding: 12px;
+    background-color: #fff;
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+    margin-top: 12px;
+}
+
+.form-nova-falta .campo-grupo {
+    margin-bottom: 0;
+    flex: 1 1 140px;
+}
+
+.form-nova-falta label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--cor-texto-suave);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.form-nova-falta input,
+.form-nova-falta select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--cor-borda);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-family: inherit;
+    box-sizing: border-box;
+    background-color: #fff;
+}
+
+.form-nova-falta input:focus,
+.form-nova-falta select:focus {
+    outline: none;
+    border-color: var(--cor-azul);
+}
+
+@media (max-width: 768px) {
+    .form-nova-falta {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .form-nova-falta .campo-grupo {
+        flex: 1 1 100%;
+    }
+}

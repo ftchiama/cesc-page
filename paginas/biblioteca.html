@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca Digital - CESC</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/paginas.css">
+</head>
+<body>
+    <!--
+     Autor: Francisco Tchiama
+     Companhia: TCLabs
+     Data: 18/10/2026
+     Versão: 1.0
+     Descrição:
+     Página pública de acesso à biblioteca digital (Fase 1 - apenas apresentação).
+    
+     Como faz:
+     - Apresenta o conceito da biblioteca e o seu valor para os alunos.
+     - Terá um botão "Entrar na Biblioteca" que, na Fase 2, redirecionará para o login.
+    
+     Porque faz:
+     - Valoriza o trabalho dos alunos e preserva o conhecimento gerado na escola.
+    -->
+
+    <header class="cabecalho">
+        <div class="container cabecalho-conteudo">
+            <a href="../index.html" class="logo">
+                <div class="logo-icone"><i class="fas fa-graduation-cap"></i></div>
+                <div class="logo-texto">
+                    <span class="logo-nome">CESC</span>
+                    <span class="logo-sub">Santa Catarina</span>
+                </div>
+            </a>
+
+            <nav class="menu-desktop">
+                <a href="../index.html">Início</a>
+                <a href="biblioteca.html" class="ativo">Biblioteca</a>
+                <a href="sobre.html">O Complexo</a>
+                <a href="contacto.html">Contacto</a>
+                <a href="login.html" class="botao-secundario" style="padding: 8px 16px;">Área Reservada</a>
+            </nav>
+
+            <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="menu-mobile-overlay" id="menuOverlay"></div>
+    <aside class="menu-mobile" id="menuMobile">
+        <div class="menu-mobile-topo">
+            <span>Menu</span>
+            <button id="menuFechar"><i class="fas fa-times"></i></button>
+        </div>
+        <nav class="menu-mobile-links">
+            <a href="../index.html">Início</a>
+            <a href="biblioteca.html">Biblioteca Digital</a>
+            <a href="sobre.html">O Complexo</a>
+            <a href="contacto.html">Contacto</a>
+            <a href="login.html" class="botao-secundario" style="margin-top: 16px; text-align: center;">Área Reservada</a>
+        </nav>
+    </aside>
+
+    <main>
+        <section class="seccao" style="padding-top: 140px; min-height: 80vh;">
+            <div class="container">
+                <div class="seccao-cabecalho">
+                    <span class="seccao-etiqueta">Conhecimento Preservado</span>
+                    <h1 class="seccao-titulo">Biblioteca Digital CESC</h1>
+                    <p class="seccao-texto">
+                        Os trabalhos dos nossos alunos merecem ser preservados. Aceda à biblioteca 
+                        para consultar projectos, pesquisas e materiais de apoio.
+                    </p>
+                </div>
+
+                <div class="biblioteca-cta-box">
+                    <i class="fas fa-book-open"></i>
+                    <h2>Acesso Restrito</h2>
+                    <p>A biblioteca está disponível apenas para alunos e professores do CESC.</p>
+                    <a href="#" class="botao-primario" style="margin-top: 16px;">Iniciar Sessão para Entrar</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="rodape">
+        <div class="container rodape-base">
+            <p>&copy; <span id="currentYear">2026</span> CESC. Todos os direitos reservados.</p>
+            <p>Desenvolvido por <a href="#">TCLabs</a></p>
+        </div>
+    </footer>
+
+    <script src="../scripts/main.js"></script>
+</body>
+</html>

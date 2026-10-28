@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobre - CESC</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Caminho do CSS ajustado para a pasta paginas/ -->
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/paginas.css">
+</head>
+<body>
+    <!--
+     Autor: Francisco Tchiama
+     Companhia: TCLabs
+     Data: 18/10/2026
+     Versão: 1.0
+     Descrição:
+     Página institucional dedicada a apresentar a história, missão e estatísticas do CESC.
+    
+     Como faz:
+     - Utiliza uma grelha de duas colunas (texto à esquerda, imagem/placeholder à direita).
+     - Apresenta números (alunos, professores, turmas) de forma destacada.
+     - Mantém a estrutura de cabeçalho e rodapé padrão.
+    
+     Porque faz:
+     - Permite que novos alunos e encarregados de educação conheçam a escola.
+     - Tira o peso institucional da página inicial, mantendo-a focada.
+    -->
+
+    <header class="cabecalho">
+        <div class="container cabecalho-conteudo">
+            <a href="../index.html" class="logo">
+                <div class="logo-icone"><i class="fas fa-graduation-cap"></i></div>
+                <div class="logo-texto">
+                    <span class="logo-nome">CESC</span>
+                    <span class="logo-sub">Santa Catarina</span>
+                </div>
+            </a>
+
+            <nav class="menu-desktop">
+                <a href="../index.html">Início</a>
+                <a href="biblioteca.html">Biblioteca</a>
+                <a href="sobre.html" class="ativo">O Complexo</a>
+                <a href="contacto.html">Contacto</a>
+                <a href="login.html" class="botao-secundario" style="padding: 8px 16px;">Área Reservada</a>
+            </nav>
+
+            <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="menu-mobile-overlay" id="menuOverlay"></div>
+    <aside class="menu-mobile" id="menuMobile">
+        <div class="menu-mobile-topo">
+            <span>Menu</span>
+            <button id="menuFechar"><i class="fas fa-times"></i></button>
+        </div>
+        <nav class="menu-mobile-links">
+            <a href="../index.html">Início</a>
+            <a href="biblioteca.html">Biblioteca Digital</a>
+            <a href="sobre.html">O Complexo</a>
+            <a href="contacto.html">Contacto</a>
+            <a href="login.html" class="botao-secundario" style="margin-top: 16px; text-align: center;">Área Reservada</a>
+        </nav>
+    </aside>
+
+    <main>
+        <section class="seccao" style="padding-top: 140px; min-height: 80vh;">
+            <div class="container">
+                <div class="sobre-grelha">
+                    <div class="sobre-texto">
+                        <span class="seccao-etiqueta">A Nossa Instituição</span>
+                        <h1 class="seccao-titulo">Sobre o CESC</h1>
+                        <p>
+                            O Complexo Escolar Santa Catarina (CESC) tem como missão formar cidadãos 
+                            competentes, críticos e preparados para os desafios do mercado de trabalho 
+                            e do ensino superior.
+                        </p>
+                        <p>
+                            Com uma história de dedicação à educação, contamos com um corpo docente 
+                            experiente e instalações que procuram oferecer as melhores condições de aprendizagem 
+                            para os nossos alunos.
+                        </p>
+                        <div class="sobre-estatisticas">
+                            <div>
+                                <strong>+800</strong>
+                                <span>Alunos</span>
+                            </div>
+                            <div>
+                                <strong>+40</strong>
+                                <span>Professores</span>
+                            </div>
+                            <div>
+                                <strong>15</strong>
+                                <span>Turmas</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sobre-imagem-placeholder">
+                        <i class="fas fa-school"></i>
+                        <span>Espaço para Foto do Edifício</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="rodape">
+        <div class="container rodape-base">
+            <p>&copy; <span id="currentYear">2026</span> CESC. Todos os direitos reservados.</p>
+            <p>Desenvolvido por <a href="#">TCLabs</a></p>
+        </div>
+    </footer>
+
+    <!-- Caminho do JS ajustado -->
+    <script src="../scripts/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+Aplicar o sistema de codigo de erro ao rejeitar a candidatura
+0 - rejeitado sem possibilidade de racandidatura nesse mesmo ano
+1 - rejeitado com possibilidade de recandidatura (útil para user actualizar um documento corrompido, mal enviado, ilegivel)
+tanto na secretária como no painel do candidato, incluir o número de rejeição com o motivo (por ano,não juntar tudo)
+actualizar a ui do candidato na secção de documentos, o botão está num card especifico deve estar no global para não confundir o user
+a rencandidatura não deve ser automática (como acontece agora) deve depender do código da rejeição e deve ter um botão explicito Recanditar.
+remover os dialos(prompt) no painel do candidato...
+optimizar a dectecao de analise do candidato, actualmente ele só reage a clicar em ver, regeitar , aprovar e cancelar... mas se secretárialo mudar de seccao, actualizar a pagina sair do site por um tempo indeterminado clicar novamente e ver (isso fecha a leitura), não são considerados
+_______
+Os documentos são enviados independentemente da rejeição e eles sempre ponhem pendente a candidatura, tem que se resolver, para além disso usam o prompt para mensagem...
+no termos de carregamentos de imagem só deveria ter texto indicando que esta a ser carregado e não um dialogo bloqueante, e disse a recandidatura deve ser explicita já existe um botão para isso então enviar (actualizar) doc não é o mesmo que recandidatar

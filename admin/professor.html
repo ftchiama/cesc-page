@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área do Professor — CESC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="css/professor.css">
+</head>
+<body class="dashboard-body">
+
+    <!-- Overlay para mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-topo">
+            <div class="sidebar-logo">
+                <div class="logo-icone"><i class="fas fa-graduation-cap"></i></div>
+                <div class="logo-texto">
+                    <span class="logo-nome">CESC</span>
+                    <span class="logo-sub">Área do Professor</span>
+                </div>
+            </div>
+            <button class="sidebar-fechar" id="sidebarFechar"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="sidebar-perfil">
+            <div class="perfil-avatar" id="prof-avatar">-</div>
+            <div class="perfil-info">
+                <strong id="prof-nome-sidebar">A carregar...</strong>
+                <span id="prof-dept-sidebar">-</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <span class="nav-rotulo">Menu</span>
+            <a href="#" class="nav-item ativo" data-seccao="visao-geral">
+                <i class="fas fa-home"></i> Visão Geral
+            </a>
+            <a href="#" class="nav-item" data-seccao="turmas">
+                <i class="fas fa-chalkboard-teacher"></i> Minhas Turmas
+            </a>
+            <a href="#" class="nav-item" data-seccao="notas">
+                <i class="fas fa-edit"></i> Lançar Notas
+            </a>
+            <a href="#" class="nav-item" data-seccao="faltas">
+                <i class="fas fa-user-clock"></i> Marcar Faltas
+            </a>
+            <a href="#" class="nav-item" data-seccao="perfil">
+                <i class="fas fa-user"></i> Perfil
+            </a>
+        </nav>
+
+        <div class="sidebar-rodape">
+            <a href="../index.html" class="nav-item"><i class="fas fa-globe"></i> Voltar ao site</a>
+            <a href="#" class="nav-item nav-sair" id="link-sair"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        </div>
+    </aside>
+
+    <!-- Conteúdo -->
+    <main class="dashboard-main">
+        <header class="dashboard-header-mobile">
+            <button class="menu-mobile-btn" id="menuMobileBtn"><i class="fas fa-bars"></i></button>
+            <span>CESC · Professor</span>
+            <a href="../index.html" class="header-voltar"><i class="fas fa-globe"></i></a>
+        </header>
+
+        <div class="loader-container" id="loader">
+            <div class="loader"></div>
+            <p>A carregar os teus dados...</p>
+        </div>
+
+        <div class="dashboard-conteudo" id="dashboard-conteudo" style="display:none;">
+
+            <!-- VISÃO GERAL -->
+            <section class="pagina-seccao ativa" id="seccao-visao-geral">
+                <div class="pagina-cabecalho">
+                    <h1>Visão Geral</h1>
+                    <p id="boas-vindas">Bem-vindo de volta.</p>
+                </div>
+
+                <div class="stats-grelha">
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-chalkboard-teacher"></i> Turmas</div>
+                        <div class="stat-valor" id="stat-turmas">0</div>
+                        <div class="stat-subtexto">que lecionas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-users"></i> Alunos</div>
+                        <div class="stat-valor" id="stat-alunos">0</div>
+                        <div class="stat-subtexto">total nas tuas turmas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-edit"></i> Notas Lançadas</div>
+                        <div class="stat-valor" id="stat-notas">0</div>
+                        <div class="stat-subtexto">nas tuas disciplinas</div>
+                    </div>
+                </div>
+
+                <div class="card-info">
+                    <h3><i class="fas fa-chalkboard-teacher"></i> As tuas turmas</h3>
+                    <div id="lista-turmas-visao-geral"></div>
+                </div>
+            </section>
+
+            <!-- MINHAS TURMAS -->
+            <section class="pagina-seccao" id="seccao-turmas">
+                <div class="pagina-cabecalho">
+                    <h1>Minhas Turmas</h1>
+                    <p>Turmas e disciplinas que lecionas.</p>
+                </div>
+                <div id="lista-turmas" class="turmas-grelha"></div>
+            </section>
+
+            <!-- LANÇAR NOTAS -->
+            <section class="pagina-seccao" id="seccao-notas">
+                <div class="pagina-cabecalho">
+                    <h1>Lançar Notas</h1>
+                    <p>Escolhe uma turma, disciplina e trimestre.</p>
+                </div>
+
+                <div class="notas-filtros">
+                    <div class="campo-grupo">
+                        <label for="sel-turma-notas">Turma</label>
+                        <select id="sel-turma-notas" class="campo-select"></select>
+                    </div>
+                    <div class="campo-grupo">
+                        <label for="sel-trimestre">Trimestre</label>
+                        <select id="sel-trimestre" class="campo-select">
+                            <option value="1">1º Trimestre</option>
+                            <option value="2">2º Trimestre</option>
+                            <option value="3">3º Trimestre</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="notas-info" class="notas-info" style="display:none;"></div>
+                <div id="tabela-notas" class="tabela-notas-wrapper"></div>
+            </section>
+
+            <!-- MARCAR FALTAS -->
+            <section class="pagina-seccao" id="seccao-faltas">
+                <div class="pagina-cabecalho">
+                    <h1>Marcar Faltas</h1>
+                    <p>Escolhe uma turma e regista faltas.</p>
+                </div>
+
+                <div class="notas-filtros">
+                    <div class="campo-grupo">
+                        <label for="sel-turma-faltas">Turma</label>
+                        <select id="sel-turma-faltas" class="campo-select"></select>
+                    </div>
+                </div>
+
+                <div id="tabela-faltas" class="tabela-notas-wrapper"></div>
+            </section>
+
+            <!-- PERFIL -->
+            <section class="pagina-seccao" id="seccao-perfil">
+                <div class="pagina-cabecalho">
+                    <h1>O Meu Perfil</h1>
+                    <p>Os teus dados registados no CESC.</p>
+                </div>
+                <div id="lista-perfil"></div>
+            </section>
+
+        </div>
+    </main>
+
+    <script src="../scripts/api.js"></script>
+    <script src="scripts/professor.js"></script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+/*
+ Autor: Francisco Tchiama
+ Companhia: TCLabs
+ Data: 18/10/2026
+ Versão: 1.0
+ Descrição:
+ Estilos exclusivos da página inicial (index.html).
+ Contém o Hero, o carrossel de Destaques e a grelha do Calendário.
+
+ Como faz:
+ - O Hero tem um padding superior para compensar o header fixo.
+ - O carrossel usa overflow-x: auto e width: max-content para scroll lateral.
+ - Os cartões têm largura fixa (320px) para manter a uniformidade no carrossel.
+ - A grelha do calendário usa CSS Grid (auto-fit, minmax).
+
+ Porque faz:
+ - Isola os estilos da Home dos estilos das páginas internas.
+ - Permite ajustar o layout da Home sem quebrar as outras páginas.
+*/
+
+.hero { padding: 160px 0 80px; background: linear-gradient(180deg, #ffffff 0%, var(--cor-fundo) 100%); border-bottom: 1px solid var(--cor-borda); text-align: center; }
+.hero-etiqueta { display: inline-block; padding: 6px 16px; background-color: rgba(217, 119, 6, 0.1); color: var(--cor-dourado); border: 1px solid rgba(217, 119, 6, 0.2); border-radius: 50px; font-size: 0.8rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 24px; }
+.hero-titulo { font-family: var(--fonte-titulos); font-size: 3rem; color: var(--cor-azul); line-height: 1.1; margin-bottom: 20px; }
+.hero-subtitulo { font-size: 1.1rem; color: var(--cor-texto-suave); max-width: 600px; margin: 0 auto; }
+
+/* Carrossel de Destaques */
+.carrossel-container { overflow-x: auto; padding-bottom: 24px; scrollbar-width: thin; }
+.carrossel-container::-webkit-scrollbar { height: 6px; }
+.carrossel-container::-webkit-scrollbar-track { background: var(--cor-fundo); border-radius: 10px; }
+.carrossel-container::-webkit-scrollbar-thumb { background: var(--cor-borda); border-radius: 10px; }
+.carrossel-track { display: flex; gap: 20px; width: max-content; }
+
+.cartao-aviso { display: flex; flex-direction: column; gap: 16px; background-color: var(--cor-fundo-alt); border: 1px solid var(--cor-borda); border-radius: var(--raio); padding: 24px; width: 320px; flex-shrink: 0; transition: border-color 0.2s, box-shadow 0.2s; }
+.cartao-aviso:hover { border-color: var(--cor-azul-claro); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+.aviso-data { display: inline-flex; align-items: center; gap: 8px; background-color: rgba(30, 58, 138, 0.05); color: var(--cor-azul); border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; width: fit-content; }
+.aviso-data span { font-size: 1.2rem; font-weight: 800; line-height: 1; }
+.aviso-info h3 { font-size: 1.1rem; color: var(--cor-azul); margin-bottom: 8px; }
+.aviso-info p { color: var(--cor-texto-suave); font-size: 0.9rem; margin-bottom: 16px; }
+.aviso-tag { display: inline-block; padding: 4px 10px; background-color: var(--cor-fundo); border: 1px solid var(--cor-borda); border-radius: 50px; font-size: 0.7rem; font-weight: 600; color: var(--cor-texto-suave); }
+
+/* Calendário */
+.grelha-calendario { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.evento { display: flex; gap: 16px; background-color: var(--cor-fundo-alt); border: 1px solid var(--cor-borda); border-radius: var(--raio); padding: 20px; align-items: center; }
+.evento-data { display: flex; flex-direction: column; align-items: center; color: var(--cor-dourado); font-weight: 600; min-width: 50px; }
+.evento-data span { font-size: 1.4rem; font-weight: 800; color: var(--cor-azul); }
+.evento-info h4 { color: var(--cor-azul); font-size: 1rem; }
+.evento-info p { font-size: 0.85rem; color: var(--cor-texto-suave); }
+
+@media (max-width: 768px) {
+    .hero { padding: 120px 0 60px; }
+    .hero-titulo { font-size: 2.2rem; }
+    .seccao-cabecalho-flex { flex-direction: column; align-items: flex-start; gap: 16px; }
+}
+/* ============================================================
+   Hero — Botões de acção
+   ============================================================ */
+.hero-acoes {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 28px;
+    flex-wrap: wrap;
+}
+
+/* ============================================================
+   Card clicável (Inscrições)
+   ============================================================ */
+.cartao-aviso-link {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.cartao-aviso-link:hover {
+    border-color: var(--cor-azul-claro);
+    box-shadow: 0 6px 18px rgba(30, 58, 138, 0.12);
+    transform: translateY(-2px);
+}
+
+.cartao-aviso-link .aviso-info h3 {
+    color: var(--cor-azul);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .hero-acoes {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .hero-acoes .botao-primario,
+    .hero-acoes .botao-secundario {
+        width: 100%;
+        justify-content: center;
+    }
+}

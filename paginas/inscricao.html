@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscrição — CESC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CAMINHOS CORRIGIDOS AQUI -->
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/inscricao.css">
+</head>
+<body class="inscricao-body">
+
+    <div class="inscricao-container">
+
+        <!-- Cabeçalho -->
+        <header class="inscricao-header">
+    <div class="inscricao-logo">
+        <div class="logo-icone"><i class="fas fa-graduation-cap"></i></div>
+        <div class="logo-texto">
+            <span class="logo-nome">CESC</span>
+            <span class="logo-sub">Inscrição</span>
+        </div>
+    </div>
+    
+    <a href="../index.html" class="inscricao-voltar">
+        <i class="fas fa-arrow-left"></i> Voltar ao site
+    </a>
+</header>
+        <!-- Intro (mostrado antes de começar) -->
+        <div class="inscricao-card" id="inscricao-intro">
+            <h1>Inscrição de Novo Aluno</h1>
+            <p class="inscricao-intro-texto">
+                Preenche o formulário abaixo para te inscreveres no Complexo Escolar Santa Catarina.
+                O processo tem <strong>5 passos</strong> e leva cerca de <strong>10 minutos</strong>.
+            </p>
+
+            <div class="inscricao-aviso">
+                <i class="fas fa-info-circle"></i>
+                <div>
+                    <strong>Antes de começares, tens de ter:</strong>
+                    <ul>
+                        <li>O <strong>BI do aluno</strong> (frente e verso) para fotografar</li>
+                        <li>O <strong>certificado de notas</strong> do ano anterior</li>
+                        <li>Uma <strong>foto tipo-passe</strong> recente do aluno</li>
+                        <li>O <strong>nome e contacto do encarregado</strong></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="inscricao-acoes-intro">
+                <button class="botao-primario" id="btn-comecar">
+                    <i class="fas fa-play"></i> Começar inscrição
+                </button>
+                <a href="consultar-inscricao.html" class="botao-secundario">
+                    <i class="fas fa-search"></i> Já me inscrevi — consultar estado
+                </a>
+            </div>
+            <div class="botao-secundario">
+             <p>Já me candidatei <a href="candidato-login.html">Aceder ao meu painel</a></p>
+           </div>
+        </div>
+
+        <!-- Formulário (escondido até clicar em Começar) -->
+        <div class="inscricao-card" id="inscricao-form" style="display:none;">
+
+            <!-- Barra de progresso -->
+            <div class="passos-barra">
+                <div class="passo ativo" data-passo="1">
+                    <span class="passo-numero">1</span>
+                    <span class="passo-label">Aluno</span>
+                </div>
+                <div class="passo" data-passo="2">
+                    <span class="passo-numero">2</span>
+                    <span class="passo-label">Encarregado</span>
+                </div>
+                <div class="passo" data-passo="3">
+                    <span class="passo-numero">3</span>
+                    <span class="passo-label">Documentos</span>
+                </div>
+                <div class="passo" data-passo="4">
+                    <span class="passo-numero">4</span>
+                    <span class="passo-label">Inscrição</span>
+                </div>
+                <div class="passo" data-passo="5">
+                    <span class="passo-numero">5</span>
+                    <span class="passo-label">Revisão</span>
+                </div>
+            </div>
+
+            <!-- PASSO 1 -->
+<div class="passo-conteudo ativo" id="passo-1">
+    <h2><i class="fas fa-user-graduate"></i> Dados do Aluno</h2>
+    <p class="passo-ajuda">Preenche com os dados exactamente como constam no BI do aluno.</p>
+
+    <div class="campo-grupo">
+        <label for="al-bi">Número do BI *</label>
+        <input type="text" id="al-bi" placeholder="000123456LA041" maxlength="14" autocomplete="off">
+        <small class="campo-dica">Formato: 9 dígitos + 2 letras + 3 dígitos</small>
+        <span class="campo-erro" id="erro-al-bi"></span>
+    </div>
+
+    <div class="campo-grupo">
+        <label for="al-nome">Nome completo *</label>
+        <input type="text" id="al-nome" placeholder="Nome completo do aluno" autocomplete="off">
+        <span class="campo-erro" id="erro-al-nome"></span>
+    </div>
+
+    <div class="linha-2-col">
+        <div class="campo-grupo">
+            <label for="al-data-nasc">Data de nascimento *</label>
+            <input type="date" id="al-data-nasc">
+            <span class="campo-erro" id="erro-al-data-nasc"></span>
+        </div>
+        <div class="campo-grupo">
+            <label for="al-genero">Género *</label>
+            <select id="al-genero">
+                <option value="">—</option>
+                <option value="M">Masculino</option>
+                <option value="F">Feminino</option>
+            </select>
+            <span class="campo-erro" id="erro-al-genero"></span>
+        </div>
+    </div>
+
+    <div class="campo-grupo">
+        <label for="al-telefone">Telefone do aluno *</label>
+        <input type="tel" id="al-telefone" placeholder="+244 900 000 000" autocomplete="off">
+        <span class="campo-erro" id="erro-al-telefone"></span>
+    </div>
+
+    <!-- NOVO: Email obrigatório e com verificação -->
+    <div class="campo-grupo" style="background: var(--cor-fundo); padding: 16px; border-radius: 10px; border: 1px solid var(--cor-borda); margin-top: 16px;">
+        <label for="al-email" style="color: var(--cor-azul);">O seu Email*</label>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+            <input type="email" id="al-email" placeholder="meuemail@gmail.com" autocomplete="off" style="flex: 1;">
+            <button class="botao-secundario" id="btn-enviar-codigo-email" style="white-space: nowrap; padding: 10px 14px;">Verificar</button>
+        </div>
+        <span class="campo-erro" id="erro-al-email"></span>
+        
+        <!-- Área do código (escondida até clicar em Verificar) -->
+        <div id="area-codigo-email" style="display:none; margin-top: 12px; border-top: 1px dashed var(--cor-borda); padding-top: 12px;">
+    <p style="font-size: 0.85rem; color: var(--cor-texto-suave); margin-bottom: 8px;">
+        Enviámos um código de 6 dígitos para o seu email. Insere-o abaixo.
+    </p>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <input type="text" id="al-codigo-email" placeholder="000000" maxlength="6" style="flex: 1; min-width: 120px; text-align: center; letter-spacing: 4px; font-weight: bold;">
+        <button class="botao-primario" id="btn-validar-codigo-email" style="white-space: nowrap; padding: 10px 14px;">Confirmar</button>
+        <button class="botao-secundario" id="btn-reenviar-codigo" style="white-space: nowrap; padding: 10px 14px; display: none;">Reenviar código</button>
+    </div>
+    <span class="campo-erro" id="erro-al-codigo-email"></span>
+</div>
+        
+    </div>
+</div>
+
+            <!-- PASSO 2 -->
+            <div class="passo-conteudo" id="passo-2">
+                <h2><i class="fas fa-users"></i> Dados do Encarregado</h2>
+                <p class="passo-ajuda">Pessoa responsável pelo aluno (pai, mãe ou tutor).</p>
+
+                <div class="campo-grupo">
+                    <label for="enc-nome">Nome completo do encarregado *</label>
+                    <input type="text" id="enc-nome" placeholder="Nome completo" autocomplete="off">
+                    <span class="campo-erro" id="erro-enc-nome"></span>
+                </div>
+
+                <div class="linha-2-col">
+                    <div class="campo-grupo">
+                        <label for="enc-parentesco">Parentesco *</label>
+                        <select id="enc-parentesco">
+                            <option value="">—</option>
+                            <option value="Pai">Pai</option>
+                            <option value="Mãe">Mãe</option>
+                            <option value="Tutor">Tutor / Outro familiar</option>
+                        </select>
+                        <span class="campo-erro" id="erro-enc-parentesco"></span>
+                    </div>
+                    <div class="campo-grupo">
+                        <label for="enc-telefone">Telefone *</label>
+                        <input type="tel" id="enc-telefone" placeholder="+244 900 000 000" autocomplete="off">
+                        <span class="campo-erro" id="erro-enc-telefone"></span>
+                    </div>
+                </div>
+
+                <div class="campo-grupo">
+                    <label for="enc-bi">BI do encarregado (opcional)</label>
+                    <input type="text" id="enc-bi" placeholder="000123456LA041" maxlength="14" autocomplete="off">
+                    <span class="campo-erro" id="erro-enc-bi"></span>
+                </div>
+
+                <div class="campo-grupo">
+                    <label for="enc-endereco">Endereço (opcional)</label>
+                    <textarea id="enc-endereco" rows="2" placeholder="Bairro, rua, referência..."></textarea>
+                </div>
+            </div>
+
+            <!-- PASSO 3 -->
+            <div class="passo-conteudo" id="passo-3">
+                <h2><i class="fas fa-file-upload"></i> Documentos</h2>
+                <p class="passo-ajuda">Fotografa ou digitaliza os documentos. As imagens serão comprimidas automaticamente.</p>
+
+                <div class="upload-item" data-upload="bi_frente">
+                    <div class="upload-icon"><i class="fas fa-id-card"></i></div>
+                    <div class="upload-info">
+                        <strong>BI do aluno — Frente *</strong>
+                        <span class="upload-ajuda">JPG, PNG ou PDF, máx 5 MB</span>
+                    </div>
+                    <input type="file" class="upload-input" accept="image/jpeg,image/png,application/pdf" data-tipo="bi_frente">
+                    <div class="upload-status" id="status-bi_frente">Selecionar</div>
+                </div>
+
+                <div class="upload-item" data-upload="bi_verso">
+                    <div class="upload-icon"><i class="fas fa-id-card"></i></div>
+                    <div class="upload-info">
+                        <strong>BI do aluno — Verso *</strong>
+                        <span class="upload-ajuda">JPG, PNG ou PDF, máx 5 MB</span>
+                    </div>
+                    <input type="file" class="upload-input" accept="image/jpeg,image/png,application/pdf" data-tipo="bi_verso">
+                    <div class="upload-status" id="status-bi_verso">Selecionar</div>
+                </div>
+
+                <div class="upload-item" data-upload="certificado">
+                    <div class="upload-icon"><i class="fas fa-scroll"></i></div>
+                    <div class="upload-info">
+                        <strong>Certificado de notas *</strong>
+                        <span class="upload-ajuda">JPG, PNG ou PDF, máx 10 MB</span>
+                    </div>
+                    <input type="file" class="upload-input" accept="image/jpeg,image/png,application/pdf" data-tipo="certificado">
+                    <div class="upload-status" id="status-certificado">Selecionar</div>
+                </div>
+
+                <div class="upload-item" data-upload="foto">
+                    <div class="upload-icon"><i class="fas fa-camera"></i></div>
+                    <div class="upload-info">
+                        <strong>Foto tipo-passe *</strong>
+                        <span class="upload-ajuda">JPG ou PNG, máx 2 MB</span>
+                    </div>
+                    <input type="file" class="upload-input" accept="image/jpeg,image/png" data-tipo="foto">
+                    <div class="upload-status" id="status-foto">Selecionar</div>
+                </div>
+
+                <div class="aviso-privacidade">
+                    <i class="fas fa-lock"></i>
+                    <span>Os documentos são guardados em segurança e só a secretaria tem acesso.</span>
+                </div>
+            </div>
+
+<!-- PASSO 4 -->
+<div class="passo-conteudo" id="passo-4">
+    <h2><i class="fas fa-clipboard-check"></i> Dados de Inscrição</h2>
+    <p class="passo-ajuda">Em que classe e curso o aluno se quer inscrever.</p>
+
+    <div class="campo-grupo">
+        <label for="ins-classe">Classe pretendida *</label>
+        <select id="ins-classe">
+            <option value="">— Escolhe —</option>
+            <option value="7ª Classe">7ª Classe</option>
+            <option value="8ª Classe">8ª Classe</option>
+            <option value="9ª Classe">9ª Classe</option>
+            <option value="10ª Classe">10ª Classe</option>
+            <option value="11ª Classe">11ª Classe</option>
+            <option value="12ª Classe">12ª Classe</option>
+        </select>
+        <span class="campo-erro" id="erro-ins-classe"></span>
+    </div>
+
+    <div class="campo-grupo">
+        <label for="ins-curso">Curso pretendido</label>
+        <select id="ins-curso">
+            <option value="">— Escolhe —</option>
+            <option value="Informática">Informática</option>
+            <option value="Electrónica">Electrónica</option>
+            <option value="Contabilidade">Contabilidade</option>
+            <option value="Gestão">Gestão</option>
+        </select>
+    </div>
+    
+    <div class="campo-grupo">
+         <label for="ins-media">Média do Certificado (0 a 20)</label>
+         <input type="number" id="ins-media" step="0.1" min="0" max="20" placeholder="Ex: 14.5">
+         <span class="campo-erro" id="erro-ins-media"></span>
+   </div>
+   
+   <!-- CAMPO DO ANO LETIVO REMOVIDO AQUI -->
+
+    <div class="campo-grupo">
+        <label for="ins-como-soube">Como soubeste da escola?</label>
+        <select id="ins-como-soube">
+            <option value="">— Escolhe —</option>
+            <option value="Familiar/Amigo">Familiar ou amigo</option>
+            <option value="Internet">Internet / Redes sociais</option>
+            <option value="Já estudei aqui">Já estudei aqui</option>
+            <option value="Passava na rua">Passava na rua</option>
+            <option value="Outro">Outro</option>
+        </select>
+    </div>
+</div>
+            <!-- PASSO 5 -->
+            <div class="passo-conteudo" id="passo-5">
+                <h2><i class="fas fa-check-double"></i> Revisão</h2>
+                <p class="passo-ajuda">Verifica se está tudo correcto antes de submeter.</p>
+
+                <div class="revisao-seccao">
+                    <h3><i class="fas fa-user-graduate"></i> Aluno</h3>
+                    <div id="revisao-aluno"></div>
+                </div>
+
+                <div class="revisao-seccao">
+                    <h3><i class="fas fa-users"></i> Encarregado</h3>
+                    <div id="revisao-encarregado"></div>
+                </div>
+
+                <div class="revisao-seccao">
+                    <h3><i class="fas fa-file-upload"></i> Documentos</h3>
+                    <div id="revisao-documentos"></div>
+                </div>
+
+                <div class="revisao-seccao">
+                    <h3><i class="fas fa-clipboard-check"></i> Inscrição</h3>
+                    <div id="revisao-inscricao"></div>
+                </div>
+
+                <div class="termos-box">
+                    <label class="termos-label">
+                        <input type="checkbox" id="aceito-termos">
+                        <span>
+                            Confirmo que os dados fornecidos são verdadeiros e que o CESC pode
+                            processá-los para fins de inscrição.
+                        </span>
+                    </label>
+                    <span class="campo-erro" id="erro-termos"></span>
+                </div>
+            </div>
+
+            <!-- Navegação entre passos -->
+            <div class="passos-navegacao">
+                <button class="botao-secundario" id="btn-voltar-passo" style="display:none;">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </button>
+                <button class="botao-primario" id="btn-proximo-passo">
+                    Próximo <i class="fas fa-arrow-right"></i>
+                </button>
+                <button class="botao-primario" id="btn-submeter" style="display:none;">
+                <i class="fas fa-paper-plane"></i> Submeter e Pagar 1.000 Kz
+                </button>
+            </div>
+
+            <div id="submissao-status" class="submissao-status" style="display:none;"></div>
+        </div>
+
+        <!-- Ecrã de sucesso -->
+        <div class="inscricao-card" id="inscricao-sucesso" style="display:none;">
+            <div class="sucesso-icone"><i class="fas fa-check-circle"></i></div>
+            <h1>Inscrição submetida!</h1>
+            <p class="sucesso-texto">
+                A tua inscrição foi recebida com sucesso. Guarda a referência abaixo —
+                vais precisar dela para consultar o estado da candidatura.
+            </p>
+
+            <div class="referencia-box">
+                <span class="referencia-label">Número de Referência</span>
+                <span class="referencia-numero" id="referencia-final">—</span>
+            </div>
+
+            <div class="sucesso-info">
+                <p>
+                    <i class="fas fa-clock"></i>
+                    A secretaria vai analisar a tua inscrição. Podes consultar o estado a qualquer momento.
+                </p>
+            </div>
+
+            <div class="inscricao-acoes-intro">
+                <a href="candidato-login.html" class="botao-primario">
+                <i class="fas fa-user-clock"></i> A Minha Candidatura
+                </a>
+                <a href="../index.html" class="botao-secundario">
+                <i class="fas fa-home"></i> Voltar ao site
+             </a>
+          </div>
+        </div>
+        
+    </div>
+
+    <script src="../scripts/api.js"></script>
+    <script src="../scripts/inscricao.js"></script>
+</body>
+</html>

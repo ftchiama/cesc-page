@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complexo Escolar Santa Catarina (CESC)</title>
+    <meta name="description" content="Portal oficial do Complexo Escolar Santa Catarina. Inscrições abertas, destaques, calendário escolar e biblioteca digital.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/home.css">
+</head>
+<body>
+
+    <!-- Cabeçalho -->
+    <header class="cabecalho">
+        <div class="container cabecalho-conteudo">
+            <a href="index.html" class="logo">
+                <div class="logo-icone"><i class="fas fa-graduation-cap"></i></div>
+                <div class="logo-texto">
+                    <span class="logo-nome">CESC</span>
+                    <span class="logo-sub">Santa Catarina</span>
+                </div>
+            </a>
+
+            <nav class="menu-desktop">
+                <a href="index.html" class="ativo">Início</a>
+                <a href="paginas/biblioteca.html">Biblioteca</a>
+                <a href="paginas/sobre.html">O Complexo</a>
+                <a href="paginas/contacto.html">Contacto</a>
+                <a href="paginas/inscricao.html" class="botao-primario" style="padding: 8px 16px;">Inscrever-se</a>
+                <a href="paginas/login.html" class="botao-secundario" style="padding: 8px 16px;">Área Reservada</a>
+            </nav>
+
+            <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Menu Mobile -->
+    <div class="menu-mobile-overlay" id="menuOverlay"></div>
+    <aside class="menu-mobile" id="menuMobile">
+        <div class="menu-mobile-topo">
+            <span>Menu</span>
+            <button id="menuFechar"><i class="fas fa-times"></i></button>
+        </div>
+        <nav class="menu-mobile-links">
+            <a href="index.html">Início</a>
+            <a href="paginas/biblioteca.html">Biblioteca Digital</a>
+            <a href="paginas/sobre.html">O Complexo</a>
+            <a href="paginas/contacto.html">Contacto</a>
+            <a href="paginas/inscricao.html" class="botao-primario" style="margin-top: 16px; text-align: center;">Inscrever-se</a>
+            <a href="paginas/login.html" class="botao-secundario" style="margin-top: 8px; text-align: center;">Área Reservada</a>
+        </nav>
+    </aside>
+
+    <main>
+        <!-- Hero -->
+        <section class="hero">
+            <div class="container hero-conteudo">
+                <span class="hero-etiqueta">Inscrições Abertas 2026/2027</span>
+                <h1 class="hero-titulo">Complexo Escolar<br>Santa Catarina.</h1>
+                <p class="hero-subtitulo">
+                    Formando o futuro com dedicação. Inscreve-te online, consulta o calendário escolar
+                    e explora a nossa biblioteca digital.
+                </p>
+                <div class="hero-acoes">
+                    <a href="paginas/inscricao.html" class="botao-primario">
+                        <i class="fas fa-user-plus"></i> Inscrever novo aluno
+                    </a>
+                    <a href="paginas/consultar-inscricao.html" class="botao-secundario">
+                        <i class="fas fa-search"></i> Consultar inscrição
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Destaques da Escola -->
+        <section class="seccao">
+            <div class="container">
+                <div class="seccao-cabecalho-flex">
+                    <div>
+                        <span class="seccao-etiqueta">Fique a par</span>
+                        <h2 class="seccao-titulo">Destaques da Escola</h2>
+                    </div>
+                </div>
+
+                <div class="carrossel-container">
+                    <div class="carrossel-track">
+                        <a href="paginas/inscricao.html" class="cartao-aviso cartao-aviso-link">
+                            <div class="aviso-data"><span>15</span> Out</div>
+                            <div class="aviso-info">
+                                <h3>Inscrições Abertas para 2026/2027</h3>
+                                <p>Clica aqui para te inscreveres online. Processo 100% digital.</p>
+                                <span class="aviso-tag">Inscrições</span>
+                            </div>
+                        </a>
+                        <article class="cartao-aviso">
+                            <div class="aviso-data"><span>12</span> Out</div>
+                            <div class="aviso-info">
+                                <h3>Aluna do CESC Vence Concurso</h3>
+                                <p>Parabéns à aluna Maria Silva, do 12º ano, que representará a província.</p>
+                                <span class="aviso-tag">Feitos Notáveis</span>
+                            </div>
+                        </article>
+                        <article class="cartao-aviso">
+                            <div class="aviso-data"><span>05</span> Out</div>
+                            <div class="aviso-info">
+                                <h3>Entrega de Certificados</h3>
+                                <p>A cerimónia de entrega dos certificados aos finalistas será no auditório.</p>
+                                <span class="aviso-tag">Evento</span>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Calendário Resumido -->
+        <section class="seccao seccao-alt">
+            <div class="container">
+                <div class="seccao-cabecalho">
+                    <span class="seccao-etiqueta">Datas Importantes</span>
+                    <h2 class="seccao-titulo">Calendário Escolar</h2>
+                </div>
+                <div class="grelha-calendario">
+                    <div class="evento">
+                        <div class="evento-data"><span>18</span> Out</div>
+                        <div class="evento-info">
+                            <h4>Início das Aulas</h4>
+                            <p>2º Trimestre letivo.</p>
+                        </div>
+                    </div>
+                    <div class="evento">
+                        <div class="evento-data"><span>25</span> Out</div>
+                        <div class="evento-info">
+                            <h4>Reunião de Pais</h4>
+                            <p>Entrega de notas e planificação.</p>
+                        </div>
+                    </div>
+                    <div class="evento">
+                        <div class="evento-data"><span>15</span> Nov</div>
+                        <div class="evento-info">
+                            <h4>Exames Nacionais</h4>
+                            <p>Início da época de exames.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="rodape">
+        <div class="container rodape-base">
+            <p>&copy; <span id="currentYear">2026</span> Complexo Escolar Santa Catarina. Todos os direitos reservados.</p>
+            <p>Desenvolvido por <a href="#">TCLabs</a></p>
+        </div>
+    </footer>
+
+    <script src="scripts/main.js"></script>
+</body>
+</html>

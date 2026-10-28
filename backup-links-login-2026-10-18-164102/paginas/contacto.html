@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto - CESC</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/paginas.css">
+</head>
+<body>
+    <!--
+     Autor: Francisco Tchiama
+     Companhia: TCLabs
+     Data: 18/10/2026
+     Versão: 1.0
+     Descrição:
+     Página de contactos com a secretaria e localização da escola.
+    
+     Como faz:
+     - Apresenta os contactos directos (telefone, email, morada).
+     - (Futuro) Incluirá um formulário simples que abre o WhatsApp da secretaria.
+    
+     Porque faz:
+     - Facilita a comunicação de pais e encarregados de educação com a instituição.
+    -->
+
+    <header class="cabecalho">
+        <div class="container cabecalho-conteudo">
+            <a href="../index.html" class="logo">
+                <div class="logo-icone"><i class="fas fa-graduation-cap"></i></div>
+                <div class="logo-texto">
+                    <span class="logo-nome">CESC</span>
+                    <span class="logo-sub">Santa Catarina</span>
+                </div>
+            </a>
+
+            <nav class="menu-desktop">
+                <a href="../index.html">Início</a>
+                <a href="biblioteca.html">Biblioteca</a>
+                <a href="sobre.html">O Complexo</a>
+                <a href="contacto.html" class="ativo">Contacto</a>
+                <a href="#" class="botao-secundario" style="padding: 8px 16px;">Área Reservada</a>
+            </nav>
+
+            <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="menu-mobile-overlay" id="menuOverlay"></div>
+    <aside class="menu-mobile" id="menuMobile">
+        <div class="menu-mobile-topo">
+            <span>Menu</span>
+            <button id="menuFechar"><i class="fas fa-times"></i></button>
+        </div>
+        <nav class="menu-mobile-links">
+            <a href="../index.html">Início</a>
+            <a href="biblioteca.html">Biblioteca Digital</a>
+            <a href="sobre.html">O Complexo</a>
+            <a href="contacto.html">Contacto</a>
+            <a href="#" class="botao-secundario" style="margin-top: 16px; text-align: center;">Área Reservada</a>
+        </nav>
+    </aside>
+
+    <main>
+        <section class="seccao" style="padding-top: 140px; min-height: 80vh;">
+            <div class="container">
+                <div class="seccao-cabecalho">
+                    <span class="seccao-etiqueta">Estamos aqui para ajudar</span>
+                    <h1 class="seccao-titulo">Entre em Contacto</h1>
+                    <p class="seccao-texto">Para informações sobre matrículas, horários ou outros assuntos, contacte a secretaria.</p>
+                </div>
+
+                <div class="contacto-grelha">
+                    <div class="contacto-cartao">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h3>Endereço</h3>
+                        <p>Cabinda, Angola<br>Bairro [Nome do Bairro]</p>
+                    </div>
+                    <div class="contacto-cartao">
+                        <i class="fas fa-phone-alt"></i>
+                        <h3>Telefone</h3>
+                        <p>+244 9XX XXX XXX<br>+244 9XX XXX XXX</p>
+                    </div>
+                    <div class="contacto-cartao">
+                        <i class="fas fa-envelope"></i>
+                        <h3>Email</h3>
+                        <p>secretaria@cesc.ao</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="rodape">
+        <div class="container rodape-base">
+            <p>&copy; <span id="currentYear">2026</span> CESC. Todos os direitos reservados.</p>
+            <p>Desenvolvido por <a href="#">TCLabs</a></p>
+        </div>
+    </footer>
+
+    <script src="../scripts/main.js"></script>
+</body>
+</html>

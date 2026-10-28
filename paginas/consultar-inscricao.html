@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultar Inscrição — CESC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/inscricao.css">
+</head>
+<body class="inscricao-body">
+
+    <div class="inscricao-container">
+        <header class="inscricao-header">
+            <div class="inscricao-logo">
+                <div class="logo-icone"><i class="fas fa-graduation-cap"></i></div>
+                <div class="logo-texto">
+                    <span class="logo-nome">CESC</span>
+                    <span class="logo-sub">Consultar Inscrição</span>
+                </div>
+            </div>
+            <a href="../index.html" class="inscricao-voltar">
+                <i class="fas fa-arrow-left"></i> Voltar ao site
+            </a>
+        </header>
+
+        <div class="inscricao-card" id="consulta-form">
+            <h1>Consultar Inscrição</h1>
+            <p class="inscricao-intro-texto">
+                Insere a tua referência de inscrição e o BI para consultar o estado da tua candidatura.
+            </p>
+
+            <div class="campo-grupo">
+                <label for="consulta-ref">Número de Referência</label>
+                <input type="text" id="consulta-ref" placeholder="CESC-2026-00001" style="text-transform: uppercase;">
+                <span class="campo-erro" id="erro-consulta-ref"></span>
+            </div>
+
+            <div class="campo-grupo">
+                <label for="consulta-bi">Número do BI</label>
+                <input type="text" id="consulta-bi" placeholder="000123456LA041" maxlength="14">
+                <span class="campo-erro" id="erro-consulta-bi"></span>
+            </div>
+
+            <div class="inscricao-acoes-intro" style="margin-top: 24px;">
+                <button class="botao-primario" id="btn-consultar">
+                    <i class="fas fa-search"></i> Consultar
+                </button>
+            </div>
+        </div>
+
+        <!-- Resultado -->
+        <div class="inscricao-card" id="consulta-resultado" style="display:none;">
+            <h2 id="resultado-status-titulo" style="margin-bottom: 20px;">Estado da Inscrição</h2>
+            
+            <div class="referencia-box" style="margin-bottom: 20px;">
+                <span class="referencia-label">Referência</span>
+                <span class="referencia-numero" id="resultado-ref">—</span>
+            </div>
+
+            <div class="revisao-seccao">
+                <h3><i class="fas fa-user-graduate"></i> Aluno</h3>
+                <div id="resultado-aluno"></div>
+            </div>
+
+            <div class="revisao-seccao">
+                <h3><i class="fas fa-info-circle"></i> Estado</h3>
+                <div id="resultado-estado"></div>
+            </div>
+
+            <div class="inscricao-acoes-intro">
+                <button class="botao-secundario" id="btn-nova-consulta">
+                    <i class="fas fa-arrow-left"></i> Nova consulta
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/api.js"></script>
+    <script src="../scripts/consultar-inscricao.js"></script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar - CESC</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/auth.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/paginas.css">
+</head>
+<body>
+    <!--
+     Autor: Francisco Tchiama
+     Companhia: TCLabs
+     Data: 18/10/2026
+     Versão: 1.0
+     Descrição:
+     Página de login para alunos e professores do CESC.
+     Não tem registo público (apenas login).
+     
+     Como faz:
+     - Pede o email.
+     - Envia o código via API (Supabase/Render).
+     - Exibe o campo de código de 6 dígitos.
+     - Redireciona para o dashboard.
+    -->
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <div class="logo-icone"><i class="fas fa-graduation-cap"></i></div>
+                <h1>Área Reservada</h1>
+                <p>Acesso exclusivo para alunos e professores do CESC.</p>
+            </div>
+
+            <!-- Fase 1: Inserir Email -->
+            <div id="form-email">
+                <div class="campo-grupo">
+                    <label for="input-email">Email Institucional ou Pessoal</label>
+                    <input type="email" id="input-email" placeholder="ex: nome@email.com" autocomplete="email">
+                </div>
+                <button id="btn-enviar-codigo" class="botao-primario w-100">Receber Código de Acesso</button>
+                <p id="msg-erro-email" class="auth-erro"></p>
+            </div>
+
+            <!-- Fase 2: Inserir Código -->
+            <div id="form-codigo" style="display: none;">
+                <p class="auth-info">Enviamos um código de 6 dígitos para <strong id="email-mostrado"></strong>.</p>
+                <div class="campo-grupo">
+                    <label for="input-codigo">Código de Verificação</label>
+                    <input type="text" id="input-codigo" placeholder="000000" maxlength="6" inputmode="numeric">
+                </div>
+                <button id="btn-verificar-codigo" class="botao-primario w-100">Entrar no Sistema</button>
+                <button id="btn-voltar" class="botao-secundario w-100" style="margin-top: 8px;">Voltar</button>
+                <p id="msg-erro-codigo" class="auth-erro"></p>
+            </div>
+
+            <div class="auth-footer">
+                <p>Problemas com o acesso? <a href="contacto.html">Contacte a secretaria</a>.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/auth.js"></script>
+</body>
+</html>
