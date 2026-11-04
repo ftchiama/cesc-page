@@ -1,26 +1,11 @@
 /*
  CESC — Secretaria · Alunos
  Data: 04/11/2026
-
- - Lista de alunos com pesquisa e filtro por estado.
- - Cards de resumo por ano letivo (Total, Conta, Cursos, Classes).
- - Botão "Convidar Aluno" gera um link e envia por e-mail.
- - "Ver Detalhes" abre a ficha completa do aluno.
  */
 
 let alunosCache = [];
 let anoAtualAlunos = "";
 
-async function carregarAlunos() {
-    const token = obterToken();
-    if (!token) return;
-
-    const container = document.getElementById("lista-alunos-container");
-    container.innerHTML = '<div class="loader-container" style="min-height:180px;"><div class="loader"></div></div>';
-
-    const selAno = document.getElementById("filtro-alunos-ano");
-    
-    // 1. Definir ano padrão se não existir
 async function carregarAlunos() {
     const token = obterToken();
     if (!token) return;
@@ -85,10 +70,11 @@ async function carregarAlunos() {
     alunosCache = dados.alunos || [];
     aplicarFiltrosAlunos();
 }
+
 function renderizarCardsClasse(porClasse) {
     const container = document.getElementById("cards-por-classe");
     if (!porClasse || porClasse.length === 0) {
-        container.innerHTML = '<div class="estado-vazio" style="padding: 20px;">Sem dados de classes.</div>';
+        container.innerHTML = '<div class="estado-vazio" style="padding: 20px; grid-column: 1/-1;">Sem dados de classes para este ano.</div>';
         return;
     }
 
