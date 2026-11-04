@@ -1,9 +1,10 @@
 /*
  CESC — Secretaria · Alunos
  Data: 04/11/2026
+ 
  */
 
-let alunosCache = [];
+let alunosCacheLocal = [];
 let anoAtualAlunos = "";
 
 async function carregarAlunos() {
@@ -67,7 +68,7 @@ async function carregarAlunos() {
         return;
     }
 
-    alunosCache = dados.alunos || [];
+    alunosCacheLocal = dados.alunos || [];
     aplicarFiltrosAlunos();
 }
 
@@ -95,7 +96,7 @@ function aplicarFiltrosAlunos() {
     const termo = document.getElementById("filtro-alunos").value.trim().toLowerCase();
     const estado = document.getElementById("filtro-alunos-estado").value;
 
-    const filtrados = alunosCache.filter(function (a) {
+    const filtrados = alunosCacheLocal.filter(function (a) {
         const matchTexto = !termo || 
             (a.nome_completo || "").toLowerCase().indexOf(termo) !== -1
             || (a.bi_numero || "").toLowerCase().indexOf(termo) !== -1
