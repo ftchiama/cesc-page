@@ -1,0 +1,64 @@
+/*
+ Autor: Francisco Tchiama
+ Companhia: TCLabs
+ Data: 18/10/2026
+ Versão: 1.0
+ Descrição:
+ Estilos estruturais de navegação. Define o cabeçalho fixo, o menu desktop,
+ o menu mobile (drawer) e o rodapé.
+
+ Como faz:
+ - Fixa o header no topo com fundo translúcido (backdrop-filter).
+ - Cria o menu lateral para mobile com transição (right: -300px -> right: 0).
+ - Estiliza o overlay escuro que cobre o fundo quando o menu abre.
+
+ Porque faz:
+ - Mantém a navegação consistente em todas as páginas.
+ - Garante que o site é usável em ecrãs pequenos (telemóvel).
+*/
+
+.cabecalho {
+    background-color: rgba(255, 255, 255, 0.98);
+    border-bottom: 1px solid var(--cor-borda);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    padding: 16px 0;
+}
+
+.cabecalho-conteudo { display: flex; align-items: center; justify-content: space-between; }
+
+/* Logótipo */
+.logo { display: flex; align-items: center; gap: 12px; }
+.logo-icone { width: 44px; height: 44px; background-color: var(--cor-azul); color: var(--cor-dourado-claro); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+.logo-texto { display: flex; flex-direction: column; }
+.logo-nome { font-family: var(--fonte-titulos); font-size: 1.4rem; font-weight: 700; color: var(--cor-azul); line-height: 1; }
+.logo-sub { font-size: 0.7rem; color: var(--cor-texto-suave); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-top: 2px; }
+
+/* Navegação Desktop */
+.menu-desktop { display: flex; gap: 32px; align-items: center; }
+.menu-desktop a { font-size: 0.95rem; font-weight: 500; color: var(--cor-texto-suave); transition: color 0.2s; }
+.menu-desktop a:hover, .menu-desktop a.ativo { color: var(--cor-azul); font-weight: 600; }
+.menu-toggle { display: none; background: none; border: none; font-size: 1.5rem; color: var(--cor-azul); cursor: pointer; }
+
+/* Menu Mobile */
+.menu-mobile-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 998; }
+.menu-mobile-overlay.ativo { opacity: 1; pointer-events: auto; }
+.menu-mobile { position: fixed; top: 0; right: -300px; width: 280px; height: 100vh; background-color: var(--cor-fundo-alt); z-index: 999; transition: right 0.3s; display: flex; flex-direction: column; box-shadow: -5px 0 25px rgba(0,0,0,0.1); }
+.menu-mobile.aberto { right: 0; }
+.menu-mobile-topo { padding: 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--cor-borda); font-weight: 700; color: var(--cor-azul); }
+.menu-mobile-topo button { background: none; border: none; font-size: 1.3rem; color: var(--cor-texto-suave); cursor: pointer; }
+.menu-mobile-links { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+.menu-mobile-links a { font-weight: 500; color: var(--cor-texto-suave); font-size: 1.05rem; }
+
+/* Rodapé */
+.rodape { background-color: #ffffff; border-top: 1px solid var(--cor-borda); padding: 32px 0; }
+.rodape-base { display: flex; justify-content: space-between; color: var(--cor-texto-suave); font-size: 0.85rem; }
+.rodape-base a { color: var(--cor-azul); font-weight: 600; }
+
+@media (max-width: 768px) {
+    .menu-desktop { display: none; }
+    .menu-toggle { display: block; }
+    .rodape-base { flex-direction: column; gap: 12px; text-align: center; }
+}

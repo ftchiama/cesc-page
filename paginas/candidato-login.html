@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Minha Candidatura — CESC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/auth.css">
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <div class="logo-icone"><i class="fas fa-user-clock"></i></div>
+                <h1>A Minha Candidatura</h1>
+                <p>Acede ao teu painel de candidato.</p>
+            </div>
+
+            <!-- Passo 1: BI + Email -->
+            <div id="passo-1">
+                <div class="campo-grupo">
+                    <label for="cand-bi">Número do BI</label>
+                    <input type="text" id="cand-bi" placeholder="000123456LA041" maxlength="14" autocomplete="off">
+                </div>
+                <div class="campo-grupo">
+                    <label for="cand-email">Email da candidatura</label>
+                    <input type="email" id="cand-email" placeholder="teu@email.com" autocomplete="email">
+                </div>
+                <button id="btn-pedir-codigo" class="botao-primario w-100">Receber código de acesso</button>
+                <p id="msg-erro-1" class="auth-erro"></p>
+            </div>
+
+            <!-- Passo 2: Código -->
+            <div id="passo-2" style="display:none;">
+                <p class="auth-info">
+                    Enviámos um código de 6 dígitos para <strong id="email-mostrado">-</strong>.
+                    Insere-o abaixo.
+                </p>
+                <div class="campo-grupo">
+                    <label for="cand-codigo">Código de verificação</label>
+                    <input type="text" id="cand-codigo" placeholder="000000" maxlength="6" inputmode="numeric">
+                </div>
+                <button id="btn-validar-codigo" class="botao-primario w-100">Entrar</button>
+                <button id="btn-voltar" class="botao-secundario w-100" style="margin-top:8px;">Voltar</button>
+                <p id="msg-erro-2" class="auth-erro"></p>
+            </div>
+
+            <div class="auth-footer">
+                <p>Ainda não te candidataste? <a href="inscricao.html">Fazer nova inscrição</a></p>
+                <p><a href="../index.html">Voltar ao site</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/api.js"></script>
+    <script src="../scripts/candidato-login.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+backup-*/
+backup-links-*/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+node_modules/
+post.sh
+post.sh

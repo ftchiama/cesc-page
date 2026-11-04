@@ -1,0 +1,87 @@
+/*
+ Autor: Francisco Tchiama
+ Companhia: TCLabs
+ Data: 18/10/2026
+ Versão: 1.0
+ Descrição:
+ Ficheiro de estilos base. Contém as variáveis de design (cores, fontes, espaçamentos),
+ o reset global e os componentes genéricos (botões e estrutura de secções).
+
+ Como faz:
+ - Define as variáveis no :root (--cor-azul, --fonte-titulos, etc.).
+ - Aplica um reset básico (margin, padding, box-sizing).
+ - Define os estilos dos botões primários e secundários.
+ - Define o layout padrão das secções (.seccao, .seccao-cabecalho).
+
+ Porque faz:
+ - Centraliza a identidade visual (Design System) num único local.
+ - Evita a repetição de estilos em vários ficheiros.
+ - Facilita alterações globais (ex: mudar a cor principal da escola num só sítio).
+*/
+
+:root {
+    --cor-azul-muito-claro: #dbeafe;   /* azul muito claro para hovers/realces */
+    --cor-texto-leve:       #94a3b8;   /* cinza-claro para valores vazios */
+    --cor-erro:             #dc2626;   /* vermelho de erro */
+    --cor-erro-fundo:       #fef2f2;   /* fundo vermelho claro */
+    --cor-sucesso-fundo:    #d1fae5;   /* fundo verde claro */
+    --cor-fundo: #f8fafc;
+    --cor-fundo-alt: #ffffff;
+    --cor-texto: #0f172a;
+    --cor-texto-suave: #475569;
+    --cor-azul: #1e3a8a;
+    --cor-azul-claro: #3b82f6;
+    --cor-dourado: #d97706;
+    --cor-dourado-claro: #fbbf24;
+    --cor-borda: #e2e8f0;
+
+    --fonte-principal: 'Inter', sans-serif;
+    --fonte-titulos: 'Playfair Display', serif;
+    
+    --max-largura: 1100px;
+    --raio: 12px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: var(--fonte-principal);
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+.container { max-width: var(--max-largura); margin: 0 auto; padding: 0 24px; }
+a { text-decoration: none; color: inherit; }
+
+/* Botões */
+.botao-primario, .botao-secundario {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: var(--raio);
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+    font-family: var(--fonte-principal);
+}
+
+.botao-primario { background-color: var(--cor-azul); color: #fff; }
+.botao-primario:hover { background-color: #172554; transform: translateY(-2px); }
+.botao-secundario { background-color: #fff; color: var(--cor-azul); border: 1px solid var(--cor-borda); }
+.botao-secundario:hover { border-color: var(--cor-azul); transform: translateY(-2px); }
+
+/* Secções */
+.seccao { padding: 80px 0; }
+.seccao-alt { background-color: var(--cor-fundo-alt); border-top: 1px solid var(--cor-borda); border-bottom: 1px solid var(--cor-borda); }
+.seccao-cabecalho { text-align: center; margin-bottom: 48px; }
+.seccao-cabecalho-flex { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; }
+.seccao-etiqueta { display: block; font-size: 0.8rem; font-weight: 700; color: var(--cor-dourado); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+.seccao-titulo { font-family: var(--fonte-titulos); font-size: 2.2rem; color: var(--cor-azul); margin-bottom: 12px; }
+.seccao-texto { color: var(--cor-texto-suave); max-width: 600px; margin: 0 auto; }

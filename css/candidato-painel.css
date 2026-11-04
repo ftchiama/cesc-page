@@ -1,0 +1,352 @@
+/* ============================================================
+   CESC — Painel do Candidato
+   ============================================================ */
+
+/* ============================================================
+   Avisos e Alertas
+   ============================================================ */
+.aviso-config {
+    padding: 14px 18px;
+    border-radius: var(--raio);
+    margin-bottom: 24px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.aviso-config.aberto {
+    background-color: var(--cor-sucesso-fundo);
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+}
+
+.aviso-config.fechado {
+    background-color: #fef3c7;
+    border: 1px solid #fcd34d;
+    color: #92400e;
+}
+
+.aviso-config i {
+    font-size: 1.1rem;
+}
+
+/* ============================================================
+   Área de "Nova Candidatura"
+   ============================================================ */
+.area-nova-candidatura {
+    background-color: #fff;
+    border: 1px dashed var(--cor-azul-claro);
+    border-radius: var(--raio);
+    padding: 24px;
+    margin-top: 24px;
+    text-align: center;
+}
+
+.area-nova-candidatura p {
+    color: var(--cor-texto-suave);
+    font-size: 0.95rem;
+    margin: 0 0 16px 0;
+}
+
+/* ============================================================
+   Histórico de Candidaturas (Cards)
+   ============================================================ */
+.historico-grelha {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+}
+
+.historico-card {
+    background: #fff;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.historico-card:hover {
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+    transform: translateY(-2px);
+}
+
+.historico-card-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.historico-card-titulo {
+    font-family: var(--fonte-titulos);
+    font-size: 1.1rem;
+    color: var(--cor-azul);
+    margin: 0;
+}
+
+.historico-card-referencia {
+    font-size: 0.75rem;
+    color: var(--cor-texto-suave);
+    font-family: monospace;
+    margin-top: 2px;
+}
+
+.historico-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 0.82rem;
+    color: var(--cor-texto-suave);
+}
+
+.historico-card-meta strong {
+    color: var(--cor-texto);
+    font-weight: 600;
+}
+
+.historico-motivo {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: var(--cor-erro);
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+}
+
+.historico-acoes {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid var(--cor-borda);
+}
+
+/* ============================================================
+   Formulário de Perfil
+   ============================================================ */
+#seccao-perfil .form-grelha {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+#seccao-perfil .campo-grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 0;
+}
+
+#seccao-perfil label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--cor-texto-suave);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#seccao-perfil input,
+#seccao-perfil select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    background-color: #fff;
+    color: var(--cor-texto);
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#seccao-perfil input:focus,
+#seccao-perfil select:focus {
+    outline: none;
+    border-color: var(--cor-azul-claro);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+#seccao-perfil input:disabled {
+    background-color: #f1f5f9;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+/* ============================================================
+   Documentos do Candidato
+   ============================================================ */
+.docs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.doc-card {
+    background: #fff;
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.doc-card .doc-icon {
+    font-size: 2rem;
+    color: var(--cor-azul-claro);
+}
+
+.doc-card .doc-nome {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--cor-texto);
+}
+
+.doc-card .doc-status {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 100px;
+}
+
+.doc-card .doc-status.ok {
+    background-color: var(--cor-sucesso-fundo);
+    color: #065f46;
+}
+
+.doc-card .doc-status.falta {
+    background-color: var(--cor-erro-fundo);
+    color: var(--cor-erro);
+}
+
+.doc-card .doc-acoes {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.doc-card .doc-acoes a,
+.doc-card .doc-acoes label {
+    flex: 1;
+    text-align: center;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.doc-card .btn-ver {
+    background-color: var(--cor-azul-muito-claro);
+    color: var(--cor-azul);
+    border: 1px solid #bfdbfe;
+}
+
+.doc-card .btn-ver:hover {
+    background-color: #dbeafe;
+}
+
+.doc-card .btn-atualizar {
+    background-color: #fff;
+    color: var(--cor-texto-suave);
+    border: 1px solid var(--cor-borda);
+    position: relative;
+    display: inline-block;
+}
+
+.doc-card .btn-atualizar:hover {
+    border-color: var(--cor-azul);
+    color: var(--cor-azul);
+    background-color: var(--cor-azul-muito-claro);
+}
+
+.doc-card input[type="file"] {
+    display: none;
+}
+
+/* ============================================================
+   Mensagens de feedback
+   ============================================================ */
+.msg-form {
+    display: none;
+    margin-top: 14px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.msg-form.erro {
+    display: block;
+    background-color: var(--cor-erro-fundo);
+    color: var(--cor-erro);
+    border: 1px solid #fecaca;
+}
+
+.msg-form.sucesso {
+    display: block;
+    background-color: var(--cor-sucesso-fundo);
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+/* ============================================================
+   Responsivo
+   ============================================================ */
+@media (max-width: 768px) {
+    .historico-grelha {
+        grid-template-columns: 1fr;
+    }
+    .area-nova-candidatura {
+        padding: 18px;
+    }
+    .docs-grid {
+        grid-template-columns: 1fr;
+    }
+    .doc-card .doc-acoes {
+        flex-direction: column;
+    }
+    #seccao-perfil .form-grelha {
+        grid-template-columns: 1fr;
+    }
+}
+/* ============================================================
+   Extras para o novo fluxo
+   ============================================================ */
+.historico-acoes {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--cor-borda);
+}
+
+.historico-acoes .btn-acao {
+    padding: 8px 14px;
+    font-size: 0.82rem;
+}
+
+.badge-pendente {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.doc-status.a-carregar {
+    background-color: var(--cor-azul-muito-claro);
+    color: var(--cor-azul);
+}

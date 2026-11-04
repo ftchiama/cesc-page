@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área do Aluno - CESC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+<body class="dashboard-body">
+
+    <!-- Overlay para mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ============================================================
+         SIDEBAR
+         ============================================================ -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-topo">
+            <div class="sidebar-logo">
+                <div class="logo-icone"><i class="fas fa-graduation-cap"></i></div>
+                <div class="logo-texto">
+                    <span class="logo-nome">CESC</span>
+                    <span class="logo-sub">Área do Aluno</span>
+                </div>
+            </div>
+            <button class="sidebar-fechar" id="sidebarFechar"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="sidebar-perfil">
+            <div class="perfil-avatar" id="aluno-avatar">-</div>
+            <div class="perfil-info">
+                <strong id="aluno-nome-sidebar">A carregar...</strong>
+                <span id="aluno-turma-sidebar">-</span>
+                <span id="aluno-curso-sidebar" class="perfil-curso">-</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <span class="nav-rotulo">Menu</span>
+            <a href="#" class="nav-item ativo" data-seccao="visao-geral">
+                <i class="fas fa-home"></i> Visão Geral
+            </a>
+            <a href="#" class="nav-item" data-seccao="notas">
+                <i class="fas fa-chart-line"></i> Notas
+            </a>
+            <a href="#" class="nav-item" data-seccao="faltas">
+                <i class="fas fa-user-clock"></i> Faltas
+            </a>
+            <a href="#" class="nav-item" data-seccao="desempenho">
+                <i class="fas fa-tachometer-alt"></i> Desempenho
+            </a>
+            <a href="#" class="nav-item" data-seccao="historico">
+                <i class="fas fa-history"></i> Histórico
+            </a>
+            <a href="#" class="nav-item" data-seccao="biblioteca">
+                <i class="fas fa-book-open"></i> Biblioteca
+            </a>
+            <a href="#" class="nav-item" data-seccao="documentos">
+                <i class="fas fa-file-alt"></i> Documentos
+            </a>
+            <a href="#" class="nav-item" data-seccao="perfil">
+                <i class="fas fa-user"></i> Perfil
+            </a>
+        </nav>
+
+        <div class="sidebar-rodape">
+            <a href="../index.html" class="nav-item"><i class="fas fa-globe"></i> Voltar ao site</a>
+            <a href="#" class="nav-item nav-sair" id="link-sair"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        </div>
+    </aside>
+
+    <!-- ============================================================
+         CONTEÚDO PRINCIPAL
+         ============================================================ -->
+    <main class="dashboard-main">
+        <header class="dashboard-header-mobile">
+            <button class="menu-mobile-btn" id="menuMobileBtn"><i class="fas fa-bars"></i></button>
+            <span>CESC · Área do Aluno</span>
+            <a href="../index.html" class="header-voltar"><i class="fas fa-globe"></i></a>
+        </header>
+
+        <div class="loader-container" id="loader">
+            <div class="loader"></div>
+            <p>A carregar os teus dados...</p>
+        </div>
+
+        <div class="dashboard-conteudo" id="dashboard-conteudo" style="display:none;">
+
+            <!-- ============================================================
+                 VISÃO GERAL
+                 ============================================================ -->
+            <section class="pagina-seccao ativa" id="seccao-visao-geral">
+                <div class="pagina-cabecalho">
+                    <h1>Visão Geral</h1>
+                    <p id="boas-vindas">Bem-vindo de volta.</p>
+                    <div class="cabecalho-info" id="cabecalho-info"></div>
+                </div>
+
+                <!-- 5 cards -->
+                <div class="stats-grelha">
+
+                    <!-- CARD 1: Disciplinas (clicável) -->
+                    <div class="stat-card stat-card-clicavel" data-card="disciplinas">
+                        <div class="stat-header">
+                            <i class="fas fa-book"></i> Disciplinas
+                            <span class="stat-seta"><i class="fas fa-chevron-down"></i></span>
+                        </div>
+                        <div class="stat-valor" id="stat-disciplinas">0</div>
+                        <div class="stat-subtexto">no ano atual</div>
+                        <div class="card-expandido" id="expand-disciplinas" style="display:none;">
+                            <div class="card-expandido-conteudo" id="conteudo-disciplinas"></div>
+                        </div>
+                    </div>
+
+                    <!-- CARD 2: Média Geral (clicável) -->
+                    <div class="stat-card stat-card-clicavel" data-card="media">
+                        <div class="stat-header">
+                            <i class="fas fa-chart-line"></i> Média Geral
+                            <span class="stat-seta"><i class="fas fa-chevron-down"></i></span>
+                        </div>
+                        <div class="stat-valor" id="stat-media">-</div>
+                        <div class="stat-subtexto">cumulativa</div>
+                        <div class="card-expandido" id="expand-media" style="display:none;">
+                            <div class="card-expandido-conteudo" id="conteudo-media"></div>
+                        </div>
+                    </div>
+
+                    <!-- CARD 3: Faltas (clicável) -->
+                    <div class="stat-card stat-card-clicavel" data-card="faltas">
+                        <div class="stat-header">
+                            <i class="fas fa-user-clock"></i> Faltas
+                            <span class="stat-seta"><i class="fas fa-chevron-down"></i></span>
+                        </div>
+                        <div class="stat-valor" id="stat-faltas">0</div>
+                        <div class="stat-subtexto">no ano atual</div>
+                        <div class="card-expandido" id="expand-faltas" style="display:none;">
+                            <div class="card-expandido-conteudo" id="conteudo-faltas"></div>
+                        </div>
+                    </div>
+
+                    <!-- CARD 4: Trabalhos (clicável) -->
+                    <div class="stat-card stat-card-clicavel" data-card="trabalhos">
+                        <div class="stat-header">
+                            <i class="fas fa-file-alt"></i> Trabalhos
+                            <span class="stat-seta"><i class="fas fa-chevron-down"></i></span>
+                        </div>
+                        <div class="stat-valor" id="stat-trabalhos">0</div>
+                        <div class="stat-subtexto">na biblioteca</div>
+                        <div class="card-expandido" id="expand-trabalhos" style="display:none;">
+                            <div class="card-expandido-conteudo" id="conteudo-trabalhos"></div>
+                        </div>
+                    </div>
+
+                    <!-- CARD 5: Desempenho (clicável) -->
+                    <div class="stat-card stat-card-clicavel stat-card-destaque" data-card="desempenho">
+                        <div class="stat-header">
+                            <i class="fas fa-tachometer-alt"></i> Desempenho
+                            <span class="stat-seta"><i class="fas fa-chevron-down"></i></span>
+                        </div>
+                        <div class="stat-valor" id="stat-desempenho">-</div>
+                        <div class="stat-subtexto">no ano atual</div>
+                        <div class="stat-progresso">
+                            <div class="stat-progresso-barra" id="stat-desempenho-barra"></div>
+                        </div>
+                        <div class="card-expandido" id="expand-desempenho" style="display:none;">
+                            <div class="card-expandido-conteudo" id="conteudo-desempenho"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info escolar resumida -->
+                <div class="card-info">
+                    <h3><i class="fas fa-school"></i> Situação Escolar</h3>
+                    <div id="info-escolar"></div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+                 NOTAS (com filtro por ano)
+                 ============================================================ -->
+            <section class="pagina-seccao" id="seccao-notas">
+                <div class="pagina-cabecalho">
+                    <h1>As Minhas Notas</h1>
+                    <p>Notas por disciplina e trimestre.</p>
+                </div>
+
+                <div class="filtros-barra">
+                    <label for="filtro-notas-ano">Ano letivo:</label>
+                    <select id="filtro-notas-ano" class="filtro-select">
+                        <option value="">A carregar...</option>
+                    </select>
+                </div>
+
+                <div id="lista-notas"></div>
+            </section>
+
+            <!-- ============================================================
+                 FALTAS (com filtro por ano + filtros de período)
+                 ============================================================ -->
+            <section class="pagina-seccao" id="seccao-faltas">
+                <div class="pagina-cabecalho">
+                    <h1>As Minhas Faltas</h1>
+                    <p>Registo de faltas por disciplina.</p>
+                </div>
+
+                <div class="filtros-barra">
+                    <label for="filtro-faltas-ano">Ano letivo:</label>
+                    <select id="filtro-faltas-ano" class="filtro-select">
+                        <option value="">A carregar...</option>
+                    </select>
+
+                    <label for="filtro-faltas-periodo">Período:</label>
+                    <select id="filtro-faltas-periodo" class="filtro-select">
+                        <option value="ano">Ano inteiro</option>
+                        <option value="trimestre">Por trimestre</option>
+                        <option value="mes">Por mês</option>
+                    </select>
+
+                    <select id="filtro-faltas-periodo-valor" class="filtro-select" style="display:none;">
+                    </select>
+                </div>
+
+                <div id="lista-faltas"></div>
+            </section>
+
+            <!-- ============================================================
+                 DESEMPENHO
+                 ============================================================ -->
+            <section class="pagina-seccao" id="seccao-desempenho">
+                <div class="pagina-cabecalho">
+                    <h1>Desempenho por Trimestre</h1>
+                    <p>Evolução do desempenho ao longo dos anos letivos.</p>
+                </div>
+                <div id="lista-desempenho"></div>
+            </section>
+
+            <!-- ============================================================
+                 HISTÓRICO (com filtro por ano)
+                 ============================================================ -->
+            <section class="pagina-seccao" id="seccao-historico">
+                <div class="pagina-cabecalho">
+                    <h1>Histórico Académico</h1>
+                    <p>Anos anteriores, classes, cursos e turmas.</p>
+                </div>
+
+                <div class="filtros-barra">
+                    <label for="filtro-historico-ano">Ano letivo:</label>
+                    <select id="filtro-historico-ano" class="filtro-select">
+                        <option value="">Todos os anos</option>
+                    </select>
+                </div>
+
+                <div id="lista-historico"></div>
+            </section>
+
+            <!-- ============================================================
+                 BIBLIOTECA (com filtro por ano)
+                 ============================================================ -->
+            <section class="pagina-seccao" id="seccao-biblioteca">
+                <div class="pagina-cabecalho">
+                    <h1>Biblioteca Digital</h1>
+                    <p>Os meus trabalhos arquivados.</p>
+                </div>
+
+                <div class="filtros-barra">
+                    <label for="filtro-biblioteca-ano">Ano letivo:</label>
+                    <select id="filtro-biblioteca-ano" class="filtro-select">
+                        <option value="">Todos os anos</option>
+                    </select>
+                </div>
+
+                <div id="lista-biblioteca"></div>
+            </section>
+
+            <!-- ============================================================
+                 DOCUMENTOS
+                 ============================================================ -->
+            <section class="pagina-seccao" id="seccao-documentos">
+                <div class="pagina-cabecalho">
+                    <h1>Documentos</h1>
+                    <p>Pedidos de certificados e declarações.</p>
+                </div>
+
+                <div class="documentos-acoes">
+                    <button class="botao-primario" id="btn-pedir-certificado">
+                        <i class="fas fa-plus"></i> Pedir Certificado
+                    </button>
+                    <button class="botao-secundario" id="btn-pedir-declaracao">
+                        <i class="fas fa-plus"></i> Pedir Declaração de Notas
+                    </button>
+                </div>
+
+                <div id="lista-documentos"></div>
+            </section>
+
+            <!-- ============================================================
+                 PERFIL
+                 ============================================================ -->
+            <section class="pagina-seccao" id="seccao-perfil">
+                <div class="pagina-cabecalho">
+                    <h1>O Meu Perfil</h1>
+                    <p>Informação completa registada na escola.</p>
+                </div>
+                <div id="lista-perfil"></div>
+            </section>
+
+        </div>
+    </main>
+    <script src="../scripts/api.js"></script>
+    <script src="../scripts/dashboard.js"></script>
+</body>
+</html>

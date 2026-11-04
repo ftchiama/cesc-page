@@ -1,0 +1,1146 @@
+Sim. Já tínhamos descrito as alterações da secção Inscrições da Secretaria, mas ficaram espalhadas pelas conversas. Vou consolidar tudo num único sítio.
+
+---
+
+Alterações na secção Inscrições (Secretaria)
+
+1. O que já funciona (não muda)
+
+A secção #seccao-inscricoes já tem:
+
+· Lista com filtros (estado, classe) e ordenação (data, média, idade, nome).
+· Detalhe ao clicar em "Ver": dados do candidato, média, documentos (com links assinados), histórico de alterações do candidato.
+· Bloqueio de análise: ao abrir uma inscrição, chama cesc_secretaria_iniciar_analise; ao fechar, cesc_secretaria_terminar_analise. O candidato fica bloqueado.
+· Aprovar / Rejeitar: modais com motivo e código (0 ou 1).
+· Badges de estado: pendente, aprovada, rejeitada, em análise, cód. 0/1.
+
+2. O que precisa de mudar
+
+2.1. Nomenclatura: "Turma" → "Sala"
+
+Na lista de inscrições, a coluna "Turma" deve ser "Sala" (ou removida, se a inscrição ainda não tiver sala). A inscrição é uma candidatura — não tem sala até o AURA distribuir. Portanto, na lista de inscrições, a sala deve aparecer como "—" (vazia) para inscrições pendente/aprovada, e preenchida para as que já foram distribuídas.
+
+2.2. Estado da inscrição vs. estado da matrícula
+
+A lista de inscrições deve mostrar o estado da inscrição (pendente, aprovada, rejeitada, matricula_paga, matriculado), não o estado da matrícula. A inscrição é o registo da candidatura; a matrícula é o registo da situação escolar.
+
+O que mostrar na lista:
+
+· Referência.
+· Candidato (nome + BI).
+· Classe pretendida.
+· Média.
+· Data de submissão.
+· Estado da inscrição (badge).
+· Ações: "Ver".
+
+2.3. O detalhe da inscrição deve mostrar a sala (se já distribuída)
+
+No detalhe (ao clicar em "Ver"), para inscrições matricula_paga ou matriculado, deve aparecer uma secção "Situação Escolar" com:
+
+· Sala.
+· Pavilhão.
+· Turno.
+· Nº de aluno.
+
+Para inscrições pendente/aprovada/rejeitada, a "Situação Escolar" não aparece (porque ainda não há matrícula ativa).
+
+2.4. Filtros de estado: adicionar matricula_paga e matriculado
+
+O filtro #filtro-inscricoes-estado deve incluir:
+
+· Todos os estados.
+· Pendentes.
+· Aprovadas.
+· Rejeitadas.
+· Matrícula Paga (novo).
+· Matriculado (novo).
+
+2.5. Badges de estado: adicionar matricula_paga e matriculado
+
+Os badges de estado devem incluir:
+
+· badge-pendente — amarelo.
+· badge-aprovada — verde.
+· badge-rejeitada — vermelho.
+· badge-matricula_paga — azul.
+· badge-matriculado — verde-escuro.
+
+(Os estilos CSS para estes badges devem ser criados no secretaria.css.)
+
+2.6. Botão "Atribuir Turma" (ou "Atribuir Sala")
+
+Para inscrições matricula_paga, o detalhe deve ter um botão "Atribuir Sala" que:
+
+· Abre o modal.
+· Pede a sala (dropdown com as salas disponíveis para o turno do aluno).
+· Chama a RPC cesc_secretaria_atribuir_turma (ou uma nova RPC cesc_secretaria_atribuir_sala).
+· Muda o estado da inscrição para matriculado.
+
+Nota: este botão é um paliativo até o AURA distribuir automaticamente. No futuro, o AURA faz isto sozinho.
+
+2.7. Auditoria: quem aprovou/rejeitou
+
+O detalhe da inscrição deve mostrar:
+
+· Data da decisão (data_decisao).
+· Quem decidiu (aprovado_por, da RPC cesc_diretor_listar_inscricoes).
+
+3. O que NÃO muda
+
+· A lista de inscrições continua a excluir a_pagar (a RPC cesc_secretaria_listar_inscricoes já filtra).
+· O bloqueio de análise (iniciar_analise / terminar_analise) continua igual.
+· Os modais de aprovar/rejeitar continuam iguais.
+· O histórico de alterações do candidato continua igual.
+
+---
+
+Resumo das alterações
+
+# Alteração Onde
+1 Nomenclatura "Turma" → "Sala" na lista secretaria-inscricoes.js
+2 Mostrar estado da inscrição (não da matrícula) secretaria-inscricoes.js
+3 Mostrar sala/pavilhão/turno no detalhe (se distribuída) secretaria-inscricoes.js + RPC cesc_secretaria_listar_inscricoes
+4 Filtro: adicionar matricula_paga e matriculado secretaria.html
+5 Badges: adicionar matricula_paga e matriculado secretaria.css
+6 Botão "Atribuir Sala" no detalhe (matricula_paga) secretaria-inscricoes.js + RPC cesc_secretaria_atribuir_turma (já existe)
+7 Auditoria: mostrar quem aprovou/rejeitou secretaria-inscricoes.js + RPC cesc_secretaria_listar_inscricoes
+
+---
+
+Queres avançar com estas alterações? Podemos começar pela lista (nomenclatura + estado da inscrição) e depois pelo detalhe (sala + auditoria).
+Tá errado a maior parte do quw disseste...
+Veja realmente, isso não condiz com o que é e com o que quero...
+
+É irrelevante mostrar a sala, já que a secção alunos faz isso,
+Temos que mostrar o curso pretendido (se disponível, por exemplo para alunos 10-12)
+Temos que aplicar o filtro por ano lectivo, para facilitar o trabalho da secretaria...
+Vamos criar os novos estados...
+E vamos criar cards resumo (eles sempre vão atender ao ano escolhido):
+ Eles mostram o número de inscrições do ano actual, quantos foram aprovados, quantos ainda está por se aprovar (util quando se está no momento das inscrições), quantos foram regeitados - deve separar por código.
+
+Lembra, essa secção não precisa de muitos detalhes, apenas aqueles que são crucias para reprovar ou não.
+Entendido. Vou esquecer o que disse antes e alinhar com o que pediste.
+
+O que a secção Inscrições deve ter
+
+1. Cards de resumo (no topo, filtrados pelo ano letivo)
+
+Quatro cards que mostram, para o ano letivo selecionado:
+
+Card O que mostra
+Total de Inscrições Todas as inscrições do ano.
+Aprovadas Quantas foram aprovadas.
+Por Aprovar Quantas estão pendente (útil durante as inscrições).
+Rejeitadas Quantas foram rejeitadas, separadas por código: Código 0 (sem recandidatura) e Código 1 (com recandidatura).
+
+2. Filtro por ano letivo
+
+Um dropdown no topo da secção, para escolher o ano. Todos os cards, a lista e os filtros respeitam o ano escolhido.
+
+3. Lista de inscrições (só o essencial)
+
+Colunas:
+
+· Referência.
+· Candidato (nome + BI).
+· Classe pretendida.
+· Curso pretendido (mostrar apenas se existir — 10ª a 12ª).
+· Média do certificado.
+· Data de submissão.
+· Estado (badge).
+· Ação: "Ver".
+
+4. Detalhe da inscrição (só o crucial para decidir)
+
+Ao clicar em "Ver":
+
+· Dados do candidato (BI, nome, data nasc, género, telefone, email, encarregado).
+· Classe e curso pretendidos.
+· Média do certificado.
+· Documentos (BI frente/verso, certificado, foto) — para a secretária validar.
+· Histórico de alterações do candidato (para ver se houve mudanças suspeitas).
+· Botões Aprovar / Rejeitar (só se pendente).
+· Quem decidiu e quando (se já aprovada/rejeitada).
+
+5. Novos estados (badges)
+
+· pendente (amarelo).
+· aprovada (verde).
+· rejeitada (vermelho).
+· matricula_paga (azul).
+· matriculado (verde-escuro).
+
+6. O que NÃO mostrar
+
+· Sala, pavilhão, turno, nº de aluno (isso é na secção Alunos).
+· Situação escolar detalhada.
+· Histórico de matrículas.
+
+---
+
+O que precisamos de implementar
+
+# Alteração Onde
+1 Cards de resumo (4 cards) filtrados por ano secretaria.html + secretaria-inscricoes.js + RPC cesc_secretaria_stats_inscricoes
+2 Filtro por ano letivo secretaria.html + secretaria-inscricoes.js
+3 Coluna "Curso pretendido" na lista secretaria-inscricoes.js
+4 Badges novos (matricula_paga, matriculado) secretaria.css
+5 Detalhe limpo (sem sala) + auditoria (quem decidiu) secretaria-inscricoes.js + RPC cesc_secretaria_listar_inscricoes
+6 RPC para os cards de resumo SQL (nova RPC)
+7 RPC cesc_secretaria_listar_inscricoes ajustada (filtrar por ano, devolver curso, devolver auditoria) SQL
+
+---
+
+Perguntas antes de avançar
+
+1. Os cards devem contar também as matricula_paga e matriculado? Ou só as que estão no fluxo de análise (pendente, aprovada, rejeitada)?
+2. O filtro por ano letivo deve vir de onde? Da tabela cesc.configuracoes (ano atual) ou de uma lista de anos disponíveis (todos os que têm inscrições)?
+3. Os cards de "Rejeitadas" mostram o código 0 e 1 separados, ou juntos com a distinção? Ex: "Rejeitadas: 5 (3 com código 0, 2 com código 1)".
+Todas não importa o estado (esses dois não são inscrições?)
+
+Todos os anos disponíveis e ele só escolhe
+Separados
+Vamos começar pelo SQL. Vou criar as 3 RPCs necessárias.
+
+Passo 1: RPC dos anos disponíveis
+
+```sql
+CREATE OR REPLACE FUNCTION cesc.cesc_secretaria_listar_anos_inscricoes(p_token varchar)
+RETURNS json AS $$
+DECLARE v_user cesc.utilizadores; v_lista json;
+BEGIN
+    v_user := cesc.validar_sessao_role(p_token, ARRAY['secretaria', 'diretor', 'sub_diretor']);
+    IF v_user IS NULL THEN RETURN json_build_object('ok', false, 'erro', 'Não autorizado.'); END IF;
+
+    SELECT json_agg(ano ORDER BY ano DESC) INTO v_lista
+    FROM (SELECT DISTINCT ano_lectivo AS ano FROM cesc.inscricoes) sub;
+
+    RETURN json_build_object('ok', true, 'anos', COALESCE(v_lista, '[]'::json));
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION public.cesc_secretaria_listar_anos_inscricoes(p_token varchar)
+RETURNS json AS $$ BEGIN RETURN cesc.cesc_secretaria_listar_anos_inscricoes(p_token); END; $$ LANGUAGE plpgsql SECURITY DEFINER;
+GRANT EXECUTE ON FUNCTION public.cesc_secretaria_listar_anos_inscricoes TO anon, authenticated;
+```
+
+Passo 2: RPC dos cards de resumo
+
+```sql
+CREATE OR REPLACE FUNCTION cesc.cesc_secretaria_stats_inscricoes(
+    p_token varchar,
+    p_ano_lectivo varchar
+)
+RETURNS json AS $$
+DECLARE
+    v_user cesc.utilizadores;
+    v_total int;
+    v_aprovadas int;
+    v_por_aprovar int;
+    v_rejeitadas_c0 int;
+    v_rejeitadas_c1 int;
+BEGIN
+    v_user := cesc.validar_sessao_role(p_token, ARRAY['secretaria', 'diretor', 'sub_diretor']);
+    IF v_user IS NULL THEN RETURN json_build_object('ok', false, 'erro', 'Não autorizado.'); END IF;
+
+    SELECT count(*) INTO v_total
+    FROM cesc.inscricoes
+    WHERE ano_lectivo = p_ano_lectivo;
+
+    SELECT count(*) INTO v_aprovadas
+    FROM cesc.inscricoes
+    WHERE ano_lectivo = p_ano_lectivo
+      AND estado IN ('aprovada', 'matricula_paga', 'matriculado');
+
+    SELECT count(*) INTO v_por_aprovar
+    FROM cesc.inscricoes
+    WHERE ano_lectivo = p_ano_lectivo
+      AND estado = 'pendente';
+
+    SELECT count(*) INTO v_rejeitadas_c0
+    FROM cesc.inscricoes
+    WHERE ano_lectivo = p_ano_lectivo
+      AND estado = 'rejeitada'
+      AND codigo_rejeicao = 0;
+
+    SELECT count(*) INTO v_rejeitadas_c1
+    FROM cesc.inscricoes
+    WHERE ano_lectivo = p_ano_lectivo
+      AND estado = 'rejeitada'
+      AND codigo_rejeicao = 1;
+
+    RETURN json_build_object(
+        'ok', true,
+        'total', v_total,
+        'aprovadas', v_aprovadas,
+        'por_aprovar', v_por_aprovar,
+        'rejeitadas_c0', v_rejeitadas_c0,
+        'rejeitadas_c1', v_rejeitadas_c1
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION public.cesc_secretaria_stats_inscricoes(p_token varchar, p_ano_lectivo varchar)
+RETURNS json AS $$ BEGIN RETURN cesc.cesc_secretaria_stats_inscricoes(p_token, p_ano_lectivo); END; $$ LANGUAGE plpgsql SECURITY DEFINER;
+GRANT EXECUTE ON FUNCTION public.cesc_secretaria_stats_inscricoes(varchar, varchar) TO anon, authenticated;
+```
+
+Passo 3: RPC da lista de inscrições (ajustada)
+
+```sql
+DROP FUNCTION IF EXISTS cesc.cesc_secretaria_listar_inscricoes(varchar, varchar, varchar, varchar, varchar) CASCADE;
+DROP FUNCTION IF EXISTS public.cesc_secretaria_listar_inscricoes(varchar, varchar, varchar, varchar, varchar) CASCADE;
+
+CREATE OR REPLACE FUNCTION cesc.cesc_secretaria_listar_inscricoes(
+    p_token varchar,
+    p_ano_lectivo varchar,
+    p_estado varchar DEFAULT NULL,
+    p_classe varchar DEFAULT NULL,
+    p_ordenar_por varchar DEFAULT 'data',
+    p_ordem varchar DEFAULT 'desc'
+) RETURNS json AS $$
+DECLARE v_user cesc.utilizadores; v_lista json; v_order_sql text; v_query text;
+BEGIN
+    v_user := cesc.validar_sessao_role(p_token, ARRAY['secretaria', 'diretor', 'sub_diretor']);
+    IF v_user IS NULL THEN RETURN json_build_object('ok', false, 'erro', 'Não autorizado.'); END IF;
+
+    IF p_ordenar_por = 'media' THEN v_order_sql := 'media_certificado ' || CASE WHEN p_ordem = 'asc' THEN 'ASC NULLS LAST' ELSE 'DESC NULLS LAST' END;
+    ELSIF p_ordenar_por = 'nome' THEN v_order_sql := 'nome_completo ' || CASE WHEN p_ordem = 'asc' THEN 'ASC' ELSE 'DESC' END;
+    ELSIF p_ordenar_por = 'idade' THEN v_order_sql := 'data_nascimento ' || CASE WHEN p_ordem = 'asc' THEN 'ASC' ELSE 'DESC' END;
+    ELSE v_order_sql := 'data_submissao DESC'; END IF;
+
+    v_query := format('
+        SELECT json_agg(json_build_object(
+            ''id'', i.id, ''candidato_id'', i.candidato_id, ''referencia'', i.referencia,
+            ''nome_completo'', i.nome_completo, ''bi_numero'', i.bi_numero,
+            ''data_nascimento'', i.data_nascimento, ''genero'', i.genero,
+            ''telefone'', i.telefone, ''email'', i.email,
+            ''nome_encarregado'', i.nome_encarregado, ''telefone_encarregado'', i.telefone_encarregado,
+            ''classe_pretendida'', i.classe_pretendida, ''curso_pretendido'', i.curso_pretendido,
+            ''ano_lectivo'', i.ano_lectivo, ''como_soube'', i.como_soube,
+            ''media_certificado'', i.media_certificado,
+            ''doc_bi_frente_url'', i.doc_bi_frente_url, ''doc_bi_verso_url'', i.doc_bi_verso_url,
+            ''doc_certificado_url'', i.doc_certificado_url, ''doc_foto_url'', i.doc_foto_url,
+            ''estado'', i.estado, ''motivo_rejeicao'', i.motivo_rejeicao, ''codigo_rejeicao'', i.codigo_rejeicao,
+            ''data_submissao'', i.data_submissao, ''data_decisao'', i.data_decisao,
+            ''decidido_por'', (SELECT nome_completo FROM cesc.utilizadores WHERE id = i.decidido_por)
+        ) ORDER BY %s)
+        FROM cesc.inscricoes i
+        WHERE i.ano_lectivo = $1
+          AND i.estado <> ''a_pagar''
+          AND ($2 IS NULL OR $2 = '''' OR i.estado = $2)
+          AND ($3 IS NULL OR $3 = '''' OR i.classe_pretendida = $3)
+    ', v_order_sql);
+
+    EXECUTE v_query INTO v_lista USING p_ano_lectivo, p_estado, p_classe;
+    RETURN json_build_object('ok', true, 'inscricoes', COALESCE(v_lista, '[]'::json));
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION public.cesc_secretaria_listar_inscricoes(
+    p_token varchar, p_ano_lectivo varchar, p_estado varchar DEFAULT NULL, p_classe varchar DEFAULT NULL,
+    p_ordenar_por varchar DEFAULT 'data', p_ordem varchar DEFAULT 'desc'
+) RETURNS json AS $$
+BEGIN
+    RETURN cesc.cesc_secretaria_listar_inscricoes(p_token, p_ano_lectivo, p_estado, p_classe, p_ordenar_por, p_ordem);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION public.cesc_secretaria_listar_inscricoes TO anon, authenticated;
+```
+
+O que muda:
+
+1. cesc_secretaria_listar_anos_inscricoes — devolve todos os anos disponíveis (para o dropdown).
+2. cesc_secretaria_stats_inscricoes — devolve os números dos 4 cards (total, aprovadas, por aprovar, rejeitadas c0/c1).
+3. cesc_secretaria_listar_inscricoes — agora recebe p_ano_lectivo obrigatório, devolve curso_pretendido, data_decisao e decidido_por (auditoria).
+
+O que fazer agora:
+
+1. Corre os 3 blocos de SQL no SQL Editor.
+2. Verifica se as RPCs foram criadas sem duplicados:
+
+```sql
+SELECT proname, pg_get_function_identity_arguments(oid) AS args, pronamespace::regnamespace AS schema
+FROM pg_proc
+WHERE proname IN (
+    'cesc_secretaria_listar_anos_inscricoes',
+    'cesc_secretaria_stats_inscricoes',
+    'cesc_secretaria_listar_inscricoes'
+)
+ORDER BY proname, schema;
+```
+
+O que deves ver: exactamente 6 linhas (3 no cesc, 3 no public), sem duplicados.
+
+Corre e cola-me o resultado. Se estiver tudo, passamos ao HTML/CSS/JS.
+Perfeito. As 3 RPCs foram criadas sem duplicados. Exactamente 6 linhas (3 no cesc, 3 no public).
+
+Estado:
+
+RPC Schema cesc Schema public
+cesc_secretaria_listar_anos_inscricoes ✅ ✅
+cesc_secretaria_listar_inscricoes ✅ ✅
+cesc_secretaria_stats_inscricoes ✅ ✅
+
+Próximo passo: HTML
+
+Agora vamos alterar a secção #seccao-inscricoes no secretaria.html. Vou dar-te o bloco completo.
+
+Substitui a secção id="seccao-inscricoes" inteira por esta:
+
+```html
+            <!-- ============================================================
+                 INSCRIÇÕES
+                 ============================================================ -->
+            <section class="pagina-seccao" id="seccao-inscricoes">
+                <div class="pagina-cabecalho">
+                    <h1>Inscrições</h1>
+                    <p>Pedidos de novos alunos submetidos pelo site.</p>
+                </div>
+
+                <!-- Filtro por Ano Letivo -->
+                <div class="barra-acoes" style="margin-bottom: 16px;">
+                    <label for="filtro-inscricoes-ano" style="font-size:0.8rem; font-weight:600; color:var(--cor-texto-suave); text-transform:uppercase; letter-spacing:0.5px;">Ano letivo:</label>
+                    <select id="filtro-inscricoes-ano" class="campo-select" style="flex: 1 1 200px;">
+                        <option value="">A carregar...</option>
+                    </select>
+                </div>
+
+                <!-- Cards de Resumo -->
+                <div class="stats-grelha" id="stats-inscricoes-container" style="margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-inbox"></i> Total</div>
+                        <div class="stat-valor" id="stat-total-inscricoes">—</div>
+                        <div class="stat-subtexto">inscrições no ano</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-check-circle"></i> Aprovadas</div>
+                        <div class="stat-valor" id="stat-inscricoes-aprovadas" style="color: #059669;">—</div>
+                        <div class="stat-subtexto">aprovadas ou matriculadas</div>
+                    </div>
+                    <div class="stat-card stat-card-alerta">
+                        <div class="stat-header"><i class="fas fa-clock"></i> Por Aprovar</div>
+                        <div class="stat-valor" id="stat-inscricoes-por-aprovar" style="color: #b45309;">—</div>
+                        <div class="stat-subtexto">a aguardar análise</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-times-circle"></i> Rejeitadas</div>
+                        <div class="stat-valor" id="stat-inscricoes-rejeitadas" style="color: var(--cor-erro);">—</div>
+                        <div class="stat-subtexto" id="stat-rejeitadas-detalhe" style="font-size:0.7rem;">Cód. 0: — · Cód. 1: —</div>
+                    </div>
+                </div>
+
+                <!-- Filtros -->
+                <div class="barra-acoes" style="flex-direction: column; align-items: stretch; gap: 12px;">
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap; width: 100%;">
+                        <select id="filtro-inscricoes-estado" class="campo-select" style="flex: 1 1 180px;">
+                            <option value="">Todos os estados</option>
+                            <option value="pendente">Pendentes</option>
+                            <option value="aprovada">Aprovadas</option>
+                            <option value="rejeitada">Rejeitadas</option>
+                            <option value="matricula_paga">Matrícula Paga</option>
+                            <option value="matriculado">Matriculado</option>
+                        </select>
+                        <select id="filtro-inscricoes-classe" class="campo-select" style="flex: 1 1 180px;">
+                            <option value="">Todas as classes</option>
+                            <option value="7ª Classe">7ª Classe</option>
+                            <option value="8ª Classe">8ª Classe</option>
+                            <option value="9ª Classe">9ª Classe</option>
+                            <option value="10ª Classe">10ª Classe</option>
+                            <option value="11ª Classe">11ª Classe</option>
+                            <option value="12ª Classe">12ª Classe</option>
+                        </select>
+                        <select id="filtro-inscricoes-ordem" class="campo-select" style="flex: 1 1 220px;">
+                            <option value="data_desc">Mais recentes primeiro</option>
+                            <option value="media_desc">Maior média primeiro</option>
+                            <option value="media_asc">Menor média primeiro</option>
+                            <option value="idade_asc">Mais novos primeiro</option>
+                            <option value="idade_desc">Mais velhos primeiro</option>
+                            <option value="nome_asc">Ordem alfabética (A-Z)</option>
+                            <option value="nome_desc">Ordem alfabética (Z-A)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="lista-inscricoes-container"></div>
+            </section>
+```
+
+O que muda:
+
+1. Novo filtro de ano letivo (#filtro-inscricoes-ano) no topo.
+2. 4 cards de resumo (Total, Aprovadas, Por Aprovar, Rejeitadas) com ids para o JS preencher.
+3. Filtro de estado agora inclui matricula_paga e matriculado.
+4. A lista (#lista-inscricoes-container) continua igual.
+
+O que fazer:
+
+1. Substitui a secção #seccao-inscricoes no secretaria.html.
+2. Não faças nada no JS ainda. Vou dar-te o secretaria-inscricoes.js completo no próximo passo.
+
+Corre a substituição do HTML e diz-me se ficou igual ao esperado.
+Aqui está o secretaria-inscricoes.js completo e ajustado:
+
+```javascript
+/*
+ CESC — Secretaria · Inscrições
+ Data: 30/10/2026
+
+ - Filtro por ano letivo.
+ - Cards de resumo (total, aprovadas, por aprovar, rejeitadas por código).
+ - Lista com filtros (estado, classe) e ordenação.
+ - Detalhe com bloqueio de análise, documentos, histórico de alterações.
+ - Auditoria (quem decidiu e quando).
+ */
+
+// ============================================================
+// ARRANQUE
+// ============================================================
+async function inicializarInscricoes() {
+    const token = obterToken();
+    if (!token) return;
+
+    // Carregar anos disponíveis
+    const resAnos = await chamarRPC("cesc_secretaria_listar_anos_inscricoes", { p_token: token });
+    if (!resAnos.ok) return;
+
+    const selAno = document.getElementById("filtro-inscricoes-ano");
+    if (selAno) {
+        selAno.innerHTML = "";
+        const anos = resAnos.anos || [];
+        anos.forEach(function (a) {
+            const opt = document.createElement("option");
+            opt.value = a;
+            opt.textContent = a;
+            selAno.appendChild(opt);
+        });
+
+        // Selecionar o ano atual (da configuração, se existir)
+        const dadosSec = await chamarRPC("cesc_secretaria_dashboard", { p_token: token });
+        let anoAtual = null;
+        if (dadosSec.ok) {
+            // Tentar obter da configuração global
+            const cfg = await chamarRPC("cesc_diretor_listar_configuracoes", { p_token: token });
+            if (cfg.ok) {
+                const item = (cfg.configuracoes || []).find(c => c.chave === "ano_lectivo_actual");
+                if (item) anoAtual = item.valor;
+            }
+        }
+        if (anoAtual && anos.includes(anoAtual)) {
+            selAno.value = anoAtual;
+        } else if (anos.length > 0) {
+            selAno.value = anos[0];
+        }
+
+        // Ligar o filtro de ano
+        selAno.addEventListener("change", function () {
+            carregarStatsInscricoes();
+            carregarInscricoes();
+        });
+    }
+
+    configurarFiltrosInscricoes();
+    await carregarStatsInscricoes();
+    await carregarInscricoes();
+}
+
+// ============================================================
+// CARDS DE RESUMO
+// ============================================================
+async function carregarStatsInscricoes() {
+    const token = obterToken();
+    const ano = document.getElementById("filtro-inscricoes-ano").value;
+    if (!token || !ano) return;
+
+    const res = await chamarRPC("cesc_secretaria_stats_inscricoes", { p_token: token, p_ano_lectivo: ano });
+    if (!res.ok) return;
+
+    document.getElementById("stat-total-inscricoes").textContent = res.total;
+    document.getElementById("stat-inscricoes-aprovadas").textContent = res.aprovadas;
+    document.getElementById("stat-inscricoes-por-aprovar").textContent = res.por_aprovar;
+    document.getElementById("stat-inscricoes-rejeitadas").textContent = (res.rejeitadas_c0 + res.rejeitadas_c1);
+    document.getElementById("stat-rejeitadas-detalhe").textContent = "Cód. 0: " + res.rejeitadas_c0 + " · Cód. 1: " + res.rejeitadas_c1;
+}
+
+// ============================================================
+// FILTROS
+// ============================================================
+function configurarFiltrosInscricoes() {
+    const selEstado = document.getElementById("filtro-inscricoes-estado");
+    const selClasse = document.getElementById("filtro-inscricoes-classe");
+    const selOrdem = document.getElementById("filtro-inscricoes-ordem");
+    if (selEstado) selEstado.addEventListener("change", carregarInscricoes);
+    if (selClasse) selClasse.addEventListener("change", carregarInscricoes);
+    if (selOrdem) selOrdem.addEventListener("change", carregarInscricoes);
+}
+
+// ============================================================
+// LISTA
+// ============================================================
+async function carregarInscricoes() {
+    const token = obterToken();
+    if (!token) return;
+    const container = document.getElementById("lista-inscricoes-container");
+    container.innerHTML = '<div class="loader-container" style="min-height:180px;"><div class="loader"></div></div>';
+
+    const ano = document.getElementById("filtro-inscricoes-ano").value;
+    const estado = document.getElementById("filtro-inscricoes-estado").value;
+    const classe = document.getElementById("filtro-inscricoes-classe").value;
+    const ordemParam = document.getElementById("filtro-inscricoes-ordem").value;
+
+    let ordenar_por = "data", ordem = "desc";
+    if (ordemParam.indexOf("media") === 0) { ordenar_por = "media"; ordem = ordemParam.split("_")[1]; }
+    else if (ordemParam.indexOf("idade") === 0) { ordenar_por = "idade"; ordem = ordemParam.split("_")[1]; }
+    else if (ordemParam.indexOf("nome") === 0) { ordenar_por = "nome"; ordem = ordemParam.split("_")[1]; }
+
+    const dados = await chamarRPC("cesc_secretaria_listar_inscricoes", {
+        p_token: token, p_ano_lectivo: ano, p_estado: estado || null, p_classe: classe || null,
+        p_ordenar_por: ordenar_por, p_ordem: ordem
+    });
+
+    if (!dados.ok) { container.innerHTML = '<div class="estado-vazio">' + esc(dados.erro || "Erro ao carregar inscrições.") + '</div>'; return; }
+    renderizarListaInscricoes(dados.inscricoes || []);
+}
+
+function renderizarListaInscricoes(lista) {
+    const container = document.getElementById("lista-inscricoes-container");
+    if (lista.length === 0) { container.innerHTML = '<div class="estado-vazio">Sem inscrições registadas.</div>'; return; }
+
+    let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec">';
+    html += '<thead><tr><th>Referência</th><th>Candidato</th><th>Classe</th><th>Curso</th><th>Média</th><th>Data</th><th>Estado</th><th>Acções</th></tr></thead><tbody>';
+
+    lista.forEach(function (i, idx) {
+        const media = i.media_certificado != null ? Number(i.media_certificado).toFixed(1) : "—";
+        const mediaClasse = i.media_certificado != null ? (i.media_certificado >= 14 ? "cor-media-alta" : (i.media_certificado >= 10 ? "cor-media-media" : "cor-media-baixa")) : "";
+        let estadoHtml = '<span class="badge badge-' + esc(i.estado) + '">' + esc(formatarEstado(i.estado)) + '</span>';
+        if (i.estado === "rejeitada" && i.codigo_rejeicao != null) {
+            estadoHtml += ' <span class="badge badge-' + (i.codigo_rejeicao === 1 ? "activo" : "desistente") + '" style="margin-left:4px;">Cód. ' + i.codigo_rejeicao + '</span>';
+        }
+        if (inscricaoEmAnalise === i.id) {
+            estadoHtml += ' <span class="badge badge-pendente" style="margin-left:4px;">Em análise</span>';
+        }
+
+        html += '<tr>';
+        html += '  <td><strong>' + esc(i.referencia) + '</strong></td>';
+        html += '  <td><div class="celula-nome"><strong>' + esc(i.nome_completo) + '</strong><span>BI: ' + esc(i.bi_numero) + '</span></div></td>';
+        html += '  <td>' + esc(i.classe_pretendida) + '</td>';
+        html += '  <td>' + esc(i.curso_pretendido || "—") + '</td>';
+        html += '  <td class="' + mediaClasse + '" style="font-weight:700; text-align:center;">' + media + '</td>';
+        html += '  <td>' + fmtData(i.data_submissao) + '</td>';
+        html += '  <td>' + estadoHtml + '</td>';
+        html += '  <td><div class="acoes-linha"><button class="btn-acao btn-acao-secundario" data-ver-inscricao="' + idx + '"><i class="fas fa-eye"></i> Ver</button></div></td></tr>';
+        html += '<tr class="linha-editar" data-inscricao-linha="' + idx + '" style="display:none;"><td colspan="8"><div data-inscricao-conteudo="' + idx + '"></div></td></tr>';
+    });
+    html += '</tbody></table></div>';
+
+    // Cartões mobile
+    html += '<div class="cartoes-sec">';
+    lista.forEach(function (i, idx) {
+        const media = i.media_certificado != null ? Number(i.media_certificado).toFixed(1) : "—";
+        const mediaClasse = i.media_certificado != null ? (i.media_certificado >= 14 ? "cor-media-alta" : (i.media_certificado >= 10 ? "cor-media-media" : "cor-media-baixa")) : "";
+        let estadoHtml = '<span class="badge badge-' + esc(i.estado) + '">' + esc(formatarEstado(i.estado)) + '</span>';
+        if (i.estado === "rejeitada" && i.codigo_rejeicao != null) {
+            estadoHtml += ' <span class="badge badge-' + (i.codigo_rejeicao === 1 ? "activo" : "desistente") + '" style="margin-left:4px;">Cód. ' + i.codigo_rejeicao + '</span>';
+        }
+        if (inscricaoEmAnalise === i.id) {
+            estadoHtml += ' <span class="badge badge-pendente" style="margin-left:4px;">Em análise</span>';
+        }
+
+        html += '<div class="cartao-sec">';
+        html += '  <div class="cartao-sec-topo"><div class="cartao-sec-info"><strong>' + esc(i.nome_completo) + '</strong><span>Ref: ' + esc(i.referencia) + '</span></div><div>' + estadoHtml + '</div></div>';
+        html += '  <div class="cartao-sec-meta"><div class="meta-item"><span class="meta-rotulo">Classe</span><span class="meta-valor">' + esc(i.classe_pretendida) + '</span></div>' + (i.curso_pretendido ? '<div class="meta-item"><span class="meta-rotulo">Curso</span><span class="meta-valor">' + esc(i.curso_pretendido) + '</span></div>' : '') + '<div class="meta-item"><span class="meta-rotulo">Média</span><span class="meta-valor ' + mediaClasse + '">' + media + '</span></div><div class="meta-item"><span class="meta-rotulo">Data</span><span class="meta-valor">' + fmtData(i.data_submissao) + '</span></div></div>';
+        html += '  <div class="cartao-sec-acoes"><button class="btn-acao btn-acao-primario" data-ver-inscricao-mobile="' + idx + '"><i class="fas fa-eye"></i> Ver detalhes</button></div>';
+        html += '  <div data-inscricao-mobile="' + idx + '" style="display:none; margin-top:12px;"></div></div>';
+    });
+    html += '</div>';
+
+    container.innerHTML = html;
+
+    container.querySelectorAll("[data-ver-inscricao]").forEach(function (btn) {
+        btn.addEventListener("click", function () { const idx = parseInt(this.getAttribute("data-ver-inscricao"), 10); abrirDetalheInscricao(lista[idx], idx, false); });
+    });
+    container.querySelectorAll("[data-ver-inscricao-mobile]").forEach(function (btn) {
+        btn.addEventListener("click", function () { const idx = parseInt(this.getAttribute("data-ver-inscricao-mobile"), 10); abrirDetalheInscricao(lista[idx], idx, true); });
+    });
+}
+
+function formatarEstado(estado) {
+    if (!estado) return "";
+    if (estado === "matricula_paga") return "Matrícula Paga";
+    if (estado === "matriculado") return "Matriculado";
+    if (estado === "a_pagar") return "A pagar";
+    return capitalizar(estado);
+}
+
+// ============================================================
+// DETALHE
+// ============================================================
+async function abrirDetalheInscricao(insc, idx, éMobile) {
+    const token = obterToken();
+    const selLinha = éMobile ? '[data-inscricao-mobile="' + idx + '"]' : '[data-inscricao-linha="' + idx + '"]';
+    const selConteudo = éMobile ? '[data-inscricao-mobile="' + idx + '"]' : '[data-inscricao-conteudo="' + idx + '"]';
+    const painel = document.querySelector(selLinha);
+    const conteudo = document.querySelector(selConteudo);
+
+    // Se já estiver aberto, fechar e terminar análise
+    if (painel.style.display === "block" || painel.style.display === "table-row") {
+        painel.style.display = "none";
+        await chamarRPC("cesc_secretaria_terminar_analise", { p_token: token, p_inscricao_id: insc.id });
+        if (inscricaoEmAnalise === insc.id) inscricaoEmAnalise = null;
+        return;
+    }
+
+    // Se outra inscrição estiver em análise, terminar primeiro
+    if (inscricaoEmAnalise && inscricaoEmAnalise !== insc.id) {
+        await chamarRPC("cesc_secretaria_terminar_analise", { p_token: token, p_inscricao_id: inscricaoEmAnalise });
+    }
+
+    painel.style.display = éMobile ? "block" : "table-row";
+    conteudo.innerHTML = '<div class="loader" style="width:24px; height:24px; margin:10px auto;"></div>';
+
+    await chamarRPC("cesc_secretaria_iniciar_analise", { p_token: token, p_inscricao_id: insc.id });
+    inscricaoEmAnalise = insc.id;
+
+    const urls = await obterUrlsDocumentos(insc);
+    const media = insc.media_certificado != null ? Number(insc.media_certificado).toFixed(2) : "—";
+
+    // Histórico de alterações do candidato
+    let historicoHtml = '<p style="color:var(--cor-texto-suave); font-size:0.85rem;">Sem alterações registadas.</p>';
+    if (insc.candidato_id) {
+        const resHist = await chamarRPC("cesc_secretaria_historico_candidato", { p_token: token, p_candidato_id: insc.candidato_id });
+        if (resHist.ok && resHist.historico && resHist.historico.length > 0) {
+            const mapa = { "nome_completo": "Nome", "data_nascimento": "Data Nasc.", "genero": "Género", "telefone": "Telefone", "nome_encarregado": "Encarregado", "telefone_encarregado": "Tel. Encarregado", "doc_bi_frente": "BI Frente", "doc_bi_verso": "BI Verso", "doc_certificado": "Certificado", "doc_foto": "Foto", "bi_numero": "BI", "media_certificado": "Média" };
+            historicoHtml = '<div style="max-height:200px; overflow-y:auto; font-size:0.82rem; border:1px solid var(--cor-borda); border-radius:6px; padding:8px; background:#fff;">';
+            resHist.historico.forEach(function (h) {
+                historicoHtml += '<div style="padding:6px 0; border-bottom:1px dashed #f1f5f9;"><strong>' + esc(mapa[h.campo] || h.campo) + ':</strong> <span style="color:#dc2626; text-decoration:line-through;">' + esc(h.valor_anterior || "—") + '</span> → <span style="color:#065f46;">' + esc(h.valor_novo || "—") + '</span> <span style="color:#94a3b8;">(' + new Date(h.alterado_em).toLocaleString("pt-PT") + ')</span></div>';
+            });
+            historicoHtml += '</div>';
+        }
+    }
+
+    // Auditoria
+    let auditoriaHtml = "";
+    if (insc.data_decisao || insc.decidido_por) {
+        auditoriaHtml = '<div style="background:var(--cor-fundo); border:1px solid var(--cor-borda); border-radius:8px; padding:10px 14px; margin-bottom:12px; font-size:0.85rem;">';
+        if (insc.data_decisao) auditoriaHtml += '<div><strong>Data da decisão:</strong> ' + new Date(insc.data_decisao).toLocaleString("pt-PT") + '</div>';
+        if (insc.decidido_por) auditoriaHtml += '<div><strong>Decidido por:</strong> ' + esc(insc.decidido_por) + '</div>';
+        auditoriaHtml += '</div>';
+    }
+
+    let html = '<div class="inscricao-detalhe-box">';
+    html += '<h3 style="margin-bottom:12px; color:var(--cor-azul);">Detalhes da Inscrição</h3>';
+    html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:0.9rem; margin-bottom:16px;">';
+    html += '<div><strong>BI:</strong> ' + esc(insc.bi_numero) + '</div><div><strong>Data Nasc:</strong> ' + fmtData(insc.data_nascimento) + '</div>';
+    html += '<div><strong>Género:</strong> ' + (insc.genero === "M" ? "Masculino" : "Feminino") + '</div><div><strong>Telefone:</strong> ' + esc(insc.telefone) + '</div>';
+    html += '<div><strong>Email:</strong> ' + esc(insc.email || "—") + '</div><div><strong>Encarregado:</strong> ' + esc(insc.nome_encarregado) + ' (' + esc(insc.telefone_encarregado) + ')</div>';
+    html += '<div><strong>Classe pretendida:</strong> ' + esc(insc.classe_pretendida) + '</div>';
+    if (insc.curso_pretendido) {
+        html += '<div><strong>Curso pretendido:</strong> ' + esc(insc.curso_pretendido) + '</div>';
+    }
+    html += '<div style="grid-column: 1 / -1; background:var(--cor-fundo); padding:8px 12px; border-radius:6px; margin-top:8px;"><strong>Média do Certificado:</strong> <span style="font-size:1.1rem; color:var(--cor-azul);">' + media + ' / 20</span></div></div>';
+
+    html += auditoriaHtml;
+
+    if (insc.estado === "rejeitada" && insc.codigo_rejeicao != null) {
+        html += '<div style="background:#fef3c7; border:1px solid #fcd34d; color:#92400e; padding:10px 12px; border-radius:6px; margin-bottom:12px; font-size:0.85rem;"><strong>Rejeitada</strong> (código ' + insc.codigo_rejeicao + '): ' + esc(insc.motivo_rejeicao || "—") + '</div>';
+    }
+
+    html += '<h4 style="margin-bottom:8px; color:var(--cor-azul);">Documentos</h4><div class="docs-grelha">';
+    const docs = [
+        { label: "BI Frente", url: urls.bi_frente }, { label: "BI Verso", url: urls.bi_verso },
+        { label: "Certificado", url: urls.certificado }, { label: "Foto", url: urls.foto }
+    ];
+    docs.forEach(function (d) {
+        if (d.url) { html += '<a href="' + d.url + '" target="_blank" class="doc-btn"><i class="fas fa-file-image"></i> ' + d.label + '</a>'; }
+        else { html += '<span class="doc-btn" style="opacity:0.5; cursor:not-allowed;"><i class="fas fa-times"></i> ' + d.label + ' (Erro)</span>'; }
+    });
+    html += '</div>';
+
+    html += '<h4 style="margin-top:20px; margin-bottom:8px; color:var(--cor-azul);">Histórico de Alterações do Candidato</h4>';
+    html += historicoHtml;
+
+    if (insc.estado === "pendente") {
+        html += '<div class="form-acoes" style="margin-top:20px;">';
+        html += '  <button class="botao-primario" onclick="aprovarInscricao(\'' + insc.id + '\')"><i class="fas fa-check"></i> Aprovar</button>';
+        html += '  <button class="botao-secundario" style="color:var(--cor-erro); border-color:var(--cor-erro);" onclick="rejeitarInscricao(\'' + insc.id + '\')"><i class="fas fa-times"></i> Rejeitar</button>';
+        html += '  <button class="botao-secundario" onclick="cancelarAnalise(\'' + insc.id + '\', ' + idx + ', ' + éMobile + ')">Cancelar</button>';
+        html += '</div>';
+    }
+    html += '</div>';
+    conteudo.innerHTML = html;
+}
+
+async function cancelarAnalise(id, idx, éMobile) {
+    const token = obterToken();
+    await chamarRPC("cesc_secretaria_terminar_analise", { p_token: token, p_inscricao_id: id });
+    if (inscricaoEmAnalise === id) inscricaoEmAnalise = null;
+    const selLinha = éMobile ? '[data-inscricao-mobile="' + idx + '"]' : '[data-inscricao-linha="' + idx + '"]';
+    const painel = document.querySelector(selLinha);
+    if (painel) painel.style.display = "none";
+}
+
+async function obterUrlsDocumentos(insc) {
+    const urls = { bi_frente: null, bi_verso: null, certificado: null, foto: null };
+    const map = { bi_frente: insc.doc_bi_frente_url, bi_verso: insc.doc_bi_verso_url, certificado: insc.doc_certificado_url, foto: insc.doc_foto_url };
+    for (const chave in map) {
+        const path = map[chave];
+        if (!path) continue;
+        try {
+            const res = await fetch(API.SUPABASE_URL + "/functions/v1/gerar-url-assinada", {
+                method: "POST",
+                headers: { "apikey": API.SUPABASE_ANON_KEY, "Authorization": "Bearer " + API.SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+                body: JSON.stringify({ caminho: path })
+            });
+            if (res.ok) { const data = await res.json(); if (data.ok && data.url) urls[chave] = data.url; }
+        } catch (e) { console.error("Erro de rede:", chave, e); }
+    }
+    return urls;
+}
+```
+
+O que mudou:
+
+1. Nova função inicializarInscricoes — carrega os anos, seleciona o ano atual e liga o filtro de ano.
+2. Nova função carregarStatsInscricoes — preenche os 4 cards de resumo.
+3. carregarInscricoes — agora envia p_ano_lectivo.
+4. Lista — nova coluna Curso; os estados matricula_paga e matriculado são formatados corretamente; colspan ajustado para 8.
+5. Detalhe — mostra classe pretendida e curso pretendido; mostra auditoria (data da decisão + quem decidiu); não mostra sala.
+
+O que precisas de fazer:
+
+1. Substitui o secretaria-inscricoes.js por este ficheiro completo.
+2. No secretaria-core.js, na função mostrarSeccao, substitui a chamada:
+   ```javascript
+   if (id === "inscricoes") carregarInscricoes();
+   ```
+   Por:
+   ```javascript
+   if (id === "inscricoes") inicializarInscricoes();
+   ```
+3. No secretaria.css, adiciona os badges novos:
+   ```css
+   .badge-matricula_paga { background-color: #dbeafe; color: #1e3a8a; }
+   .badge-matriculado { background-color: #d1fae5; color: #065f46; }
+   ```
+4. No secretaria.html, substitui a secção #seccao-inscricoes pela versão com os cards e o filtro de ano que te dei antes.
+5. Hard Refresh na Secretaria.
+
+Corre e diz-me o que aparece. Se a lista e os cards estiverem preenchidos, está pronto.
+Entendo perfeitamente. Tens razão em três pontos:
+
+1. O dropdown do ano está grande de mais no mobile — precisa de largura controlada.
+2. Aprovado ≠ Matriculado — são estados diferentes e não devem ser somados nos cards.
+3. A secção Inscrições só deve mostrar até matricula_paga — o matriculado pertence à secção Matrículas (onde o algoritmo de atribuição de turmas vai correr).
+
+Vou corrigir os três pontos.
+
+---
+
+1. Corrigir o dropdown do ano (mobile)
+
+No secretaria.html, na secção #seccao-inscricoes, substitui o bloco do filtro de ano por este:
+
+```html
+                <!-- Filtro por Ano Letivo -->
+                <div class="barra-acoes" style="margin-bottom: 16px;">
+                    <label for="filtro-inscricoes-ano" style="font-size:0.8rem; font-weight:600; color:var(--cor-texto-suave); text-transform:uppercase; letter-spacing:0.5px; white-space:nowrap;">Ano letivo:</label>
+                    <select id="filtro-inscricoes-ano" class="campo-select" style="width: auto; min-width: 140px; max-width: 200px; flex: 0 0 auto;">
+                        <option value="">A carregar...</option>
+                    </select>
+                </div>
+```
+
+O que muda: o select deixa de ter flex: 1 1 200px (que o esticava) e passa a ter largura fixa (min-width: 140px; max-width: 200px; flex: 0 0 auto). No mobile, fica compacto ao lado do label.
+
+---
+
+2. Corrigir os cards (Aprovado ≠ Matriculado)
+
+O card "Aprovadas" deve contar apenas o estado aprovada (aprovado, mas ainda não pagou a matrícula). O matricula_paga não deve ser somado a "Aprovadas" — é uma fase seguinte.
+
+Nova RPC dos stats:
+
+```sql
+DROP FUNCTION IF EXISTS cesc.cesc_secretaria_stats_inscricoes(varchar, varchar) CASCADE;
+DROP FUNCTION IF EXISTS public.cesc_secretaria_stats_inscricoes(varchar, varchar) CASCADE;
+
+CREATE OR REPLACE FUNCTION cesc.cesc_secretaria_stats_inscricoes(
+    p_token varchar,
+    p_ano_lectivo varchar
+)
+RETURNS json AS $$
+DECLARE
+    v_user cesc.utilizadores;
+    v_total int;
+    v_aprovadas int;
+    v_por_aprovar int;
+    v_matricula_paga int;
+    v_rejeitadas_c0 int;
+    v_rejeitadas_c1 int;
+BEGIN
+    v_user := cesc.validar_sessao_role(p_token, ARRAY['secretaria', 'diretor', 'sub_diretor']);
+    IF v_user IS NULL THEN RETURN json_build_object('ok', false, 'erro', 'Não autorizado.'); END IF;
+
+    SELECT count(*) INTO v_total
+    FROM cesc.inscricoes
+    WHERE ano_lectivo = p_ano_lectivo AND estado <> 'a_pagar';
+
+    SELECT count(*) INTO v_aprovadas
+    FROM cesc.inscricoes
+    WHERE ano_lectivo = p_ano_lectivo AND estado = 'aprovada';
+
+    SELECT count(*) INTO v_por_aprovar
+    FROM cesc.inscricoes
+    WHERE ano_lectivo = p_ano_lectivo AND estado = 'pendente';
+
+    SELECT count(*) INTO v_matricula_paga
+    FROM cesc.inscricoes
+    WHERE ano_lectivo = p_ano_lectivo AND estado = 'matricula_paga';
+
+    SELECT count(*) INTO v_rejeitadas_c0
+    FROM cesc.inscricoes
+    WHERE ano_lectivo = p_ano_lectivo AND estado = 'rejeitada' AND codigo_rejeicao = 0;
+
+    SELECT count(*) INTO v_rejeitadas_c1
+    FROM cesc.inscricoes
+    WHERE ano_lectivo = p_ano_lectivo AND estado = 'rejeitada' AND codigo_rejeicao = 1;
+
+    RETURN json_build_object(
+        'ok', true,
+        'total', v_total,
+        'aprovadas', v_aprovadas,
+        'por_aprovar', v_por_aprovar,
+        'matricula_paga', v_matricula_paga,
+        'rejeitadas_c0', v_rejeitadas_c0,
+        'rejeitadas_c1', v_rejeitadas_c1
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION public.cesc_secretaria_stats_inscricoes(p_token varchar, p_ano_lectivo varchar)
+RETURNS json AS $$ BEGIN RETURN cesc.cesc_secretaria_stats_inscricoes(p_token, p_ano_lectivo); END; $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION public.cesc_secretaria_stats_inscricoes(varchar, varchar) TO anon, authenticated;
+```
+
+O que muda: a RPC devolve 6 valores separados: total, aprovadas, por_aprovar, matricula_paga, rejeitadas_c0, rejeitadas_c1.
+
+Novo HTML dos cards (substitui o bloco stats-inscricoes-container):
+
+```html
+                <!-- Cards de Resumo -->
+                <div class="stats-grelha" id="stats-inscricoes-container" style="margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-inbox"></i> Total</div>
+                        <div class="stat-valor" id="stat-total-inscricoes">—</div>
+                        <div class="stat-subtexto">inscrições no ano</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-check-circle"></i> Aprovadas</div>
+                        <div class="stat-valor" id="stat-inscricoes-aprovadas" style="color: #059669;">—</div>
+                        <div class="stat-subtexto">aguardam matrícula</div>
+                    </div>
+                    <div class="stat-card stat-card-alerta">
+                        <div class="stat-header"><i class="fas fa-clock"></i> Por Aprovar</div>
+                        <div class="stat-valor" id="stat-inscricoes-por-aprovar" style="color: #b45309;">—</div>
+                        <div class="stat-subtexto">a aguardar análise</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-credit-card"></i> Matrícula Paga</div>
+                        <div class="stat-valor" id="stat-inscricoes-matricula-paga" style="color: #1e3a8a;">—</div>
+                        <div class="stat-subtexto">prontos para turma</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-times-circle"></i> Rejeitadas</div>
+                        <div class="stat-valor" id="stat-inscricoes-rejeitadas" style="color: var(--cor-erro);">—</div>
+                        <div class="stat-subtexto" id="stat-rejeitadas-detalhe" style="font-size:0.7rem;">Cód. 0: — · Cód. 1: —</div>
+                    </div>
+                </div>
+```
+
+Novo JS para os cards (substitui a função carregarStatsInscricoes):
+
+```javascript
+async function carregarStatsInscricoes() {
+    const token = obterToken();
+    const ano = document.getElementById("filtro-inscricoes-ano").value;
+    if (!token || !ano) return;
+
+    const res = await chamarRPC("cesc_secretaria_stats_inscricoes", { p_token: token, p_ano_lectivo: ano });
+    if (!res.ok) return;
+
+    document.getElementById("stat-total-inscricoes").textContent = res.total;
+    document.getElementById("stat-inscricoes-aprovadas").textContent = res.aprovadas;
+    document.getElementById("stat-inscricoes-por-aprovar").textContent = res.por_aprovar;
+    document.getElementById("stat-inscricoes-matricula-paga").textContent = res.matricula_paga;
+    document.getElementById("stat-inscricoes-rejeitadas").textContent = (res.rejeitadas_c0 + res.rejeitadas_c1);
+    document.getElementById("stat-rejeitadas-detalhe").textContent = "Cód. 0: " + res.rejeitadas_c0 + " · Cód. 1: " + res.rejeitadas_c1;
+}
+```
+
+---
+
+3. Secção Inscrições só mostra até matricula_paga
+
+A RPC cesc_secretaria_listar_inscricoes deve excluir matriculado da lista (esse estado pertence à secção Matrículas).
+
+Correção na RPC:
+
+```sql
+DROP FUNCTION IF EXISTS cesc.cesc_secretaria_listar_inscricoes(varchar, varchar, varchar, varchar, varchar, varchar) CASCADE;
+DROP FUNCTION IF EXISTS public.cesc_secretaria_listar_inscricoes(varchar, varchar, varchar, varchar, varchar, varchar) CASCADE;
+
+CREATE OR REPLACE FUNCTION cesc.cesc_secretaria_listar_inscricoes(
+    p_token varchar,
+    p_ano_lectivo varchar,
+    p_estado varchar DEFAULT NULL,
+    p_classe varchar DEFAULT NULL,
+    p_ordenar_por varchar DEFAULT 'data',
+    p_ordem varchar DEFAULT 'desc'
+) RETURNS json AS $$
+DECLARE v_user cesc.utilizadores; v_lista json; v_order_sql text; v_query text;
+BEGIN
+    v_user := cesc.validar_sessao_role(p_token, ARRAY['secretaria', 'diretor', 'sub_diretor']);
+    IF v_user IS NULL THEN RETURN json_build_object('ok', false, 'erro', 'Não autorizado.'); END IF;
+
+    IF p_ordenar_por = 'media' THEN v_order_sql := 'media_certificado ' || CASE WHEN p_ordem = 'asc' THEN 'ASC NULLS LAST' ELSE 'DESC NULLS LAST' END;
+    ELSIF p_ordenar_por = 'nome' THEN v_order_sql := 'nome_completo ' || CASE WHEN p_ordem = 'asc' THEN 'ASC' ELSE 'DESC' END;
+    ELSIF p_ordenar_por = 'idade' THEN v_order_sql := 'data_nascimento ' || CASE WHEN p_ordem = 'asc' THEN 'ASC' ELSE 'DESC' END;
+    ELSE v_order_sql := 'data_submissao DESC'; END IF;
+
+    v_query := format('
+        SELECT json_agg(json_build_object(
+            ''id'', i.id, ''candidato_id'', i.candidato_id, ''referencia'', i.referencia,
+            ''nome_completo'', i.nome_completo, ''bi_numero'', i.bi_numero,
+            ''data_nascimento'', i.data_nascimento, ''genero'', i.genero,
+            ''telefone'', i.telefone, ''email'', i.email,
+            ''nome_encarregado'', i.nome_encarregado, ''telefone_encarregado'', i.telefone_encarregado,
+            ''classe_pretendida'', i.classe_pretendida, ''curso_pretendido'', i.curso_pretendido,
+            ''ano_lectivo'', i.ano_lectivo, ''como_soube'', i.como_soube,
+            ''media_certificado'', i.media_certificado,
+            ''doc_bi_frente_url'', i.doc_bi_frente_url, ''doc_bi_verso_url'', i.doc_bi_verso_url,
+            ''doc_certificado_url'', i.doc_certificado_url, ''doc_foto_url'', i.doc_foto_url,
+            ''estado'', i.estado, ''motivo_rejeicao'', i.motivo_rejeicao, ''codigo_rejeicao'', i.codigo_rejeicao,
+            ''data_submissao'', i.data_submissao, ''data_decisao'', i.data_decisao,
+            ''decidido_por'', (SELECT nome_completo FROM cesc.utilizadores WHERE id = i.decidido_por)
+        ) ORDER BY %s)
+        FROM cesc.inscricoes i
+        WHERE i.ano_lectivo = $1
+          AND i.estado NOT IN (''a_pagar'', ''matriculado'')
+          AND ($2 IS NULL OR $2 = '''' OR i.estado = $2)
+          AND ($3 IS NULL OR $3 = '''' OR i.classe_pretendida = $3)
+    ', v_order_sql);
+
+    EXECUTE v_query INTO v_lista USING p_ano_lectivo, p_estado, p_classe;
+    RETURN json_build_object('ok', true, 'inscricoes', COALESCE(v_lista, '[]'::json));
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION public.cesc_secretaria_listar_inscricoes(
+    p_token varchar, p_ano_lectivo varchar, p_estado varchar DEFAULT NULL, p_classe varchar DEFAULT NULL,
+    p_ordenar_por varchar DEFAULT 'data', p_ordem varchar DEFAULT 'desc'
+) RETURNS json AS $$
+BEGIN
+    RETURN cesc.cesc_secretaria_listar_inscricoes(p_token, p_ano_lectivo, p_estado, p_classe, p_ordenar_por, p_ordem);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION public.cesc_secretaria_listar_inscricoes TO anon, authenticated;
+```
+
+O que muda: a cláusula WHERE i.estado NOT IN ('a_pagar', 'matriculado') exclui os estados a_pagar e matriculado da lista de inscrições. O matriculado passa a ser responsabilidade da secção Matrículas (onde o algoritmo vai correr).
+
+Também no filtro de estado do HTML, remove a opção matriculado:
+
+```html
+                        <select id="filtro-inscricoes-estado" class="campo-select" style="flex: 1 1 180px;">
+                            <option value="">Todos os estados</option>
+                            <option value="pendente">Pendentes</option>
+                            <option value="aprovada">Aprovadas</option>
+                            <option value="rejeitada">Rejeitadas</option>
+                            <option value="matricula_paga">Matrícula Paga</option>
+                        </select>
+```
+
+---
+
+Resumo das alterações
+
+# O que Onde
+1 Dropdown do ano compacto (mobile) secretaria.html
+2 Cards separam "Aprovadas" de "Matrícula Paga" RPC cesc_secretaria_stats_inscricoes + HTML + JS
+3 Secção Inscrições exclui matriculado RPC cesc_secretaria_listar_inscricoes + HTML (filtro)
+
+---
+
+Próximo passo: o algoritmo de matrículas
+
+Depois de aplicares estas correções, vamos criar o algoritmo de matrículas. Ele vai:
+
+1. Ler todas as inscrições com estado = 'matricula_paga'.
+2. Atribuir sala_id e numero_aluno (com base na alocação).
+3. Mudar o estado para matriculado.
+4. Criar a matrícula ativa (cesc.matriculas com estado = 'activo').
+
+Isto é o DISTRIBUIDOR do AURA, mas aplicado à secção Matrículas. Na verdade, podemos reusar a RPC cesc_aura_distribuir (que já faz isto) e adicionar uma RPC nova cesc_secretaria_matricular_alunos que:
+
+· Chama o DISTRIBUIDOR.
+· Atualiza o estado das inscrições para matriculado.
+
+Queres que eu corrija os 3 pontos acima e depois passemos ao algoritmo de matrículas?
+Boa pergunta. Vou esclarecer o ciclo de vida dos estados, porque há uma confusão entre "aprovado" e "matrícula paga".
+
+O ciclo de vida da inscrição (do candidato ao aluno)
+
+Estado O que significa Quem muda
+a_pagar Inscrição submetida, mas ainda não pagou a taxa de inscrição (1.000 Kz). Sistema (ao submeter).
+pendente Pagou a inscrição. Aguarda análise da secretária. Webhook do pagamento.
+aprovada A secretária aprovou os documentos. O candidato ainda não pagou a matrícula (3.000 Kz). Secretária (ao clicar "Aprovar").
+rejeitada A secretária rejeitou. Secretária (ao clicar "Rejeitar").
+matricula_paga O candidato pagou a matrícula (3.000 Kz). Mas ainda não tem turma/sala. Webhook do pagamento da matrícula.
+matriculado A secretária (ou o AURA) atribuiu a turma/sala. O candidato é agora aluno oficial. Secretária (ao atribuir turma) ou AURA (ao distribuir).
+
+O que acontece quando o candidato paga a matrícula?
+
+1. A inscrição está em aprovada (aprovada pela secretária, mas ainda não pagou).
+2. O candidato paga os 3.000 Kz.
+3. O webhook do AppyPay (ou o mock) chama a RPC cesc_candidato_confirmar_pagamento.
+4. Essa RPC muda a inscrição de aprovada para matricula_paga (não para aprovada).
+5. O candidato passa a estar matricula_paga, não aprovada.
+
+Portanto:
+
+· aprovada = aprovado, mas ainda não pagou a matrícula.
+· matricula_paga = aprovado e já pagou a matrícula, mas ainda não tem turma.
+
+O que a tua pergunta implica:
+
+Tu perguntaste:
+
+"Se alguém é aprovado, paga matrícula, ele subscreve estado aprovado?"
+
+A resposta é: não. Quando paga a matrícula, o estado muda de aprovada para matricula_paga. O aprovada fica para trás (é um estado anterior).
+
+O que os cards devem mostrar (com esta correção):
+
+Card Estado que conta
+Total Todos, exceto a_pagar e matriculado.
+Aprovadas aprovada (aprovado, mas ainda não pagou).
+Por Aprovar pendente.
+Matrícula Paga matricula_paga (pagou, mas ainda não tem turma).
+Rejeitadas rejeitada (separado por código 0 e 1).
+
+O matriculado não aparece na secção Inscrições (pertence à secção Matrículas).
+
+O que precisas de decidir:
+
+1. O card "Aprovadas" deve contar só aprovada ou também matricula_paga?
+   · Opção A: só aprovada (separado de "Matrícula Paga").
+   · Opção B: aprovada + matricula_paga (tudo o que foi aprovado, independentemente de ter pago ou não).
+2. O que queres ver na lista de inscrições?
+   · pendente, aprovada, rejeitada, matricula_paga.
+   · Sem matriculado (esse vai para a secção Matrículas).
+
+Diz-me e eu ajusto a RPC dos stats e a lista de acordo.
