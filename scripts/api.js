@@ -110,18 +110,12 @@ function guardarToken(token) {
 function exigirLogin() {
     const token = obterToken();
     if (!token) {
-        window.location.href = "login.html";
+        window.location.href = "/paginas/login.html"; 
         return null;
     }
     return token;
 }
 
-function terminarSessao() {
-    try {
-        sessionStorage.removeItem("cesc_token");
-    } catch (e) {}
-    window.location.href = "login.html";
-}
 
 function terminarSessao() {
     try {
