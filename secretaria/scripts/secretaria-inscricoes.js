@@ -1,6 +1,6 @@
 /*
  CESC — Secretaria · Inscrições
- Data: 30/10/2026
+ Data: 05/11/2026
 
  - Filtro por ano letivo.
  - Cards de resumo (total, aprovadas, por aprovar, rejeitadas por código).
@@ -9,6 +9,9 @@
  - Auditoria (quem decidiu e quando).
  */
 
+// Verifica se o utilizador é o Diretor
+const isDiretorInscricoes = (window.ROLE_UTILIZADOR === 'diretor' || window.ROLE_UTILIZADOR === 'sub_diretor');
+
 // ============================================================
 // ARRANQUE
 // ============================================================
@@ -16,7 +19,6 @@ async function inicializarInscricoes() {
     const token = obterToken();
     if (!token) return;
 
-    // Carregar anos disponíveis
     const resAnos = await chamarRPC("cesc_secretaria_listar_anos_inscricoes", { p_token: token });
     if (!resAnos.ok) return;
 
@@ -31,11 +33,9 @@ async function inicializarInscricoes() {
             selAno.appendChild(opt);
         });
 
-        // Selecionar o ano atual (da configuração, se existir)
         const dadosSec = await chamarRPC("cesc_secretaria_dashboard", { p_token: token });
         let anoAtual = null;
         if (dadosSec.ok) {
-            // Tentar obter da configuração global
             const cfg = await chamarRPC("cesc_diretor_listar_configuracoes", { p_token: token });
             if (cfg.ok) {
                 const item = (cfg.configuracoes || []).find(c => c.chave === "ano_lectivo_actual");
@@ -48,7 +48,6 @@ async function inicializarInscricoes() {
             selAno.value = anos[0];
         }
 
-        // Ligar o filtro de ano
         selAno.addEventListener("change", function () {
             carregarStatsInscricoes();
             carregarInscricoes();
@@ -78,6 +77,7 @@ async function carregarStatsInscricoes() {
     document.getElementById("stat-inscricoes-rejeitadas").textContent = (res.rejeitadas_c0 + res.rejeitadas_c1);
     document.getElementById("stat-rejeitadas-detalhe").textContent = "Cód. 0: " + res.rejeitadas_c0 + " · Cód. 1: " + res.rejeitadas_c1;
 }
+
 // ============================================================
 // FILTROS
 // ============================================================
@@ -198,15 +198,18 @@ async function abrirDetalheInscricao(insc, idx, éMobile) {
     const painel = document.querySelector(selLinha);
     const conteudo = document.querySelector(selConteudo);
 
-    // Se já estiver aberto, fechar e terminar análise
+    // Se já estiver aberto, fechar
     if (painel.style.display === "block" || painel.style.display === "table-row") {
         painel.style.display = "none";
-        await chamarRPC("cesc_secretaria_terminar_analise", { p_token: token, p_inscricao_id: insc.id });
-        if (inscricaoEmAnalise === insc.id) inscricaoEmAnalise = null;
+        // Se não for diretor, termina a análise
+        if (!isDiretorInscricoes) {
+            await chamarRPC("cesc_secretaria_terminar_analise", { p_token: token, p_inscricao_id: insc.id });
+            if (inscricaoEmAnalise === insc.id) inscricaoEmAnalise = null;
+        }
         return;
     }
 
-    // Se outra inscrição estiver em análise, terminar primeiro
+    // Se outra inscrição estiver em análise
     if (inscricaoEmAnalise && inscricaoEmAnalise !== insc.id) {
         await chamarRPC("cesc_secretaria_terminar_analise", { p_token: token, p_inscricao_id: inscricaoEmAnalise });
     }
@@ -214,13 +217,16 @@ async function abrirDetalheInscricao(insc, idx, éMobile) {
     painel.style.display = éMobile ? "block" : "table-row";
     conteudo.innerHTML = '<div class="loader" style="width:24px; height:24px; margin:10px auto;"></div>';
 
-    await chamarRPC("cesc_secretaria_iniciar_analise", { p_token: token, p_inscricao_id: insc.id });
-    inscricaoEmAnalise = insc.id;
+    // Só a secretária inicia o bloqueio de análise
+    if (!isDiretorInscricoes) {
+        await chamarRPC("cesc_secretaria_iniciar_analise", { p_token: token, p_inscricao_id: insc.id });
+        inscricaoEmAnalise = insc.id;
+    }
 
     const urls = await obterUrlsDocumentos(insc);
     const media = insc.media_certificado != null ? Number(insc.media_certificado).toFixed(2) : "—";
 
-    // Histórico de alterações do candidato
+    // Histórico
     let historicoHtml = '<p style="color:var(--cor-texto-suave); font-size:0.85rem;">Sem alterações registadas.</p>';
     if (insc.candidato_id) {
         const resHist = await chamarRPC("cesc_secretaria_historico_candidato", { p_token: token, p_candidato_id: insc.candidato_id });
@@ -275,7 +281,10 @@ async function abrirDetalheInscricao(insc, idx, éMobile) {
     html += '<h4 style="margin-top:20px; margin-bottom:8px; color:var(--cor-azul);">Histórico de Alterações do Candidato</h4>';
     html += historicoHtml;
 
-    if (insc.estado === "pendente") {
+    // ============================================================
+    // SÓ MOSTRA OS BOTÕES DE AÇÃO SE NÃO FOR DIRETOR
+    // ============================================================
+    if (insc.estado === "pendente" && !isDiretorInscricoes) {
         html += '<div class="form-acoes" style="margin-top:20px;">';
         html += '  <button class="botao-primario" onclick="aprovarInscricao(\'' + insc.id + '\')"><i class="fas fa-check"></i> Aprovar</button>';
         html += '  <button class="botao-secundario" style="color:var(--cor-erro); border-color:var(--cor-erro);" onclick="rejeitarInscricao(\'' + insc.id + '\')"><i class="fas fa-times"></i> Rejeitar</button>';

@@ -1,11 +1,13 @@
 /*
  CESC — Secretaria · Alunos
  Data: 04/11/2026
- 
  */
 
 let alunosCacheLocal = [];
 let anoAtualAlunos = "";
+
+// Verifica se o utilizador é o Diretor (para esconder botões de ação)
+const isDiretorAlunos = (window.ROLE_UTILIZADOR === 'diretor' || window.ROLE_UTILIZADOR === 'sub_diretor');
 
 async function carregarAlunos() {
     const token = obterToken();
@@ -29,12 +31,10 @@ async function carregarAlunos() {
                 selAno.appendChild(opt);
             });
         } else {
-            // Se não houver matrículas, coloca o ano atual por defeito
             const anoAtual = new Date().getFullYear();
             selAno.innerHTML = `<option value="${anoAtual}/${anoAtual + 1}">${anoAtual}/${anoAtual + 1}</option>`;
         }
 
-        // Ligar os eventos (apenas uma vez)
         selAno.dataset.ligado = "1";
         selAno.addEventListener("change", function() { carregarAlunos(); });
         
@@ -42,7 +42,6 @@ async function carregarAlunos() {
         document.getElementById("filtro-alunos-estado").addEventListener("change", aplicarFiltrosAlunos);
     }
     
-    // O ano selecionado no dropdown
     const anoSelecionado = selAno ? selAno.value : null;
 
     // 2. Carregar Stats para o ano selecionado
@@ -308,11 +307,17 @@ async function abrirDocumento(caminho) {
 }
 
 // ============================================================
-// CONVIDAR ALUNO
+// CONVIDAR ALUNO (Só visível para a Secretária)
 // ============================================================
 document.addEventListener("DOMContentLoaded", function () {
     const btnConvidar = document.getElementById("btn-convidar-aluno");
     if (!btnConvidar) return;
+
+    // Se for o Diretor, esconde o botão e não adiciona o evento
+    if (isDiretorAlunos) {
+        btnConvidar.style.display = "none";
+        return;
+    }
 
     btnConvidar.addEventListener("click", function () {
         const html = `

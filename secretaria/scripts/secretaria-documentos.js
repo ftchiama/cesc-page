@@ -1,6 +1,10 @@
 /*
  CESC — Secretaria · Documentos
+ Data: 05/11/2026
  */
+
+// Verifica se o utilizador é o Diretor
+const isDiretorDocumentos = (window.ROLE_UTILIZADOR === 'diretor' || window.ROLE_UTILIZADOR === 'sub_diretor');
 
 async function carregarDocumentos() {
     const token = obterToken();
@@ -32,9 +36,16 @@ function renderizarListaDocumentos(docs) {
     docs.forEach(function (d, idx) {
         const estadoBadge = '<span class="badge badge-' + esc(d.estado) + '">' + esc(capitalizar(d.estado)) + '</span>';
         let acoes = "";
-        if (d.estado === "pendente") acoes = '<button class="btn-acao btn-acao-primario" data-marcar-doc="' + idx + '" data-novo-estado="pago"><i class="fas fa-check"></i> Marcar pago</button>';
-        else if (d.estado === "pago") acoes = '<button class="btn-acao btn-acao-sucesso" data-marcar-doc="' + idx + '" data-novo-estado="emitido"><i class="fas fa-file-export"></i> Emitir</button>';
-        else acoes = '<span style="color:var(--cor-texto-leve); font-size:0.8rem;">Concluído</span>';
+        
+        if (isDiretorDocumentos) {
+            // Diretor vê mas não mexe
+            acoes = '<span style="color:var(--cor-texto-leve); font-size:0.8rem;">Só leitura</span>';
+        } else {
+            // Secretária pode agir
+            if (d.estado === "pendente") acoes = '<button class="btn-acao btn-acao-primario" data-marcar-doc="' + idx + '" data-novo-estado="pago"><i class="fas fa-check"></i> Marcar pago</button>';
+            else if (d.estado === "pago") acoes = '<button class="btn-acao btn-acao-sucesso" data-marcar-doc="' + idx + '" data-novo-estado="emitido"><i class="fas fa-file-export"></i> Emitir</button>';
+            else acoes = '<span style="color:var(--cor-texto-leve); font-size:0.8rem;">Concluído</span>';
+        }
 
         html += '<tr><td><div class="celula-nome"><strong>' + esc(d.aluno_nome) + '</strong><span>BI: ' + esc(d.aluno_bi) + '</span></div></td><td>' + esc(d.tipo_documento) + '</td><td class="col-opcional">' + fmtData(d.data_pedido) + '</td><td>' + estadoBadge + '</td><td><div class="acoes-linha">' + acoes + '</div></td></tr>';
     });
@@ -43,9 +54,14 @@ function renderizarListaDocumentos(docs) {
     html += '<div class="cartoes-sec">';
     docs.forEach(function (d, idx) {
         let acoes = "";
-        if (d.estado === "pendente") acoes = '<button class="btn-acao btn-acao-primario" data-marcar-doc-mobile="' + idx + '" data-novo-estado="pago"><i class="fas fa-check"></i> Marcar pago</button>';
-        else if (d.estado === "pago") acoes = '<button class="btn-acao btn-acao-sucesso" data-marcar-doc-mobile="' + idx + '" data-novo-estado="emitido"><i class="fas fa-file-export"></i> Emitir</button>';
-        else acoes = '<span style="color:var(--cor-texto-leve); font-size:0.8rem;">Concluído</span>';
+        
+        if (isDiretorDocumentos) {
+            acoes = '<span style="color:var(--cor-texto-leve); font-size:0.8rem; text-align:center; display:block;">Só leitura</span>';
+        } else {
+            if (d.estado === "pendente") acoes = '<button class="btn-acao btn-acao-primario" data-marcar-doc-mobile="' + idx + '" data-novo-estado="pago"><i class="fas fa-check"></i> Marcar pago</button>';
+            else if (d.estado === "pago") acoes = '<button class="btn-acao btn-acao-sucesso" data-marcar-doc-mobile="' + idx + '" data-novo-estado="emitido"><i class="fas fa-file-export"></i> Emitir</button>';
+            else acoes = '<span style="color:var(--cor-texto-leve); font-size:0.8rem;">Concluído</span>';
+        }
 
         html += '<div class="cartao-sec"><div class="cartao-sec-topo"><div class="cartao-sec-info"><strong>' + esc(d.aluno_nome) + '</strong><span>BI: ' + esc(d.aluno_bi) + '</span></div><span class="badge badge-' + esc(d.estado) + '">' + esc(capitalizar(d.estado)) + '</span></div>';
         html += '<div class="cartao-sec-meta"><div class="meta-item"><span class="meta-rotulo">Tipo</span><span class="meta-valor">' + esc(d.tipo_documento) + '</span></div><div class="meta-item"><span class="meta-rotulo">Pedido</span><span class="meta-valor">' + fmtData(d.data_pedido) + '</span></div></div>';
@@ -53,6 +69,9 @@ function renderizarListaDocumentos(docs) {
     });
     html += '</div>';
     container.innerHTML = html;
+
+    // Se for Diretor, não liga os eventos dos botões (porque eles não existem)
+    if (isDiretorDocumentos) return;
 
     container.querySelectorAll("[data-marcar-doc]").forEach(function (btn) {
         btn.addEventListener("click", function () { const idx = parseInt(this.getAttribute("data-marcar-doc"), 10); const novoEstado = this.getAttribute("data-novo-estado"); marcarDocumento(docs[idx], novoEstado, this); });

@@ -160,3 +160,21 @@ function linhaInfo(rotulo, valor) {
 function fazerLogout() {
     terminarSessao();
 }
+// ============================================================
+// ROLE GLOBAL (Para esconder botões no Diretor)
+// ============================================================
+async function carregarRoleGlobal() {
+    const token = obterToken();
+    if (!token) return;
+    try {
+        const res = await chamarRPC("cesc_perfil_role", { p_token: token });
+        if (res.ok) {
+            window.ROLE_UTILIZADOR = res.role;
+        }
+    } catch (e) { console.error("Erro ao obter role:", e); }
+}
+
+// Chama automaticamente ao carregar a página (se houver token)
+document.addEventListener("DOMContentLoaded", function() {
+    carregarRoleGlobal();
+});

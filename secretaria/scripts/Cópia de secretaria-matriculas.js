@@ -15,12 +15,36 @@ async function carregarMatriculas() {
 
     const filtroAno = document.getElementById("filtro-matriculas-ano");
     
-    // 1. Definir Ano Padrão (se ainda não tiver valor)
-    if (filtroAno && !filtroAno.value) {
-        const anoAtual = new Date().getFullYear();
-        const proxAno = anoAtual + 1;
-        filtroAno.innerHTML = `<option value="${anoAtual}/${proxAno}">${anoAtual}/${proxAno}</option>`;
-        // (Podes adicionar aqui uma chamada à BD para buscar todos os anos, se quiseres)
+    // 1. Carregar os anos reais da base de dados (apenas na primeira vez)
+    if (filtroAno && !filtroAno.dataset.ligado) {
+        const resAnos = await chamarRPC("cesc_secretaria_listar_anos_matriculas", { p_token: token });
+        
+        if (resAnos.ok && resAnos.anos && resAnos.anos.length > 0) {
+            filtroAno.innerHTML = "";
+            resAnos.anos.forEach(ano => {
+                const opt = document.createElement("option");
+                opt.value = ano;
+                opt.textContent = ano;
+                filtroAno.appendChild(opt);
+            });
+        } else {
+            // Fallback: se não houver matrículas, coloca o ano atual
+            const anoAtual = new Date().getFullYear();
+            filtroAno.innerHTML = `<option value="${anoAtual}/${anoAtual + 1}">${anoAtual}/${anoAtual + 1}</option>`;
+        }
+
+        // Ligar os eventos (apenas uma vez)
+        filtroAno.dataset.ligado = "1";
+        filtroAno.addEventListener("change", function () { carregarMatriculas(); });
+
+        document.getElementById("filtro-matriculas-nome").addEventListener("input", function() {
+            const termo = this.value.toLowerCase();
+            const filtrados = matriculasCache.filter(m => 
+                (m.aluno_nome || "").toLowerCase().includes(termo) || 
+                (m.aluno_bi || "").toLowerCase().includes(termo)
+            );
+            renderizarListaMatriculas(filtrados);
+        });
     }
 
     const ano = filtroAno ? filtroAno.value : "";
@@ -42,20 +66,6 @@ async function carregarMatriculas() {
 
     matriculasCache = dados.matriculas || [];
     renderizarListaMatriculas(matriculasCache);
-
-    if (filtroAno && !filtroAno.dataset.ligado) {
-        filtroAno.dataset.ligado = "1";
-        filtroAno.addEventListener("change", function () { carregarMatriculas(); });
-
-        document.getElementById("filtro-matriculas-nome").addEventListener("input", function() {
-            const termo = this.value.toLowerCase();
-            const filtrados = matriculasCache.filter(m => 
-                (m.aluno_nome || "").toLowerCase().includes(termo) || 
-                (m.aluno_bi || "").toLowerCase().includes(termo)
-            );
-            renderizarListaMatriculas(filtrados);
-        });
-    }
 }
 
 function renderizarListaMatriculas(matriculas) {
@@ -89,9 +99,6 @@ function configurarFormNovaMatricula() {
     const msg = document.getElementById("msg-nova-matricula");
     if (!btnNova || !form) return;
 
-    let alunoSelecionado = null;
-    let salaSelecionada = null;
-
     btnNova.addEventListener("click", async function () {
         form.style.display = form.style.display === "none" ? "block" : "none";
         if (form.style.display === "block") {
@@ -104,8 +111,6 @@ function configurarFormNovaMatricula() {
             document.getElementById("mat-sala-id").value = "";
             document.getElementById("resultado-pesquisa-aluno").style.display = "none";
             document.getElementById("resultado-pesquisa-sala").style.display = "none";
-            alunoSelecionado = null;
-            salaSelecionada = null;
 
             const token = obterToken();
             const ano = document.getElementById("filtro-matriculas-ano").value;
