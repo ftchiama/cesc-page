@@ -124,7 +124,7 @@ async function mostrarSeccao(id) {
     else if (id === "inscricoes") inicializarInscricoes();
     else if (id === "matriculas") carregarMatriculas();
     else if (id === "documentos") carregarDocumentos();
-
+    else if (id === "aura") carregarAura();
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
