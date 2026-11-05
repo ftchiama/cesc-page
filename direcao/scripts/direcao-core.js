@@ -58,7 +58,7 @@ async function carregarEstatisticas(token) {
         html += '<div class="stat-card"><div class="stat-header"><i class="fas fa-school"></i> Salas</div><div class="stat-valor">' + (stats.salas || 0) + '</div></div>';
         document.getElementById("stats-visao-geral").innerHTML = html;
     }
-    document.getElementById("dir-nome-sidebar").textContent = "Diretor";
+    const nomeSidebar = document.getElementById("dir-nome-sidebar"); if (nomeSidebar) nomeSidebar.textContent = "Diretor";
 }
 
 // Helpers comuns
