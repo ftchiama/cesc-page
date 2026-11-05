@@ -3,6 +3,8 @@ async function carregarEquipa() {
     if (!token) return;
 
     const container = document.getElementById("lista-utilizadores-container");
+    if (!container) return;
+
     container.innerHTML = '<div class="loader-container" style="min-height:180px;"><div class="loader"></div></div>';
 
     const dados = await chamarRPC("cesc_diretor_listar_equipa", { p_token: token });
@@ -17,6 +19,7 @@ async function carregarEquipa() {
 
 function renderizarListaEquipa(lista) {
     const container = document.getElementById("lista-utilizadores-container");
+    if (!container) return;
     if (lista.length === 0) { container.innerHTML = '<div class="estado-vazio">Nenhum utilizador registado.</div>'; return; }
 
     let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec">';
@@ -49,11 +52,16 @@ function configurarFormUtilizador() {
     const btnGuardar = document.getElementById("btn-guardar-utilizador");
     const msg = document.getElementById("msg-novo-utilizador");
 
-    if (!btnNovo || !form) return;
+    // Se algum elemento essencial não existir, não faz nada
+    if (!btnNovo || !form || !btnGuardar) return;
+
+    // Evitar adicionar o evento duas vezes
+    if (btnNovo.dataset.ligado) return;
+    btnNovo.dataset.ligado = "1";
 
     btnNovo.addEventListener("click", () => {
         form.style.display = form.style.display === "none" ? "block" : "none";
-        msg.textContent = "";
+        if (msg) msg.textContent = "";
     });
 
     if (btnCancelar) btnCancelar.addEventListener("click", () => { form.style.display = "none"; });
