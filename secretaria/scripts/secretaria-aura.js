@@ -1,5 +1,6 @@
 /*
  CESC — Secretaria · AURA
+ Data: 05/11/2026
  */
 
 let regrasCache = [];
@@ -40,37 +41,53 @@ async function carregarAura() {
 
         document.getElementById("btn-aura-julgar").addEventListener("click", async function() {
             if (!confirm("Executar o JUIZ? Isto avalia todos os alunos com matrícula paga e marca-os como aprovados ou reprovados.")) return;
-            this.disabled = true;
-            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A executar...';
+            const btn = this;
+            const spanStatus = document.getElementById("aura-status");
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A executar...';
+            spanStatus.textContent = "A avaliar alunos...";
             
             const res = await chamarRPC("cesc_aura_julgar", { p_token: token, p_ano_lectivo: ano });
-            this.disabled = false;
-            this.innerHTML = '<i class="fas fa-gavel"></i> Executar JUIZ (Avaliar Alunos)';
+            
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-gavel"></i> Executar JUIZ (Avaliar Alunos)';
+            spanStatus.textContent = "";
 
-            if (res.ok) alert(`JUIZ concluído!\nTotal: ${res.total}\nAprovados: ${res.aprovados}\nReprovados: ${res.reprovados}`);
-            else alert("Erro: " + res.erro);
+            if (res.ok) {
+                alert(`JUIZ concluído!\nTotal: ${res.total}\nAprovados: ${res.aprovados}\nReprovados: ${res.reprovados}`);
+            } else {
+                alert("Erro: " + res.erro);
+            }
         });
 
         document.getElementById("btn-aura-distribuir").addEventListener("click", async function() {
             if (!confirm("Executar o DISTRIBUIDOR? Isto coloca os alunos aprovados nas salas alocadas.")) return;
-            this.disabled = true;
-            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A distribuir...';
+            const btn = this;
+            const spanStatus = document.getElementById("aura-status");
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A distribuir...';
+            spanStatus.textContent = "A distribuir alunos...";
             
             const res = await chamarRPC("cesc_aura_distribuir", { p_token: token, p_ano_lectivo: ano });
-            this.disabled = false;
-            this.innerHTML = '<i class="fas fa-users"></i> Executar DISTRIBUIDOR (Colocar nas Salas)';
+            
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-users"></i> Executar DISTRIBUIDOR (Colocar nas Salas)';
+            spanStatus.textContent = "";
 
-            if (res.ok) alert(`Distribuição concluída!\nAlunos distribuídos: ${res.distribuidos}`);
-            else alert("Erro: " + res.erro);
+            if (res.ok) {
+                alert(`Distribuição concluída!\nAlunos distribuídos: ${res.distribuidos}`);
+            } else {
+                alert("Erro: " + res.erro);
+            }
         });
     }
 }
 
 function renderizarRegras(regras) {
     const c = document.getElementById("lista-regras-aura");
-    if (regras.length === 0) { c.innerHTML = '<p class="estado-vazio">Sem regras definidas.</p>'; return; }
+    if (regras.length === 0) { c.innerHTML = '<div class="estado-vazio">Sem regras definidas.</div>'; return; }
 
-    let html = '<div class="tabela-wrapper"><table class="tabela-sec"><thead><tr><th>Classe</th><th>Curso</th><th>Máx. Críticas</th><th>Máx. Secundárias</th></tr></thead><tbody>';
+    let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec"><thead><tr><th>Classe</th><th>Curso</th><th>Máx. Críticas</th><th>Máx. Secundárias</th></tr></thead><tbody>';
     regras.forEach(r => {
         html += `<tr>
             <td>${esc(r.classe)}</td>
@@ -80,14 +97,32 @@ function renderizarRegras(regras) {
         </tr>`;
     });
     html += '</tbody></table></div>';
+
+    // Versão mobile
+    html += '<div class="cartoes-sec">';
+    regras.forEach(r => {
+        html += `<div class="cartao-sec">
+            <div class="cartao-sec-topo">
+                <div class="cartao-sec-info">
+                    <strong>${esc(r.classe)} ${r.curso ? '· '+esc(r.curso) : ''}</strong>
+                </div>
+            </div>
+            <div class="cartao-sec-meta">
+                <div class="meta-item"><span class="meta-rotulo">Máx. Críticas</span><span class="meta-valor">${r.max_negativas_criticas}</span></div>
+                <div class="meta-item"><span class="meta-rotulo">Máx. Secundárias</span><span class="meta-valor">${r.max_negativas_secundarias}</span></div>
+            </div>
+        </div>`;
+    });
+    html += '</div>';
+
     c.innerHTML = html;
 }
 
 function renderizarAlocacoes(alocacoes) {
     const c = document.getElementById("lista-alocacoes-aura");
-    if (alocacoes.length === 0) { c.innerHTML = '<p class="estado-vazio">Sem alocações para este ano.</p>'; return; }
+    if (alocacoes.length === 0) { c.innerHTML = '<div class="estado-vazio">Sem alocações para este ano.</div>'; return; }
 
-    let html = '<div class="tabela-wrapper"><table class="tabela-sec"><thead><tr><th>Turno / Pavilhão</th><th>Salas</th><th>Classe / Curso</th></tr></thead><tbody>';
+    let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec"><thead><tr><th>Turno / Pavilhão</th><th>Salas</th><th>Classe / Curso</th></tr></thead><tbody>';
     alocacoes.forEach(a => {
         html += `<tr>
             <td>${esc(a.turno)} · ${esc(a.pavilhao)}</td>
@@ -96,6 +131,25 @@ function renderizarAlocacoes(alocacoes) {
         </tr>`;
     });
     html += '</tbody></table></div>';
+
+    // Versão mobile
+    html += '<div class="cartoes-sec">';
+    alocacoes.forEach(a => {
+        html += `<div class="cartao-sec">
+            <div class="cartao-sec-topo">
+                <div class="cartao-sec-info">
+                    <strong>${esc(a.classe)} ${a.curso ? '· '+esc(a.curso) : ''}</strong>
+                </div>
+            </div>
+            <div class="cartao-sec-meta">
+                <div class="meta-item"><span class="meta-rotulo">Turno</span><span class="meta-valor">${esc(a.turno)}</span></div>
+                <div class="meta-item"><span class="meta-rotulo">Pavilhão</span><span class="meta-valor">${esc(a.pavilhao)}</span></div>
+                <div class="meta-item"><span class="meta-rotulo">Salas</span><span class="meta-valor">${a.sala_inicio} a ${a.sala_fim}</span></div>
+            </div>
+        </div>`;
+    });
+    html += '</div>';
+
     c.innerHTML = html;
 }
 
