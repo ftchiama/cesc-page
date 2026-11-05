@@ -94,10 +94,26 @@ async function pedirCodigo() {
     btn.disabled = true;
     btn.textContent = "A verificar...";
 
-    const dados = await chamarEdge("enviar-codigo", {
+    let dados = await chamarEdge("enviar-codigo", {
         email: email,
         password: password
     });
+
+    // Se deu timeout (o Render estava a dormir), tentamos novamente após 5s
+    if (!dados.ok && dados.erro && dados.erro.includes("Tempo esgotado")) {
+        btn.textContent = "O servidor está a acordar. Aguarda...";
+        
+        // Espera 5 segundos
+        await new Promise(r => setTimeout(r, 5000));
+        
+        btn.textContent = "A tentar novamente...";
+        
+        // Segunda tentativa
+        dados = await chamarEdge("enviar-codigo", {
+            email: email,
+            password: password
+        });
+    }
 
     btn.disabled = false;
     btn.textContent = "Receber código de acesso";
@@ -109,10 +125,14 @@ async function pedirCodigo() {
         document.getElementById("passo-2").style.display = "block";
         document.getElementById("login-codigo").focus();
     } else {
-        mostrarErroAuth("msg-erro-1", dados.erro || "Não foi possível enviar o código.");
+        // Se for erro de credenciais, mostra a mensagem correta
+        if (dados.erro && dados.erro.includes("incorreta")) {
+            mostrarErroAuth("msg-erro-1", "Palavra-passe incorreta.");
+        } else {
+            mostrarErroAuth("msg-erro-1", dados.erro || "Não foi possível enviar o código. Tenta novamente.");
+        }
     }
 }
-
 // ============================================================
 // PASSO 2: validar código (RPC → token → redireccionar)
 // ============================================================

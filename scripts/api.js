@@ -15,7 +15,7 @@ const API = {
     SUPABASE_URL: "https://kmdixtzvnhvtwkpsicoq.supabase.co",
     SUPABASE_ANON_KEY: "sb_publishable_NtqePgTlOPZsx3DuC40bfg_lu6CKrs9",
     APP_NAME: "CESC",
-    TIMEOUT_MS: 15000
+    TIMEOUT_MS: 60000 // Aumentado para 60 segundos
 };
 
 // ============================================================
@@ -114,15 +114,14 @@ function terminarSessao() {
     window.location.href = "login.html";
 }
 
-function exigirLogin() {
-    const token = obterToken();
-    if (!token) {
-        window.location.href = "login.html";
-        return null;
-    }
-    return token;
+function terminarSessao() {
+    try {
+        sessionStorage.removeItem("cesc_token");
+        sessionStorage.removeItem("cesc_candidato_token");
+    } catch (e) {}
+    // Redireciona para o login (ajusta o caminho conforme a pasta)
+    window.location.href = "/paginas/login.html"; 
 }
-
 // ============================================================
 // UTILITÁRIOS
 // ============================================================
