@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
     });
 
-    document.getElementById("link-sair").addEventListener("click", e => { e.preventDefault(); fazerLogout(); });
+    const linkSair = document.getElementById("link-sair"); if (linkSair) linkSair.addEventListener("click", e => { e.preventDefault(); fazerLogout(); });
 
     await carregarEstatisticas(token);
     document.getElementById("loader").style.display = "none";

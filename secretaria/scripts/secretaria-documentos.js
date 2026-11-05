@@ -4,7 +4,6 @@
  */
 
 // Verifica se o utilizador é o Diretor
-const isDiretorDocumentos = (window.ROLE_UTILIZADOR === 'diretor' || window.ROLE_UTILIZADOR === 'sub_diretor');
 
 async function carregarDocumentos() {
     const token = obterToken();
@@ -37,7 +36,7 @@ function renderizarListaDocumentos(docs) {
         const estadoBadge = '<span class="badge badge-' + esc(d.estado) + '">' + esc(capitalizar(d.estado)) + '</span>';
         let acoes = "";
         
-        if (isDiretorDocumentos) {
+        if ((window.ROLE_UTILIZADOR === 'diretor' || window.ROLE_UTILIZADOR === 'sub_diretor')) {
             // Diretor vê mas não mexe
             acoes = '<span style="color:var(--cor-texto-leve); font-size:0.8rem;">Só leitura</span>';
         } else {
@@ -55,7 +54,7 @@ function renderizarListaDocumentos(docs) {
     docs.forEach(function (d, idx) {
         let acoes = "";
         
-        if (isDiretorDocumentos) {
+        if ((window.ROLE_UTILIZADOR === 'diretor' || window.ROLE_UTILIZADOR === 'sub_diretor')) {
             acoes = '<span style="color:var(--cor-texto-leve); font-size:0.8rem; text-align:center; display:block;">Só leitura</span>';
         } else {
             if (d.estado === "pendente") acoes = '<button class="btn-acao btn-acao-primario" data-marcar-doc-mobile="' + idx + '" data-novo-estado="pago"><i class="fas fa-check"></i> Marcar pago</button>';
@@ -71,7 +70,7 @@ function renderizarListaDocumentos(docs) {
     container.innerHTML = html;
 
     // Se for Diretor, não liga os eventos dos botões (porque eles não existem)
-    if (isDiretorDocumentos) return;
+    if ((window.ROLE_UTILIZADOR === 'diretor' || window.ROLE_UTILIZADOR === 'sub_diretor')) return;
 
     container.querySelectorAll("[data-marcar-doc]").forEach(function (btn) {
         btn.addEventListener("click", function () { const idx = parseInt(this.getAttribute("data-marcar-doc"), 10); const novoEstado = this.getAttribute("data-novo-estado"); marcarDocumento(docs[idx], novoEstado, this); });

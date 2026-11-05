@@ -7,7 +7,6 @@ let alunosCacheLocal = [];
 let anoAtualAlunos = "";
 
 // Verifica se o utilizador é o Diretor (para esconder botões de ação)
-const isDiretorAlunos = (window.ROLE_UTILIZADOR === 'diretor' || window.ROLE_UTILIZADOR === 'sub_diretor');
 
 async function carregarAlunos() {
     const token = obterToken();
@@ -314,7 +313,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!btnConvidar) return;
 
     // Se for o Diretor, esconde o botão e não adiciona o evento
-    if (isDiretorAlunos) {
+    if ((window.ROLE_UTILIZADOR === 'diretor' || window.ROLE_UTILIZADOR === 'sub_diretor')) {
         btnConvidar.style.display = "none";
         return;
     }

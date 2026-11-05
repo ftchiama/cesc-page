@@ -10,7 +10,6 @@
  */
 
 // Verifica se o utilizador é o Diretor
-const isDiretorInscricoes = (window.ROLE_UTILIZADOR === 'diretor' || window.ROLE_UTILIZADOR === 'sub_diretor');
 
 // ============================================================
 // ARRANQUE
@@ -202,7 +201,7 @@ async function abrirDetalheInscricao(insc, idx, éMobile) {
     if (painel.style.display === "block" || painel.style.display === "table-row") {
         painel.style.display = "none";
         // Se não for diretor, termina a análise
-        if (!isDiretorInscricoes) {
+        if (!(window.ROLE_UTILIZADOR === 'diretor' || window.ROLE_UTILIZADOR === 'sub_diretor')) {
             await chamarRPC("cesc_secretaria_terminar_analise", { p_token: token, p_inscricao_id: insc.id });
             if (inscricaoEmAnalise === insc.id) inscricaoEmAnalise = null;
         }
@@ -218,7 +217,7 @@ async function abrirDetalheInscricao(insc, idx, éMobile) {
     conteudo.innerHTML = '<div class="loader" style="width:24px; height:24px; margin:10px auto;"></div>';
 
     // Só a secretária inicia o bloqueio de análise
-    if (!isDiretorInscricoes) {
+    if (!(window.ROLE_UTILIZADOR === 'diretor' || window.ROLE_UTILIZADOR === 'sub_diretor')) {
         await chamarRPC("cesc_secretaria_iniciar_analise", { p_token: token, p_inscricao_id: insc.id });
         inscricaoEmAnalise = insc.id;
     }
@@ -284,7 +283,7 @@ async function abrirDetalheInscricao(insc, idx, éMobile) {
     // ============================================================
     // SÓ MOSTRA OS BOTÕES DE AÇÃO SE NÃO FOR DIRETOR
     // ============================================================
-    if (insc.estado === "pendente" && !isDiretorInscricoes) {
+    if (insc.estado === "pendente" && !(window.ROLE_UTILIZADOR === 'diretor' || window.ROLE_UTILIZADOR === 'sub_diretor')) {
         html += '<div class="form-acoes" style="margin-top:20px;">';
         html += '  <button class="botao-primario" onclick="aprovarInscricao(\'' + insc.id + '\')"><i class="fas fa-check"></i> Aprovar</button>';
         html += '  <button class="botao-secundario" style="color:var(--cor-erro); border-color:var(--cor-erro);" onclick="rejeitarInscricao(\'' + insc.id + '\')"><i class="fas fa-times"></i> Rejeitar</button>';
