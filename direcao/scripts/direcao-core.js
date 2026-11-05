@@ -6,8 +6,15 @@ document.addEventListener("DOMContentLoaded", async function () {
     const sidebar = document.getElementById("sidebar");
     const sidebarFechar = document.getElementById("sidebarFechar");
     const overlay = document.getElementById("sidebarOverlay");
-    function fecharSidebar() { sidebar.classList.remove("aberta"); overlay.classList.remove("ativo"); }
-    if (menuBtn) menuBtn.addEventListener("click", () => { sidebar.classList.add("aberta"); overlay.classList.add("ativo"); });
+    
+    function fecharSidebar() { 
+        if (sidebar) sidebar.classList.remove("aberta"); 
+        if (overlay) overlay.classList.remove("ativo"); 
+    }
+    
+    if (menuBtn && sidebar && overlay) {
+        menuBtn.addEventListener("click", () => { sidebar.classList.add("aberta"); overlay.classList.add("ativo"); });
+    }
     if (sidebarFechar) sidebarFechar.addEventListener("click", fecharSidebar);
     if (overlay) overlay.addEventListener("click", fecharSidebar);
 
@@ -19,31 +26,39 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
     });
 
-    const linkSair = document.getElementById("link-sair"); if (linkSair) linkSair.addEventListener("click", e => { e.preventDefault(); fazerLogout(); });
+    const linkSair = document.getElementById("link-sair"); 
+    if (linkSair) {
+        linkSair.addEventListener("click", e => { e.preventDefault(); fazerLogout(); });
+    }
 
     await carregarEstatisticas(token);
-    document.getElementById("loader").style.display = "none";
-    document.getElementById("dashboard-conteudo").style.display = "block";
+    
+    const loaderEl = document.getElementById("loader"); 
+    if (loaderEl) loaderEl.style.display = "none";
+    
+    const dashEl = document.getElementById("dashboard-conteudo"); 
+    if (dashEl) dashEl.style.display = "block";
 
-    configurarFormUtilizador();
+    if (typeof configurarFormUtilizador === "function") configurarFormUtilizador();
 });
 
 function mostrarSeccao(id) {
     document.querySelectorAll(".pagina-seccao").forEach(s => s.classList.remove("ativa"));
-    document.getElementById("seccao-" + id).classList.add("ativa");
+    const alvo = document.getElementById("seccao-" + id);
+    if (alvo) alvo.classList.add("ativa");
     
     document.querySelectorAll(".nav-item[data-seccao]").forEach(n => {
         n.classList.toggle("ativo", n.getAttribute("data-seccao") === id);
     });
 
-    if (id === "equipa") carregarEquipa();
-    else if (id === "configuracoes") carregarConfiguracoes();
-    else if (id === "salas") carregarSalasDir();
-    else if (id === "inscricoes") carregarInscricoesDir();
-    else if (id === "financeiro") carregarFinanceiroDir();
-    else if (id === "alunos") carregarAlunosDir();
-    else if (id === "professores") carregarProfDir();
-    else if (id === "aura") carregarAuraDir(); // <-- NOVO
+    if (id === "equipa" && typeof carregarEquipa === "function") carregarEquipa();
+    else if (id === "configuracoes" && typeof carregarConfiguracoes === "function") carregarConfiguracoes();
+    else if (id === "salas" && typeof carregarSalasDir === "function") carregarSalasDir();
+    else if (id === "inscricoes" && typeof carregarInscricoesDir === "function") carregarInscricoesDir();
+    else if (id === "financeiro" && typeof carregarFinanceiroDir === "function") carregarFinanceiroDir();
+    else if (id === "alunos" && typeof carregarAlunosDir === "function") carregarAlunosDir();
+    else if (id === "professores" && typeof carregarProfDir === "function") carregarProfDir();
+    else if (id === "aura" && typeof carregarAuraDir === "function") carregarAuraDir();
     
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -52,30 +67,49 @@ async function carregarEstatisticas(token) {
     const stats = await chamarRPC("cesc_diretor_estatisticas_globais", { p_token: token });
     if (stats.ok) {
         let html = '';
-        html += '<div class="stat-card"><div class="stat-header"><i class="fas fa-money-bill-wave"></i> Receita Total</div><div class="stat-valor" style="color:#059669;">' + Number(stats.receita).toLocaleString("pt-PT") + ' Kz</div></div>';
-        html += '<div class="stat-card"><div class="stat-header"><i class="fas fa-user-graduate"></i> Alunos</div><div class="stat-valor">' + stats.alunos + '</div></div>';
-        html += '<div class="stat-card"><div class="stat-header"><i class="fas fa-chalkboard-teacher"></i> Professores</div><div class="stat-valor">' + stats.professores + '</div></div>';
+        html += '<div class="stat-card"><div class="stat-header"><i class="fas fa-money-bill-wave"></i> Receita Total</div><div class="stat-valor" style="color:#059669;">' + Number(stats.receita || 0).toLocaleString("pt-PT") + ' Kz</div></div>';
+        html += '<div class="stat-card"><div class="stat-header"><i class="fas fa-user-graduate"></i> Alunos</div><div class="stat-valor">' + (stats.alunos || 0) + '</div></div>';
+        html += '<div class="stat-card"><div class="stat-header"><i class="fas fa-chalkboard-teacher"></i> Professores</div><div class="stat-valor">' + (stats.professores || 0) + '</div></div>';
         html += '<div class="stat-card"><div class="stat-header"><i class="fas fa-school"></i> Salas</div><div class="stat-valor">' + (stats.salas || 0) + '</div></div>';
-        document.getElementById("stats-visao-geral").innerHTML = html;
+        
+        const elStats = document.getElementById("stats-visao-geral");
+        if (elStats) elStats.innerHTML = html;
     }
-    const nomeSidebar = document.getElementById("dir-nome-sidebar"); if (nomeSidebar) nomeSidebar.textContent = "Diretor";
+    const nomeSidebar = document.getElementById("dir-nome-sidebar"); 
+    if (nomeSidebar) nomeSidebar.textContent = "Diretor";
 }
 
 // Helpers comuns
 function abrirModal(titulo, htmlCorpo, acaoConfirmar, textoBotaoConfirmar) {
     const overlay = document.getElementById("modal-overlay");
-    document.getElementById("modal-titulo").textContent = titulo;
-    document.getElementById("modal-corpo").innerHTML = htmlCorpo;
+    if (!overlay) return;
+    
+    const elTitulo = document.getElementById("modal-titulo");
+    if (elTitulo) elTitulo.textContent = titulo;
+    
+    const elCorpo = document.getElementById("modal-corpo");
+    if (elCorpo) elCorpo.innerHTML = htmlCorpo;
+    
     const btnConfirmar = document.getElementById("modal-confirmar");
+    if (!btnConfirmar) return;
+    
     btnConfirmar.textContent = textoBotaoConfirmar || "Confirmar";
+    
+    const btnCancelar = document.getElementById("modal-cancelar");
     
     if (textoBotaoConfirmar === "Fechar") {
         btnConfirmar.style.display = "none";
-        document.getElementById("modal-cancelar").style.display = "block";
-        document.getElementById("modal-cancelar").onclick = () => { overlay.style.display = "none"; };
+        if (btnCancelar) {
+            btnCancelar.style.display = "block";
+            btnCancelar.onclick = () => { overlay.style.display = "none"; };
+        }
     } else {
         btnConfirmar.style.display = "block";
-        document.getElementById("modal-cancelar").style.display = "block";
+        if (btnCancelar) {
+            btnCancelar.style.display = "block";
+            btnCancelar.onclick = () => { overlay.style.display = "none"; };
+        }
+        
         const novoBtn = btnConfirmar.cloneNode(true);
         btnConfirmar.parentNode.replaceChild(novoBtn, btnConfirmar);
         novoBtn.addEventListener("click", async function () {
@@ -84,9 +118,11 @@ function abrirModal(titulo, htmlCorpo, acaoConfirmar, textoBotaoConfirmar) {
             novoBtn.disabled = false;
             if (deveFechar) overlay.style.display = "none";
         });
-        document.getElementById("modal-cancelar").onclick = () => { overlay.style.display = "none"; };
     }
-    document.getElementById("modal-fechar").onclick = () => { overlay.style.display = "none"; };
+    
+    const btnFechar = document.getElementById("modal-fechar");
+    if (btnFechar) btnFechar.onclick = () => { overlay.style.display = "none"; };
+    
     overlay.style.display = "flex";
 }
 
@@ -103,6 +139,7 @@ async function obterUrlAssinada(caminho) {
 }
 
 function capitalizar(s) { if (!s) return ""; return s.charAt(0).toUpperCase() + s.slice(1); }
+
 function mostrarMsg(el, texto, tipo) {
     if (!el) return;
     el.textContent = texto;
