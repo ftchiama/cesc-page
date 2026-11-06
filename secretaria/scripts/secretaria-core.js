@@ -43,6 +43,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         overlay.classList.remove("ativo");
     }
 
+    if (document.getElementById("sec-avatar")) {
     document.querySelectorAll(".nav-item[data-seccao]").forEach(function (item) {
         item.addEventListener("click", function (e) {
             e.preventDefault();
@@ -50,6 +51,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             fecharSidebar();
         });
     });
+}
 
     const linkSair = document.getElementById("link-sair");
     if (linkSair) {
