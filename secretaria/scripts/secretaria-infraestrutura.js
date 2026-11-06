@@ -10,6 +10,8 @@ async function carregarInfraestrutura() {
     if (!token) return;
 
     const container = document.getElementById("lista-salas-container");
+    if (!container) return;
+
     container.innerHTML = '<div class="loader-container" style="min-height:180px;"><div class="loader"></div></div>';
 
     const dados = await chamarRPC("cesc_secretaria_listar_salas", { p_token: token });
@@ -44,18 +46,21 @@ async function carregarInfraestrutura() {
 }
 
 function renderizarEstatisticas(salas) {
-    // 1. Estatísticas Globais
     const totalSalas = salas.length;
     const pavilhoesUnicos = new Set(salas.map(s => s.pavilhao));
     const turnosUnicos = new Set(salas.map(s => s.turno));
 
-    document.getElementById("stat-total-salas").textContent = totalSalas;
-    document.getElementById("stat-total-pavilhoes").textContent = pavilhoesUnicos.size;
-    document.getElementById("stat-total-turnos").textContent = turnosUnicos.size;
+    const elSalas = document.getElementById("stat-total-salas");
+    if (elSalas) elSalas.textContent = totalSalas;
+    const elPav = document.getElementById("stat-total-pavilhoes");
+    if (elPav) elPav.textContent = pavilhoesUnicos.size;
+    const elTurnos = document.getElementById("stat-total-turnos");
+    if (elTurnos) elTurnos.textContent = turnosUnicos.size;
 
-    // 2. Distribuição por Turno
     const resumoContainer = document.getElementById("lista-resumo-turnos");
     const cardResumo = document.getElementById("card-resumo-turnos");
+
+    if (!resumoContainer || !cardResumo) return;
 
     if (totalSalas === 0) {
         cardResumo.style.display = "none";
@@ -64,7 +69,6 @@ function renderizarEstatisticas(salas) {
 
     cardResumo.style.display = "block";
 
-    // Agrupar
     const porTurno = {};
     salas.forEach(s => {
         if (!porTurno[s.turno]) {
@@ -75,7 +79,6 @@ function renderizarEstatisticas(salas) {
     });
 
     let html = "";
-    // Ordem lógica dos turnos (se existirem)
     const ordemTurnos = ["Matinal", "Vespertino", "Noturno"];
     
     ordemTurnos.forEach(turno => {
@@ -84,7 +87,6 @@ function renderizarEstatisticas(salas) {
         const info = porTurno[turno];
         const numPavilhoes = info.pavilhoes.size;
         
-        // Cores diferentes para cada turno (usando a paleta da escola)
         let corFundo = "var(--cor-azul-muito-claro)";
         let corTexto = "var(--cor-azul)";
         let icone = "fa-sun";
@@ -113,9 +115,14 @@ function renderizarEstatisticas(salas) {
 
     resumoContainer.innerHTML = html;
 }
+
 function renderizarComFiltros() {
-    const turno = document.getElementById("filtro-sala-turno").value;
-    const pavilhao = document.getElementById("filtro-sala-pavilhao").value;
+    const selTurno = document.getElementById("filtro-sala-turno");
+    const selPav = document.getElementById("filtro-sala-pavilhao");
+    if (!selTurno || !selPav) return;
+
+    const turno = selTurno.value;
+    const pavilhao = selPav.value;
 
     let filtradas = salasCache;
     if (turno) filtradas = filtradas.filter(s => s.turno === turno);
@@ -128,7 +135,6 @@ function renderizarListaSalas(salas, turnoFiltro) {
     const container = document.getElementById("lista-salas-container");
     if (salas.length === 0) { container.innerHTML = '<div class="estado-vazio">Nenhuma sala encontrada com estes filtros.</div>'; return; }
 
-    // Agrupar por Turno (para manter a organização)
     const porTurno = {};
     salas.forEach(s => {
         if (!porTurno[s.turno]) porTurno[s.turno] = [];
@@ -137,7 +143,6 @@ function renderizarListaSalas(salas, turnoFiltro) {
 
     let html = "";
     for (const turno in porTurno) {
-        // Se o utilizador filtrou por um turno, não precisamos do título repetido (opcional)
         if (!turnoFiltro) {
             html += '<h3 style="margin-top:20px; margin-bottom:10px; color:var(--cor-azul); border-bottom:2px solid var(--cor-borda); padding-bottom:5px;">Turno ' + turno + '</h3>';
         }
@@ -156,7 +161,6 @@ function renderizarListaSalas(salas, turnoFiltro) {
         
         html += '</tbody></table></div>';
         
-        // Versão mobile
         html += '<div class="cartoes-sec">';
         porTurno[turno].forEach(s => {
             html += '<div class="cartao-sec">';
@@ -171,9 +175,7 @@ function renderizarListaSalas(salas, turnoFiltro) {
 
     container.innerHTML = html;
 }
-// ============================================================
-// APAGAR SALA (Usando o Modal Genérico)
-// ============================================================
+
 function apagarSala(id, nome) {
     const html = `
         <p>Tens a certeza que queres apagar a sala <strong>${esc(nome)}</strong>?</p>
@@ -182,7 +184,6 @@ function apagarSala(id, nome) {
         </p>
     `;
 
-    // Chama a função abrirModal(titulo, html, acaoConfirmar, textoBotao)
     abrirModal("Apagar Sala", html, async function () {
         const token = obterToken();
         const res = await chamarRPC("cesc_secretaria_apagar_sala", {
@@ -191,20 +192,15 @@ function apagarSala(id, nome) {
         });
 
         if (res.ok) {
-            carregarInfraestrutura(); // Recarrega a lista
-            return true; // Fecha o modal
+            carregarInfraestrutura();
+            return true;
         } else {
-            // Em vez de alert, podes colocar o erro no próprio modal se quiseres,
-            // mas por agora mantemos o alerta simples para erros graves de BD.
             alert(res.erro || "Erro ao apagar a sala.");
-            return false; // Mantém o modal aberto
+            return false;
         }
     }, "Sim, Apagar");
 }
 
-// ============================================================
-// CRIAR SALA
-// ============================================================
 document.addEventListener("DOMContentLoaded", function () {
     const btnNova = document.getElementById("btn-nova-sala");
     const form = document.getElementById("form-nova-sala");
@@ -265,7 +261,6 @@ document.addEventListener("DOMContentLoaded", function () {
             
             setTimeout(function () {
                 form.style.display = "none";
-                // Forçar o recarregamento total para atualizar os dropdowns de pavilhões
                 const selPavilhao = document.getElementById("filtro-sala-pavilhao");
                 if (selPavilhao) selPavilhao.innerHTML = '<option value="">Todos os Pavilhões</option>';
                 carregarInfraestrutura(); 
@@ -274,9 +269,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-// Ligar a navegação
-const originalMostrarSeccaoInfra = window.mostrarSeccao;
-window.mostrarSeccao = function(id) {
-    originalMostrarSeccaoInfra(id);
-    if (id === "infraestrutura") carregarInfraestrutura();
-};
+// Ligar a navegação (só na secretária)
+if (document.getElementById("sec-avatar")) {
+    const originalMostrarSeccaoInfra = window.mostrarSeccao;
+    window.mostrarSeccao = function(id) {
+        if (typeof originalMostrarSeccaoInfra === "function") originalMostrarSeccaoInfra(id);
+        if (id === "infraestrutura") carregarInfraestrutura();
+    };
+}

@@ -2,17 +2,32 @@ let salasDirCache = [];
 
 async function carregarSalasDir() {
     const token = obterToken();
+    if (!token) return;
     const container = document.getElementById("lista-dir-salas");
+    if (!container) return;
     container.innerHTML = '<div class="loader-container" style="min-height:180px;"><div class="loader"></div></div>';
 
     const dados = await chamarRPC("cesc_secretaria_listar_salas", { p_token: token });
     if (!dados.ok) { container.innerHTML = '<div class="estado-vazio">' + esc(dados.erro) + '</div>'; return; }
 
     salasDirCache = dados.salas || [];
-    
+
+    // 1. Cards de Resumo
+    const totalSalas = salasDirCache.length;
+    const pavilhoesUnicos = new Set(salasDirCache.map(s => s.pavilhao));
+    const turnosUnicos = new Set(salasDirCache.map(s => s.turno));
+
+    const elTotal = document.getElementById("stat-total-salas");
+    if (elTotal) elTotal.textContent = totalSalas;
+    const elPav = document.getElementById("stat-total-pavilhoes");
+    if (elPav) elPav.textContent = pavilhoesUnicos.size;
+    const elTurnos = document.getElementById("stat-total-turnos");
+    if (elTurnos) elTurnos.textContent = turnosUnicos.size;
+
+    // 2. Filtros
     const selPavilhao = document.getElementById("dir-filtro-sala-pavilhao");
     if (selPavilhao && selPavilhao.options.length <= 1) {
-        const pavilhoes = [...new Set(salasDirCache.map(s => s.pavilhao))].sort();
+        const pavilhoes = [...pavilhoesUnicos].sort();
         pavilhoes.forEach(p => { const opt = document.createElement("option"); opt.value = p; opt.textContent = p; selPavilhao.appendChild(opt); });
         document.getElementById("dir-filtro-sala-turno").addEventListener("change", renderizarSalasComFiltrosDir);
         selPavilhao.addEventListener("change", renderizarSalasComFiltrosDir);

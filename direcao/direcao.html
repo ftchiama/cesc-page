@@ -210,6 +210,24 @@
             <!-- SALAS (Exclusivo) -->
             <section class="pagina-seccao" id="seccao-salas">
                 <div class="pagina-cabecalho"><h1>Salas</h1></div>
+                <div class="stats-grelha" style="margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-door-open"></i> Total de Salas</div>
+                        <div class="stat-valor" id="stat-total-salas">0</div>
+                        <div class="stat-subtexto">em toda a escola</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-school"></i> Pavilhões</div>
+                        <div class="stat-valor" id="stat-total-pavilhoes">0</div>
+                        <div class="stat-subtexto">edifícios registados</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-clock"></i> Turnos</div>
+                        <div class="stat-valor" id="stat-total-turnos">0</div>
+                        <div class="stat-subtexto">turnos ativos</div>
+                    </div>
+                </div>
+
                 <div class="barra-acoes" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px;">
                     <select id="dir-filtro-sala-turno" class="campo-select" style="flex: 1; min-width: 130px;">
                         <option value="">Todos os Turnos</option>
@@ -302,21 +320,22 @@
             <div class="modal-footer" id="modal-rodape"><button class="botao-secundario" id="modal-cancelar">Cancelar</button><button class="botao-primario" id="modal-confirmar">Confirmar</button></div>
         </div>
     </div>
-<script src="../scripts/api.js"></script>
-<script src="scripts/direcao-core.js"></script>
 
-<!-- Ficheiros da Secretária (incluindo o core) -->
-<script src="../secretaria/scripts/secretaria-core.js"></script>
-<script src="../secretaria/scripts/secretaria-alunos.js"></script>
-<script src="../secretaria/scripts/secretaria-inscricoes.js"></script>
-<script src="../secretaria/scripts/secretaria-matriculas.js"></script>
-<script src="../secretaria/scripts/secretaria-documentos.js"></script>
+    <script src="../scripts/api.js"></script>
+    <script src="scripts/direcao-core.js"></script>
 
-<!-- Ficheiros exclusivos do Diretor -->
-<script src="scripts/direcao-salas.js"></script>
-<script src="scripts/direcao-financeiro.js"></script>
-<script src="scripts/direcao-equipa.js"></script>
-<script src="scripts/direcao-configuracoes.js"></script>
-<script src="scripts/direcao-aura.js"></script>
+    <!-- Ficheiros da Secretária (incluindo o core) -->
+    <script src="../secretaria/scripts/secretaria-core.js"></script>
+    <script src="../secretaria/scripts/secretaria-alunos.js"></script>
+    <script src="../secretaria/scripts/secretaria-inscricoes.js"></script>
+    <script src="../secretaria/scripts/secretaria-matriculas.js"></script>
+    <script src="../secretaria/scripts/secretaria-documentos.js"></script>
+
+    <!-- Ficheiros exclusivos do Diretor -->
+    <script src="scripts/direcao-salas.js"></script>
+    <script src="scripts/direcao-financeiro.js"></script>
+    <script src="scripts/direcao-equipa.js"></script>
+    <script src="scripts/direcao-configuracoes.js"></script>
+    <script src="scripts/direcao-aura.js"></script>
 </body>
 </html>
