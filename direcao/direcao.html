@@ -92,7 +92,6 @@
                     </select>
                 </div>
 
-                <!-- Cards da secretária -->
                 <div class="stats-grelha" style="margin-bottom: 16px;">
                     <div class="stat-card"><div class="stat-header"><i class="fas fa-users"></i> Total</div><div class="stat-valor" id="stat-alunos-total">—</div></div>
                     <div class="stat-card"><div class="stat-header"><i class="fas fa-check-circle"></i> Com Conta</div><div class="stat-valor" id="stat-alunos-com-conta" style="color: #059669;">—</div></div>
@@ -126,12 +125,33 @@
                     <select id="filtro-inscricoes-ano" class="campo-select"></select>
                 </div>
 
+                <!-- Cards de Resumo (IDs corrigidos) -->
                 <div class="stats-grelha" style="margin-bottom: 24px;">
-                    <div class="stat-card"><div class="stat-header"><i class="fas fa-inbox"></i> Total</div><div class="stat-valor" id="stat-total-inscricoes">—</div></div>
-                    <div class="stat-card"><div class="stat-header"><i class="fas fa-check-circle"></i> Aprovadas</div><div class="stat-valor" id="stat-inscricoes-aprovadas" style="color: #059669;">—</div></div>
-                    <div class="stat-card stat-card-alerta"><div class="stat-header"><i class="fas fa-clock"></i> Por Aprovar</div><div class="stat-valor" id="stat-inscricoes-por-aprovar" style="color: #b45309;">—</div></div>
-                    <div class="stat-card"><div class="stat-header"><i class="fas fa-credit-card"></i> Matrícula Paga</div><div class="stat-valor" id="stat-inscricoes-matricula-paga">—</div></div>
-                    <div class="stat-card"><div class="stat-header"><i class="fas fa-times-circle"></i> Rejeitadas</div><div class="stat-valor" id="stat-inscricoes-rejeitadas" style="color: var(--cor-erro);">—</div><div class="stat-subtexto" id="stat-rejeitadas-detalhe"></div></div>
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-inbox"></i> Total</div>
+                        <div class="stat-valor" id="stat-total-inscricoes">—</div>
+                        <div class="stat-subtexto">inscrições no ano</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-check-circle"></i> Aprovadas</div>
+                        <div class="stat-valor" id="stat-inscricoes-aprovadas" style="color: #059669;">—</div>
+                        <div class="stat-subtexto">aprovadas este ano</div>
+                    </div>
+                    <div class="stat-card stat-card-alerta">
+                        <div class="stat-header"><i class="fas fa-clock"></i> Por Aprovar</div>
+                        <div class="stat-valor" id="stat-inscricoes-por-aprovar" style="color: #b45309;">—</div>
+                        <div class="stat-subtexto">a aguardar análise</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-credit-card"></i> Matrícula Paga</div>
+                        <div class="stat-valor" id="stat-inscricoes-matricula-paga" style="color: #1e3a8a;">—</div>
+                        <div class="stat-subtexto">matrículas pagas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-times-circle"></i> Rejeitadas</div>
+                        <div class="stat-valor" id="stat-inscricoes-rejeitadas" style="color: var(--cor-erro);">—</div>
+                        <div class="stat-subtexto" id="stat-rejeitadas-detalhe" style="font-size:0.7rem;">Cód. 0: — · Cód. 1: —</div>
+                    </div>
                 </div>
 
                 <div class="barra-acoes" style="flex-direction: column; align-items: stretch; gap: 12px;">
@@ -292,7 +312,7 @@
     <script src="../secretaria/scripts/secretaria-matriculas.js"></script>
     <script src="../secretaria/scripts/secretaria-documentos.js"></script>
 
-    <!-- EXCLUSIVOS DO DIRETOR (Sem Professores!) -->
+    <!-- EXCLUSIVOS DO DIRETOR -->
     <script src="scripts/direcao-salas.js"></script>
     <script src="scripts/direcao-financeiro.js"></script>
     <script src="scripts/direcao-equipa.js"></script>
