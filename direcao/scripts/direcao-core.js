@@ -51,14 +51,16 @@ function mostrarSeccao(id) {
         n.classList.toggle("ativo", n.getAttribute("data-seccao") === id);
     });
 
-    if (id === "equipa" && typeof carregarEquipa === "function") carregarEquipa();
-    else if (id === "configuracoes" && typeof carregarConfiguracoes === "function") carregarConfiguracoes();
-    else if (id === "salas" && typeof carregarSalasDir === "function") carregarSalasDir();
-    else if (id === "inscricoes" && typeof carregarInscricoesDir === "function") carregarInscricoesDir();
-    else if (id === "financeiro" && typeof carregarFinanceiroDir === "function") carregarFinanceiroDir();
-    else if (id === "alunos" && typeof carregarAlunosDir === "function") carregarAlunosDir();
-    else if (id === "professores" && typeof carregarProfDir === "function") carregarProfDir();
-    else if (id === "aura" && typeof carregarAuraDir === "function") carregarAuraDir();
+    // CARREGAR AS SECÇÕES (usando as funções da secretária onde aplicável)
+    if (id === "alunos") { if (typeof carregarAlunos === "function") carregarAlunos(); }
+    else if (id === "inscricoes") { if (typeof inicializarInscricoes === "function") inicializarInscricoes(); }
+    else if (id === "matriculas") { if (typeof carregarMatriculas === "function") carregarMatriculas(); }
+    else if (id === "documentos") { if (typeof carregarDocumentos === "function") carregarDocumentos(); }
+    else if (id === "salas") { if (typeof carregarSalasDir === "function") carregarSalasDir(); }
+    else if (id === "financeiro") { if (typeof carregarFinanceiroDir === "function") carregarFinanceiroDir(); }
+    else if (id === "equipa") { if (typeof configurarFormUtilizador === "function") configurarFormUtilizador(); if (typeof carregarEquipa === "function") carregarEquipa(); }
+    else if (id === "configuracoes") { if (typeof carregarConfiguracoes === "function") carregarConfiguracoes(); }
+    else if (id === "aura") { if (typeof carregarAuraDir === "function") carregarAuraDir(); }
     
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
