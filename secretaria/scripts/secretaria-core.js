@@ -18,6 +18,9 @@ let inscricaoEmAnalise = null;  // guarda o ID da inscrição que está a ser an
 // ARRANQUE
 // ============================================================
 document.addEventListener("DOMContentLoaded", async function () {
+    // Se não for a página da secretária, para aqui. adicionado para permitir o director carregar o
+    // 
+if (!document.getElementById("sec-avatar")) return;
     const token = exigirLogin();
     if (!token) return;
 
