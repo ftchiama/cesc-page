@@ -130,26 +130,18 @@ function apagarGrelha(id) {
 }
 
 function abrirModalAdicionarGrelha() {
-    // 1. Construir as opções das classes
+    // 1. Construir as opções (igual ao que tinhas)
     let opcoesClasses = '<option value="">Escolhe a Classe</option>';
-    classesCache.forEach(c => {
-        opcoesClasses += `<option value="${c.id}">${esc(c.nome)}</option>`;
-    });
+    classesCache.forEach(c => { opcoesClasses += `<option value="${c.id}">${esc(c.nome)}</option>`; });
 
-    // 2. Construir as opções dos cursos
     let opcoesCursos = '<option value="">Sem Curso (Geral)</option>';
-    cursosCache.forEach(c => {
-        opcoesCursos += `<option value="${c.id}">${esc(c.nome)} (${esc(c.sigla)})</option>`;
-    });
+    cursosCache.forEach(c => { opcoesCursos += `<option value="${c.id}">${esc(c.nome)} (${esc(c.sigla)})</option>`; });
 
-    // 3. Construir as opções das disciplinas
     let opcoesDisciplinas = '<option value="">Escolhe a Disciplina</option>';
-    disciplinasCache.forEach(d => {
-        opcoesDisciplinas += `<option value="${d.id}">${esc(d.nome)}</option>`;
-    });
+    disciplinasCache.forEach(d => { opcoesDisciplinas += `<option value="${d.id}">${esc(d.nome)}</option>`; });
 
-    // 4. Criar o HTML do modal com as opções já embutidas
-    const html = `
+    // 2. Construir o HTML completo do modal
+    const htmlCorpo = `
         <div class="form-grelha">
             <div class="campo-grupo">
                 <label>Classe *</label>
@@ -174,8 +166,24 @@ function abrirModalAdicionarGrelha() {
         <p id="msg-modal-grelha" class="msg-form" style="margin-top:10px; display:none;"></p>
     `;
 
-    // 5. Abrir o modal
-    abrirModal("Adicionar à Grelha Curricular", html, async function () {
+    // 3. INJETAR DIRETAMENTE NO DOM (sem usar abrirModal)
+    const overlay = document.getElementById("modal-overlay");
+    if (!overlay) return;
+
+    document.getElementById("modal-titulo").textContent = "Adicionar à Grelha Curricular";
+    document.getElementById("modal-corpo").innerHTML = htmlCorpo;
+    
+    const btnConfirmar = document.getElementById("modal-confirmar");
+    const btnCancelar = document.getElementById("modal-cancelar");
+    
+    btnConfirmar.style.display = "block";
+    btnConfirmar.textContent = "Adicionar";
+    
+    // Clonar para remover eventos antigos
+    const novoBtn = btnConfirmar.cloneNode(true);
+    btnConfirmar.parentNode.replaceChild(novoBtn, btnConfirmar);
+    
+    novoBtn.addEventListener("click", async function () {
         const msgModal = document.getElementById("msg-modal-grelha");
         msgModal.style.display = "none";
         
@@ -188,18 +196,32 @@ function abrirModalAdicionarGrelha() {
         if (!classeId || !discId) {
             mostrarMsg(msgModal, "Escolhe a classe e a disciplina.", "erro");
             msgModal.style.display = "block";
-            return false;
+            return;
         }
+
+        novoBtn.disabled = true;
+        novoBtn.textContent = "A guardar...";
 
         const res = await chamarRPC("cesc_diretor_guardar_grelha", {
             p_token: token, p_classe_id: classeId, p_curso_id: cursoId, p_disciplina_id: discId, p_critica: critica
         });
 
-        if (res.ok) { carregarAcademico(); return true; }
-        mostrarMsg(msgModal, res.erro || "Erro ao guardar.", "erro");
-        msgModal.style.display = "block";
-        return false;
-    }, "Adicionar");
+        novoBtn.disabled = false;
+        novoBtn.textContent = "Adicionar";
+
+        if (res.ok) {
+            overlay.style.display = "none";
+            carregarAcademico();
+        } else {
+            mostrarMsg(msgModal, res.erro || "Erro ao guardar.", "erro");
+            msgModal.style.display = "block";
+        }
+    });
+
+    btnCancelar.onclick = function() { overlay.style.display = "none"; };
+    document.getElementById("modal-fechar").onclick = function() { overlay.style.display = "none"; };
+
+    overlay.style.display = "flex";
 }
 
 // ============================================================
