@@ -52,59 +52,26 @@ async function carregarAuraDir() {
         const selAnoAloc = document.getElementById("filtro-aura-ano-alocacao");
         if (selAnoAloc) selAnoAloc.addEventListener("change", carregarAuraDir);
 
-        // Botão JUIZ
         const btnJuiz = document.getElementById("btn-executar-juiz");
         if (btnJuiz) {
             btnJuiz.addEventListener("click", function () {
-                abrirModalConfirmacao("Executar JUIZ", "Tens a certeza que queres avaliar as notas dos alunos?", async function() {
+                abrirModal("Confirmar JUIZ", "<p>Executar o JUIZ? Isto vai avaliar as notas.</p>", async function() {
                     await executarAura("cesc_aura_julgar", "JUIZ");
-                });
+                    return true;
+                }, "Confirmar");
             });
         }
 
-        // Botão DISTRIBUIDOR
         const btnDist = document.getElementById("btn-executar-distribuidor");
         if (btnDist) {
             btnDist.addEventListener("click", function () {
-                abrirModalConfirmacao("Executar DISTRIBUIDOR", "Tens a certeza que queres colocar os alunos nas salas?", async function() {
+                abrirModal("Confirmar DISTRIBUIDOR", "<p>Executar o DISTRIBUIDOR? Isto vai colocar os alunos nas salas.</p>", async function() {
                     await executarAura("cesc_aura_distribuir", "DISTRIBUIDOR");
-                });
+                    return true;
+                }, "Confirmar");
             });
         }
     }
-}
-
-// Função simples para criar um modal de confirmação sem depender do core
-function abrirModalConfirmacao(titulo, mensagem, acao) {
-    const overlay = document.getElementById("modal-overlay");
-    if (!overlay) return;
-
-    document.getElementById("modal-titulo").textContent = titulo;
-    document.getElementById("modal-corpo").innerHTML = '<p>' + mensagem + '</p>';
-    
-    const btnConfirmar = document.getElementById("modal-confirmar");
-    const btnCancelar = document.getElementById("modal-cancelar");
-    
-    btnConfirmar.style.display = "block";
-    btnConfirmar.textContent = "Confirmar";
-    
-    // Clonar para remover eventos antigos
-    const novoBtn = btnConfirmar.cloneNode(true);
-    btnConfirmar.parentNode.replaceChild(novoBtn, btnConfirmar);
-    
-    novoBtn.addEventListener("click", async function () {
-        novoBtn.disabled = true;
-        novoBtn.textContent = "A processar...";
-        await acao();
-        novoBtn.disabled = false;
-        novoBtn.textContent = "Confirmar";
-        overlay.style.display = "none";
-    });
-
-    btnCancelar.onclick = function() { overlay.style.display = "none"; };
-    document.getElementById("modal-fechar").onclick = function() { overlay.style.display = "none"; };
-
-    overlay.style.display = "flex";
 }
 
 async function executarAura(rpcName, titulo) {
@@ -135,15 +102,6 @@ async function executarAura(rpcName, titulo) {
     }
 }
 
-function mostrarMsgAura(msgEl, texto, tipo) {
-    if (!msgEl) return;
-    msgEl.textContent = texto;
-    msgEl.className = "msg-form " + (tipo || "erro");
-    if (tipo === "sucesso") {
-        setTimeout(() => { msgEl.className = "msg-form"; msgEl.textContent = ""; }, 3000);
-    }
-}
-
 function mudarAbaAura(aba) {
     const abaRegras = document.getElementById("aba-aura-regras");
     const abaAloc = document.getElementById("aba-aura-alocacao");
@@ -153,22 +111,16 @@ function mudarAbaAura(aba) {
     if (aba === "regras") {
         abaRegras.style.display = "block";
         abaAloc.style.display = "none";
-        
-        // Forçar o estilo visual de ativo
         btnRegras.style.cssText = "background: var(--cor-azul); color: #fff; border: 1px solid var(--cor-azul); padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;";
         btnAloc.style.cssText = "background: transparent; color: var(--cor-texto-suave); border: 1px solid var(--cor-borda); padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;";
     } else {
         abaRegras.style.display = "none";
         abaAloc.style.display = "block";
-        
         btnRegras.style.cssText = "background: transparent; color: var(--cor-texto-suave); border: 1px solid var(--cor-borda); padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;";
         btnAloc.style.cssText = "background: var(--cor-azul); color: #fff; border: 1px solid var(--cor-azul); padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;";
     }
 }
 
-// ============================================================
-// REGRAS
-// ============================================================
 function renderizarRegrasAura(regras) {
     const c = document.getElementById("lista-regras-aura");
     if (!c) return;
@@ -214,8 +166,8 @@ async function guardarRegraAura(idx) {
     });
     
     const msg = document.getElementById("msg-executar-aura");
-    if (res.ok) mostrarMsgAura(msg, "Regra guardada com sucesso.", "sucesso");
-    else mostrarMsgAura(msg, res.erro || "Erro ao guardar regra.", "erro");
+    if (res.ok) mostrarMsg(msg, "Regra guardada com sucesso.", "sucesso");
+    else mostrarMsg(msg, res.erro || "Erro ao guardar regra.", "erro");
 }
 
 async function guardarRegraAuraMobile(idx) {
@@ -229,13 +181,10 @@ async function guardarRegraAuraMobile(idx) {
     });
     
     const msg = document.getElementById("msg-executar-aura");
-    if (res.ok) mostrarMsgAura(msg, "Regra guardada com sucesso.", "sucesso");
-    else mostrarMsgAura(msg, res.erro || "Erro ao guardar regra.", "erro");
+    if (res.ok) mostrarMsg(msg, "Regra guardada com sucesso.", "sucesso");
+    else mostrarMsg(msg, res.erro || "Erro ao guardar regra.", "erro");
 }
 
-// ============================================================
-// ALOCAÇÃO
-// ============================================================
 function renderizarAlocacoesAura(alocacoes) {
     const c = document.getElementById("lista-alocacoes-aura");
     if (!c) return;
@@ -310,19 +259,7 @@ function abrirModalNovaAlocacao() {
         <p id="msg-modal-alocacao" class="msg-form" style="margin-top:10px; display:none;"></p>
     `;
 
-    const overlay = document.getElementById("modal-overlay");
-    document.getElementById("modal-titulo").textContent = "Nova Alocação de Sala";
-    document.getElementById("modal-corpo").innerHTML = html;
-
-    const btnConfirmar = document.getElementById("modal-confirmar");
-    const btnCancelar = document.getElementById("modal-cancelar");
-    btnConfirmar.style.display = "block";
-    btnConfirmar.textContent = "Guardar Alocação";
-
-    const novoBtn = btnConfirmar.cloneNode(true);
-    btnConfirmar.parentNode.replaceChild(novoBtn, btnConfirmar);
-
-    novoBtn.addEventListener("click", async function () {
+    abrirModal("Nova Alocação de Sala", html, async function () {
         const msgModal = document.getElementById("msg-modal-alocacao");
         msgModal.style.display = "none";
         
@@ -334,34 +271,25 @@ function abrirModalNovaAlocacao() {
         const curso = document.getElementById("aloc-curso").value.trim() || null;
 
         if (!pavilhao || !classe || !sala_inicio || !sala_fim) {
-            mostrarMsgAura(msgModal, "Preenche todos os campos obrigatórios.", "erro");
+            mostrarMsg(msgModal, "Preenche todos os campos obrigatórios.", "erro");
             msgModal.style.display = "block";
-            return;
+            return false;
         }
-
-        novoBtn.disabled = true;
-        novoBtn.textContent = "A guardar...";
 
         const res = await chamarRPC("cesc_aura_guardar_alocacao", {
             p_token: token, p_ano_lectivo: ano, p_turno: turno, p_pavilhao: pavilhao,
             p_sala_inicio: sala_inicio, p_sala_fim: sala_fim, p_classe: classe, p_curso: curso
         });
 
-        novoBtn.disabled = false;
-        novoBtn.textContent = "Guardar Alocação";
-
         if (res.ok) {
-            overlay.style.display = "none";
             carregarAuraDir();
+            return true;
         } else {
-            mostrarMsgAura(msgModal, res.erro || "Erro ao guardar alocação.", "erro");
+            mostrarMsg(msgModal, res.erro || "Erro ao guardar alocação.", "erro");
             msgModal.style.display = "block";
+            return false;
         }
-    });
-
-    btnCancelar.onclick = function() { overlay.style.display = "none"; };
-    document.getElementById("modal-fechar").onclick = function() { overlay.style.display = "none"; };
-    overlay.style.display = "flex";
+    }, "Guardar Alocação");
 }
 
 function abrirModalNovaRegra() {
@@ -374,20 +302,7 @@ function abrirModalNovaRegra() {
         </div>
         <p id="msg-modal-regra" class="msg-form" style="margin-top:10px; display:none;"></p>
     `;
-
-    const overlay = document.getElementById("modal-overlay");
-    document.getElementById("modal-titulo").textContent = "Nova Regra de Aprovação";
-    document.getElementById("modal-corpo").innerHTML = html;
-
-    const btnConfirmar = document.getElementById("modal-confirmar");
-    const btnCancelar = document.getElementById("modal-cancelar");
-    btnConfirmar.style.display = "block";
-    btnConfirmar.textContent = "Guardar Regra";
-
-    const novoBtn = btnConfirmar.cloneNode(true);
-    btnConfirmar.parentNode.replaceChild(novoBtn, btnConfirmar);
-
-    novoBtn.addEventListener("click", async function () {
+    abrirModal("Nova Regra de Aprovação", html, async function() {
         const msgModal = document.getElementById("msg-modal-regra");
         msgModal.style.display = "none";
 
@@ -398,31 +313,21 @@ function abrirModalNovaRegra() {
         const sec = parseInt(document.getElementById("reg-sec").value, 10);
 
         if (!classe) { 
-            mostrarMsgAura(msgModal, "Indica a classe.", "erro");
+            mostrarMsg(msgModal, "Indica a classe.", "erro");
             msgModal.style.display = "block";
-            return; 
+            return false; 
         }
-
-        novoBtn.disabled = true;
-        novoBtn.textContent = "A guardar...";
 
         const res = await chamarRPC("cesc_aura_guardar_regra", {
             p_token: token, p_classe: classe, p_curso: curso, p_max_criticas: crit, p_max_secundarias: sec
         });
         
-        novoBtn.disabled = false;
-        novoBtn.textContent = "Guardar Regra";
-
         if (res.ok) { 
-            overlay.style.display = "none";
             carregarAuraDir(); 
-        } else {
-            mostrarMsgAura(msgModal, res.erro || "Erro ao guardar regra.", "erro"); 
-            msgModal.style.display = "block";
+            return true; 
         }
-    });
-
-    btnCancelar.onclick = function() { overlay.style.display = "none"; };
-    document.getElementById("modal-fechar").onclick = function() { overlay.style.display = "none"; };
-    overlay.style.display = "flex";
+        mostrarMsg(msgModal, res.erro || "Erro ao guardar regra.", "erro"); 
+        msgModal.style.display = "block";
+        return false;
+    }, "Guardar Regra");
 }

@@ -21,7 +21,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.querySelectorAll(".nav-item[data-seccao]").forEach(item => {
         item.addEventListener("click", e => {
             e.preventDefault();
-            // Usa a função do DIRETOR, não a da secretária
             mostrarSeccaoDir(item.getAttribute("data-seccao"));
             fecharSidebar();
         });
@@ -52,7 +51,6 @@ function mostrarSeccaoDir(id) {
         n.classList.toggle("ativo", n.getAttribute("data-seccao") === id);
     });
 
-    // Carrega as secções usando as funções da secretária ou do diretor
     if (id === "alunos" && typeof carregarAlunos === "function") carregarAlunos();
     else if (id === "inscricoes" && typeof inicializarInscricoes === "function") inicializarInscricoes();
     else if (id === "matriculas" && typeof carregarMatriculas === "function") carregarMatriculas();
@@ -82,51 +80,70 @@ async function carregarEstatisticas(token) {
     if (nomeSidebar) nomeSidebar.textContent = "Diretor";
 }
 
-// Helpers comuns (se não existirem no core da secretária)
-if (typeof abrirModal !== 'function') {
-    function abrirModal(titulo, htmlCorpo, acaoConfirmar, textoBotaoConfirmar) {
-        const overlay = document.getElementById("modal-overlay");
-        if (!overlay) return;
-        
-        const elTitulo = document.getElementById("modal-titulo");
-        if (elTitulo) elTitulo.textContent = titulo;
-        
-        const elCorpo = document.getElementById("modal-corpo");
-        if (elCorpo) elCorpo.innerHTML = htmlCorpo;
-        
-        const btnConfirmar = document.getElementById("modal-confirmar");
-        if (!btnConfirmar) return;
-        
-        btnConfirmar.textContent = textoBotaoConfirmar || "Confirmar";
-        
-        const btnCancelar = document.getElementById("modal-cancelar");
-        
-        if (textoBotaoConfirmar === "Fechar") {
-            btnConfirmar.style.display = "none";
-            if (btnCancelar) {
-                btnCancelar.style.display = "block";
-                btnCancelar.onclick = () => { overlay.style.display = "none"; };
-            }
-        } else {
-            btnConfirmar.style.display = "block";
-            if (btnCancelar) {
-                btnCancelar.style.display = "block";
-                btnCancelar.onclick = () => { overlay.style.display = "none"; };
-            }
-            
-            const novoBtn = btnConfirmar.cloneNode(true);
-            btnConfirmar.parentNode.replaceChild(novoBtn, btnConfirmar);
-            novoBtn.addEventListener("click", async function () {
-                novoBtn.disabled = true;
-                const deveFechar = await acaoConfirmar();
-                novoBtn.disabled = false;
-                if (deveFechar) overlay.style.display = "none";
-            });
+// Helpers comuns
+function abrirModal(titulo, htmlCorpo, acaoConfirmar, textoBotaoConfirmar) {
+    const overlay = document.getElementById("modal-overlay");
+    if (!overlay) return;
+    
+    const elTitulo = document.getElementById("modal-titulo");
+    if (elTitulo) elTitulo.textContent = titulo;
+    
+    const elCorpo = document.getElementById("modal-corpo");
+    if (elCorpo) elCorpo.innerHTML = htmlCorpo;
+    
+    const btnConfirmar = document.getElementById("modal-confirmar");
+    if (!btnConfirmar) return;
+    
+    btnConfirmar.textContent = textoBotaoConfirmar || "Confirmar";
+    
+    const btnCancelar = document.getElementById("modal-cancelar");
+    
+    if (textoBotaoConfirmar === "Fechar") {
+        btnConfirmar.style.display = "none";
+        if (btnCancelar) {
+            btnCancelar.style.display = "block";
+            btnCancelar.onclick = () => { overlay.style.display = "none"; };
+        }
+    } else {
+        btnConfirmar.style.display = "block";
+        if (btnCancelar) {
+            btnCancelar.style.display = "block";
+            btnCancelar.onclick = () => { overlay.style.display = "none"; };
         }
         
-        const btnFechar = document.getElementById("modal-fechar");
-        if (btnFechar) btnFechar.onclick = () => { overlay.style.display = "none"; };
-        
-        overlay.style.display = "flex";
+        const novoBtn = btnConfirmar.cloneNode(true);
+        btnConfirmar.parentNode.replaceChild(novoBtn, btnConfirmar);
+        novoBtn.addEventListener("click", async function () {
+            novoBtn.disabled = true;
+            const deveFechar = await acaoConfirmar();
+            novoBtn.disabled = false;
+            if (deveFechar) overlay.style.display = "none";
+        });
     }
+    
+    const btnFechar = document.getElementById("modal-fechar");
+    if (btnFechar) btnFechar.onclick = () => { overlay.style.display = "none"; };
+    
+    overlay.style.display = "flex";
+}
+
+async function obterUrlAssinada(caminho) {
+    try {
+        const res = await fetch(API.SUPABASE_URL + "/functions/v1/gerar-url-assinada", {
+            method: "POST",
+            headers: { "apikey": API.SUPABASE_ANON_KEY, "Authorization": "Bearer " + API.SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+            body: JSON.stringify({ caminho: caminho })
+        });
+        if (res.ok) { const data = await res.json(); if (data.ok && data.url) return data.url; }
+    } catch (e) { console.error(e); }
+    return null;
+}
+
+function capitalizar(s) { if (!s) return ""; return s.charAt(0).toUpperCase() + s.slice(1); }
+
+function mostrarMsg(el, texto, tipo) {
+    if (!el) return;
+    el.textContent = texto;
+    el.className = "msg-form " + (tipo || "erro");
+    if (tipo === "sucesso") setTimeout(() => { el.className = "msg-form"; el.textContent = ""; }, 2500);
 }
