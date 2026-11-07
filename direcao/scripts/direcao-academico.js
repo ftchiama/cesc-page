@@ -22,13 +22,19 @@ async function carregarAcademico() {
     if (resCursos.ok) cursosCache = resCursos.cursos || [];
     if (resDisc.ok) disciplinasCache = resDisc.disciplinas || [];
 
+    // Renderizar as tabelas das abas
+    renderizarClasses();
+    renderizarCursos();
+    renderizarDisciplinas();
+
     // 2. Carregar a Grelha Curricular
     const resGrelha = await chamarRPC("cesc_diretor_listar_grelha", { p_token: token });
     if (resGrelha.ok) {
         grelhaCache = resGrelha.grelha || [];
         renderizarGrelha();
     } else {
-        document.getElementById("lista-grelha-container").innerHTML = '<div class="estado-vazio">' + esc(resGrelha.erro) + '</div>';
+        const el = document.getElementById("lista-grelha-container");
+        if (el) el.innerHTML = '<div class="estado-vazio">' + esc(resGrelha.erro) + '</div>';
     }
 
     // 3. Preencher os dropdowns (se existirem no HTML)
@@ -52,21 +58,18 @@ function mudarAbaAcademico(aba) {
 }
 
 function preencherSelects() {
-    // Preencher dropdown de Classes no modal da Grelha
     const selClasse = document.getElementById("gr-classe");
     if (selClasse) {
         selClasse.innerHTML = '<option value="">Escolhe a Classe</option>';
         classesCache.forEach(c => { selClasse.innerHTML += `<option value="${c.id}">${esc(c.nome)}</option>`; });
     }
 
-    // Preencher dropdown de Cursos no modal da Grelha
     const selCurso = document.getElementById("gr-curso");
     if (selCurso) {
         selCurso.innerHTML = '<option value="">Sem Curso (Geral)</option>';
         cursosCache.forEach(c => { selCurso.innerHTML += `<option value="${c.id}">${esc(c.nome)} (${esc(c.sigla)})</option>`; });
     }
 
-    // Preencher dropdown de Disciplinas no modal da Grelha
     const selDisc = document.getElementById("gr-disciplina");
     if (selDisc) {
         selDisc.innerHTML = '<option value="">Escolhe a Disciplina</option>';
@@ -75,7 +78,7 @@ function preencherSelects() {
 }
 
 // ============================================================
-// GRELHA CURRICULAR (Visualização e Gestão)
+// GRELHA CURRICULAR
 // ============================================================
 function renderizarGrelha() {
     const c = document.getElementById("lista-grelha-container");
@@ -86,7 +89,6 @@ function renderizarGrelha() {
         return;
     }
 
-    // Agrupar: Classe -> Curso -> Disciplinas
     const agrupado = {};
     grelhaCache.forEach(item => {
         const classeNome = item.classe_nome;
@@ -129,7 +131,6 @@ function renderizarGrelha() {
 
 async function toggleCriticaGrelha(id, atualCritica) {
     const token = obterToken();
-    // Encontra o item na cache para saber os IDs
     const item = grelhaCache.find(x => x.id === id);
     if (!item) return;
 
@@ -154,7 +155,7 @@ async function apagarGrelha(id) {
 }
 
 function abrirModalAdicionarGrelha() {
-    preencherSelects(); // Garante que os dropdowns estão atualizados
+    preencherSelects();
     const html = `
         <div class="form-grelha">
             <div class="campo-grupo">
@@ -206,7 +207,7 @@ function abrirModalAdicionarGrelha() {
 }
 
 // ============================================================
-// CLASSES (Lista simples)
+// CLASSES
 // ============================================================
 function renderizarClasses() {
     const c = document.getElementById("lista-classes-container");
@@ -254,7 +255,7 @@ async function apagarClasse(id) {
 }
 
 // ============================================================
-// CURSOS (Lista simples)
+// CURSOS
 // ============================================================
 function renderizarCursos() {
     const c = document.getElementById("lista-cursos-container");
@@ -302,7 +303,7 @@ async function apagarCurso(id) {
 }
 
 // ============================================================
-// DISCIPLINAS (Lista simples, sem vínculo a classe/curso)
+// DISCIPLINAS
 // ============================================================
 function renderizarDisciplinas() {
     const c = document.getElementById("lista-disciplinas-container");
@@ -334,6 +335,7 @@ function abrirModalDisciplina(id = null) {
         const token = obterToken();
         const nome = document.getElementById("disc-nome").value.trim();
         if (!nome) { mostrarMsg(msgModal, "Preenche o nome.", "erro"); msgModal.style.display = "block"; return false; }
+        // Nota: a RPC de guardar disciplina pode ter o parâmetro p_critica, mas aqui já não é usado
         const res = await chamarRPC("cesc_diretor_guardar_disciplina", { p_token: token, p_id: id, p_nome: nome, p_critica: false });
         if (res.ok) { carregarAcademico(); return true; }
         mostrarMsg(msgModal, res.erro, "erro"); msgModal.style.display = "block"; return false;
@@ -350,9 +352,6 @@ async function apagarDisciplina(id) {
 // Iniciar
 document.addEventListener("DOMContentLoaded", function() {
     if (document.getElementById("seccao-academico")) {
-        // Só carrega se estiver na página do diretor
-        if (typeof carregarAcademico === "function") {
-            // O core chamará quando clicar na secção
-        }
+        // O core chamará quando clicar na secção
     }
 });
