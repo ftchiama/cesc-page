@@ -130,13 +130,41 @@ function apagarGrelha(id) {
 }
 
 function abrirModalAdicionarGrelha() {
-    preencherSelects(); // Garante que os selects estão preenchidos
+    // 1. Construir as opções das classes
+    let opcoesClasses = '<option value="">Escolhe a Classe</option>';
+    classesCache.forEach(c => {
+        opcoesClasses += `<option value="${c.id}">${esc(c.nome)}</option>`;
+    });
+
+    // 2. Construir as opções dos cursos
+    let opcoesCursos = '<option value="">Sem Curso (Geral)</option>';
+    cursosCache.forEach(c => {
+        opcoesCursos += `<option value="${c.id}">${esc(c.nome)} (${esc(c.sigla)})</option>`;
+    });
+
+    // 3. Construir as opções das disciplinas
+    let opcoesDisciplinas = '<option value="">Escolhe a Disciplina</option>';
+    disciplinasCache.forEach(d => {
+        opcoesDisciplinas += `<option value="${d.id}">${esc(d.nome)}</option>`;
+    });
+
+    // 4. Criar o HTML do modal com as opções já embutidas
     const html = `
         <div class="form-grelha">
-            <div class="campo-grupo"><label>Classe *</label><select id="gr-classe" class="campo-select"></select></div>
-            <div class="campo-grupo"><label>Curso</label><select id="gr-curso" class="campo-select"></select></div>
-            <div class="campo-grupo"><label>Disciplina *</label><select id="gr-disciplina" class="campo-select"></select></div>
-            <div class="campo-grupo"><label>Tipo *</label>
+            <div class="campo-grupo">
+                <label>Classe *</label>
+                <select id="gr-classe" class="campo-select">${opcoesClasses}</select>
+            </div>
+            <div class="campo-grupo">
+                <label>Curso</label>
+                <select id="gr-curso" class="campo-select">${opcoesCursos}</select>
+            </div>
+            <div class="campo-grupo">
+                <label>Disciplina *</label>
+                <select id="gr-disciplina" class="campo-select">${opcoesDisciplinas}</select>
+            </div>
+            <div class="campo-grupo">
+                <label>Tipo *</label>
                 <select id="gr-critica" class="campo-select">
                     <option value="false">Secundária</option>
                     <option value="true">Crítica</option>
@@ -145,9 +173,12 @@ function abrirModalAdicionarGrelha() {
         </div>
         <p id="msg-modal-grelha" class="msg-form" style="margin-top:10px; display:none;"></p>
     `;
+
+    // 5. Abrir o modal
     abrirModal("Adicionar à Grelha Curricular", html, async function () {
         const msgModal = document.getElementById("msg-modal-grelha");
         msgModal.style.display = "none";
+        
         const token = obterToken();
         const classeId = document.getElementById("gr-classe").value;
         const cursoId = document.getElementById("gr-curso").value || null;
