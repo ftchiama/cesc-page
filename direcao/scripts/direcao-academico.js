@@ -11,33 +11,22 @@ async function carregarAcademico() {
     const token = obterToken();
     if (!token) return;
 
-    // 1. Carregar Dados Base (Classes, Cursos, Disciplinas)
-    const [resClasses, resCursos, resDisc] = await Promise.all([
-        chamarRPC("cesc_diretor_listar_classes", { p_token: token }),
-        chamarRPC("cesc_diretor_listar_cursos", { p_token: token }),
-        chamarRPC("cesc_diretor_listar_disciplinas", { p_token: token })
-    ]);
+    // 1. Classes
+    const resClasses = await chamarRPC("cesc_diretor_listar_classes", { p_token: token });
+    if (resClasses.ok) { classesCache = resClasses.classes || []; renderizarClasses(); }
 
-    if (resClasses.ok) classesCache = resClasses.classes || [];
-    if (resCursos.ok) cursosCache = resCursos.cursos || [];
-    if (resDisc.ok) disciplinasCache = resDisc.disciplinas || [];
+    // 2. Cursos
+    const resCursos = await chamarRPC("cesc_diretor_listar_cursos", { p_token: token });
+    if (resCursos.ok) { cursosCache = resCursos.cursos || []; renderizarCursos(); }
 
-    // Renderizar as tabelas das abas
-    renderizarClasses();
-    renderizarCursos();
-    renderizarDisciplinas();
+    // 3. Disciplinas
+    const resDisc = await chamarRPC("cesc_diretor_listar_disciplinas", { p_token: token });
+    if (resDisc.ok) { disciplinasCache = resDisc.disciplinas || []; renderizarDisciplinas(); }
 
-    // 2. Carregar a Grelha Curricular
+    // 4. Grelha Curricular
     const resGrelha = await chamarRPC("cesc_diretor_listar_grelha", { p_token: token });
-    if (resGrelha.ok) {
-        grelhaCache = resGrelha.grelha || [];
-        renderizarGrelha();
-    } else {
-        const el = document.getElementById("lista-grelha-container");
-        if (el) el.innerHTML = '<div class="estado-vazio">' + esc(resGrelha.erro) + '</div>';
-    }
-
-    // 3. Preencher os dropdowns (se existirem no HTML)
+    if (resGrelha.ok) { grelhaCache = resGrelha.grelha || []; renderizarGrelha(); }
+    
     preencherSelects();
 }
 
@@ -83,11 +72,7 @@ function preencherSelects() {
 function renderizarGrelha() {
     const c = document.getElementById("lista-grelha-container");
     if (!c) return;
-
-    if (grelhaCache.length === 0) {
-        c.innerHTML = '<div class="estado-vazio">A grelha está vazia. Adiciona disciplinas às classes/cursos.</div>';
-        return;
-    }
+    if (grelhaCache.length === 0) { c.innerHTML = '<div class="estado-vazio">A grelha está vazia. Adiciona disciplinas às classes/cursos.</div>'; return; }
 
     const agrupado = {};
     grelhaCache.forEach(item => {
@@ -120,8 +105,7 @@ function renderizarGrelha() {
                     <button onclick="apagarGrelha('${disc.id}')" style="background:none; border:none; cursor:pointer; color: var(--cor-erro);" title="Remover"><i class="fas fa-trash"></i></button>
                 </div>`;
             });
-            html += `</div>`;
-            html += `</div>`;
+            html += `</div></div>`;
         }
         html += `</div>`;
     }
@@ -135,11 +119,7 @@ async function toggleCriticaGrelha(id, atualCritica) {
     if (!item) return;
 
     const res = await chamarRPC("cesc_diretor_guardar_grelha", {
-        p_token: token,
-        p_classe_id: item.classe_id,
-        p_curso_id: item.curso_id,
-        p_disciplina_id: item.disciplina_id,
-        p_critica: !atualCritica
+        p_token: token, p_classe_id: item.classe_id, p_curso_id: item.curso_id, p_disciplina_id: item.disciplina_id, p_critica: !atualCritica
     });
 
     if (res.ok) carregarAcademico();
@@ -158,20 +138,10 @@ function abrirModalAdicionarGrelha() {
     preencherSelects();
     const html = `
         <div class="form-grelha">
-            <div class="campo-grupo">
-                <label>Classe *</label>
-                <select id="gr-classe" class="campo-select"></select>
-            </div>
-            <div class="campo-grupo">
-                <label>Curso</label>
-                <select id="gr-curso" class="campo-select"></select>
-            </div>
-            <div class="campo-grupo">
-                <label>Disciplina *</label>
-                <select id="gr-disciplina" class="campo-select"></select>
-            </div>
-            <div class="campo-grupo">
-                <label>Tipo *</label>
+            <div class="campo-grupo"><label>Classe *</label><select id="gr-classe" class="campo-select"></select></div>
+            <div class="campo-grupo"><label>Curso</label><select id="gr-curso" class="campo-select"></select></div>
+            <div class="campo-grupo"><label>Disciplina *</label><select id="gr-disciplina" class="campo-select"></select></div>
+            <div class="campo-grupo"><label>Tipo *</label>
                 <select id="gr-critica" class="campo-select">
                     <option value="false">Secundária</option>
                     <option value="true">Crítica</option>
@@ -180,7 +150,6 @@ function abrirModalAdicionarGrelha() {
         </div>
         <p id="msg-modal-grelha" class="msg-form" style="margin-top:10px; display:none;"></p>
     `;
-
     abrirModal("Adicionar à Grelha Curricular", html, async function () {
         const msgModal = document.getElementById("msg-modal-grelha");
         const token = obterToken();
@@ -216,11 +185,14 @@ function renderizarClasses() {
 
     let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec"><thead><tr><th>Ordem</th><th>Nome</th><th>Acções</th></tr></thead><tbody>';
     classesCache.forEach(cls => {
-        html += `<tr><td>${cls.ordem}</td><td><strong>${esc(cls.nome)}</strong></td>
+        html += `<tr>
+            <td>${cls.ordem}</td>
+            <td><strong>${esc(cls.nome)}</strong></td>
             <td>
                 <button class="btn-acao btn-acao-secundario" onclick="abrirModalClasse('${cls.id}')">Editar</button>
                 <button class="btn-acao btn-acao-secundario" style="color:var(--cor-erro);" onclick="apagarClasse('${cls.id}')">Apagar</button>
-            </td></tr>`;
+            </td>
+        </tr>`;
     });
     html += '</tbody></table></div>';
     c.innerHTML = html;
@@ -241,6 +213,7 @@ function abrirModalClasse(id = null) {
         const nome = document.getElementById("class-nome").value.trim();
         const ordem = parseInt(document.getElementById("class-ordem").value, 10);
         if (!nome || isNaN(ordem)) { mostrarMsg(msgModal, "Preenche todos os campos.", "erro"); msgModal.style.display = "block"; return false; }
+        
         const res = await chamarRPC("cesc_diretor_guardar_classe", { p_token: token, p_id: id, p_nome: nome, p_ordem: ordem });
         if (res.ok) { carregarAcademico(); return true; }
         mostrarMsg(msgModal, res.erro, "erro"); msgModal.style.display = "block"; return false;
@@ -264,11 +237,14 @@ function renderizarCursos() {
 
     let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec"><thead><tr><th>Sigla</th><th>Nome</th><th>Acções</th></tr></thead><tbody>';
     cursosCache.forEach(cur => {
-        html += `<tr><td><strong>${esc(cur.sigla)}</strong></td><td>${esc(cur.nome)}</td>
+        html += `<tr>
+            <td><strong>${esc(cur.sigla)}</strong></td>
+            <td>${esc(cur.nome)}</td>
             <td>
                 <button class="btn-acao btn-acao-secundario" onclick="abrirModalCurso('${cur.id}')">Editar</button>
                 <button class="btn-acao btn-acao-secundario" style="color:var(--cor-erro);" onclick="apagarCurso('${cur.id}')">Apagar</button>
-            </td></tr>`;
+            </td>
+        </tr>`;
     });
     html += '</tbody></table></div>';
     c.innerHTML = html;
@@ -289,6 +265,7 @@ function abrirModalCurso(id = null) {
         const nome = document.getElementById("cur-nome").value.trim();
         const sigla = document.getElementById("cur-sigla").value.trim();
         if (!nome || !sigla) { mostrarMsg(msgModal, "Preenche todos os campos.", "erro"); msgModal.style.display = "block"; return false; }
+        
         const res = await chamarRPC("cesc_diretor_guardar_curso", { p_token: token, p_id: id, p_nome: nome, p_sigla: sigla });
         if (res.ok) { carregarAcademico(); return true; }
         mostrarMsg(msgModal, res.erro, "erro"); msgModal.style.display = "block"; return false;
@@ -312,11 +289,13 @@ function renderizarDisciplinas() {
 
     let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec"><thead><tr><th>Nome</th><th>Acções</th></tr></thead><tbody>';
     disciplinasCache.forEach(d => {
-        html += `<tr><td><strong>${esc(d.nome)}</strong></td>
+        html += `<tr>
+            <td><strong>${esc(d.nome)}</strong></td>
             <td>
                 <button class="btn-acao btn-acao-secundario" onclick="abrirModalDisciplina('${d.id}')">Editar</button>
                 <button class="btn-acao btn-acao-secundario" style="color:var(--cor-erro);" onclick="apagarDisciplina('${d.id}')">Apagar</button>
-            </td></tr>`;
+            </td>
+        </tr>`;
     });
     html += '</tbody></table></div>';
     c.innerHTML = html;
@@ -335,7 +314,7 @@ function abrirModalDisciplina(id = null) {
         const token = obterToken();
         const nome = document.getElementById("disc-nome").value.trim();
         if (!nome) { mostrarMsg(msgModal, "Preenche o nome.", "erro"); msgModal.style.display = "block"; return false; }
-        // Nota: a RPC de guardar disciplina pode ter o parâmetro p_critica, mas aqui já não é usado
+        
         const res = await chamarRPC("cesc_diretor_guardar_disciplina", { p_token: token, p_id: id, p_nome: nome, p_critica: false });
         if (res.ok) { carregarAcademico(); return true; }
         mostrarMsg(msgModal, res.erro, "erro"); msgModal.style.display = "block"; return false;
@@ -343,15 +322,8 @@ function abrirModalDisciplina(id = null) {
 }
 
 async function apagarDisciplina(id) {
-    if (!confirm("Apagar esta disciplina? Isso remove-a de todas as grelhas.")) return;
+    if (!confirm("Apagar esta disciplina?")) return;
     const token = obterToken();
     const res = await chamarRPC("cesc_diretor_apagar_disciplina", { p_token: token, p_id: id });
     if (res.ok) carregarAcademico();
 }
-
-// Iniciar
-document.addEventListener("DOMContentLoaded", function() {
-    if (document.getElementById("seccao-academico")) {
-        // O core chamará quando clicar na secção
-    }
-});
