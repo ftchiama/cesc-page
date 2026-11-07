@@ -81,7 +81,7 @@
                 <div class="stats-grelha" id="stats-visao-geral"></div>
             </section>
 
-            <!-- ALUNOS (Reutiliza a Secretária) -->
+            <!-- ALUNOS -->
             <section class="pagina-seccao" id="seccao-alunos">
                 <div class="pagina-cabecalho"><h1>Alunos</h1><p>Consulta de todos os alunos registados.</p></div>
                 
@@ -116,7 +116,7 @@
                 <div id="lista-alunos-container"></div>
             </section>
 
-            <!-- INSCRIÇÕES (Reutiliza a Secretária) -->
+            <!-- INSCRIÇÕES -->
             <section class="pagina-seccao" id="seccao-inscricoes">
                 <div class="pagina-cabecalho"><h1>Inscrições</h1></div>
                 
@@ -125,7 +125,6 @@
                     <select id="filtro-inscricoes-ano" class="campo-select"></select>
                 </div>
 
-                <!-- Cards de Resumo (ID adicionado) -->
                 <div class="stats-grelha" id="stats-inscricoes-container" style="margin-bottom: 24px;">
                     <div class="stat-card">
                         <div class="stat-header"><i class="fas fa-inbox"></i> Total</div>
@@ -186,7 +185,7 @@
                 <div id="lista-inscricoes-container"></div>
             </section>
 
-            <!-- MATRÍCULAS (Reutiliza a Secretária) -->
+            <!-- MATRÍCULAS -->
             <section class="pagina-seccao" id="seccao-matriculas">
                 <div class="pagina-cabecalho"><h1>Matrículas</h1></div>
                 
@@ -207,7 +206,7 @@
                 <div id="lista-matriculas-container"></div>
             </section>
 
-            <!-- SALAS (Exclusivo) -->
+            <!-- SALAS -->
             <section class="pagina-seccao" id="seccao-salas">
                 <div class="pagina-cabecalho"><h1>Salas</h1></div>
                 <div class="stats-grelha" style="margin-bottom: 24px;">
@@ -242,7 +241,7 @@
                 <div id="lista-dir-salas"></div>
             </section>
 
-            <!-- FINANCEIRO (Exclusivo) -->
+            <!-- FINANCEIRO -->
             <section class="pagina-seccao" id="seccao-financeiro">
                 <div class="pagina-cabecalho"><h1>Financeiro</h1></div>
                 <div class="barra-acoes">
@@ -251,7 +250,7 @@
                 <div id="resumo-financeiro"></div>
             </section>
 
-            <!-- DOCUMENTOS (Reutiliza a Secretária) -->
+            <!-- DOCUMENTOS -->
             <section class="pagina-seccao" id="seccao-documentos">
                 <div class="pagina-cabecalho"><h1>Documentos</h1></div>
                 <div class="barra-acoes">
@@ -265,7 +264,7 @@
                 <div id="lista-documentos-container"></div>
             </section>
 
-            <!-- EQUIPA (Exclusivo) -->
+            <!-- EQUIPA -->
             <section class="pagina-seccao" id="seccao-equipa">
                 <div class="pagina-cabecalho"><h1>Equipa</h1></div>
                 <div class="barra-acoes"><button class="botao-primario" id="btn-novo-utilizador"><i class="fas fa-plus"></i> Novo Utilizador</button></div>
@@ -289,7 +288,7 @@
                 <div id="lista-utilizadores-container"></div>
             </section>
 
-            <!-- CONFIGURAÇÕES (Exclusivo) -->
+            <!-- CONFIGURAÇÕES -->
             <section class="pagina-seccao" id="seccao-configuracoes">
                 <div class="pagina-cabecalho"><h1>Configurações</h1></div>
                 <div class="card-info"><h3><i class="fas fa-calendar-alt"></i> Ano Letivo Atual</h3><div id="config-ano-lectivo"></div></div>
@@ -302,12 +301,24 @@
                 </div>
             </section>
 
-            <!-- AURA (Exclusivo) -->
+            <!-- AURA -->
             <section class="pagina-seccao" id="seccao-aura">
-                <div class="pagina-cabecalho"><h1>AURA</h1></div>
-                <div id="lista-regras-aura"></div>
-                <button class="botao-primario" id="btn-executar-aura" style="margin-top:16px;">Executar AURA</button>
-                <p id="msg-executar-aura" class="msg-form"></p>
+                <div class="pagina-cabecalho"><h1>AURA — Algoritmo</h1><p>Configuração de regras e execução.</p></div>
+                
+                <div class="card-info" style="margin-bottom:20px;">
+                    <h3><i class="fas fa-cogs"></i> Configuração de Regras</h3>
+                    <p style="font-size:0.9rem; color:var(--cor-texto-suave);">Define o limite de negativas permitido para os alunos passarem de ano.</p>
+                    <div id="lista-regras-aura" style="margin-top:16px;"></div>
+                </div>
+
+                <div class="card-info">
+                    <h3><i class="fas fa-play-circle"></i> Execução da AURA</h3>
+                    <p style="font-size:0.9rem; color:var(--cor-texto-suave); margin-bottom:16px;">
+                        O algoritmo vai ler as notas do professor, aplicar as regras acima e distribuir os alunos aprovados pelas salas disponíveis.
+                    </p>
+                    <button class="botao-primario" id="btn-executar-aura"><i class="fas fa-magic"></i> Executar AURA</button>
+                    <p id="msg-executar-aura" class="msg-form" style="margin-top:16px;"></p>
+                </div>
             </section>
 
         </div>
@@ -324,7 +335,7 @@
     <script src="../scripts/api.js"></script>
     <script src="scripts/direcao-core.js"></script>
 
-    <!-- Ficheiros da Secretária (incluindo o core) -->
+    <!-- Ficheiros da Secretária -->
     <script src="../secretaria/scripts/secretaria-core.js"></script>
     <script src="../secretaria/scripts/secretaria-alunos.js"></script>
     <script src="../secretaria/scripts/secretaria-inscricoes.js"></script>
