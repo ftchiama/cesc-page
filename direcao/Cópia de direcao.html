@@ -86,10 +86,8 @@
                 <div class="pagina-cabecalho"><h1>Alunos</h1><p>Consulta de todos os alunos registados.</p></div>
                 
                 <div class="barra-acoes" style="margin-bottom: 16px;">
-                    <label for="filtro-alunos-ano" style="font-size:0.8rem; font-weight:600; color:var(--cor-texto-suave); text-transform:uppercase;">Ano letivo:</label>
-                    <select id="filtro-alunos-ano" class="campo-select" style="width: auto; min-width: 140px;">
-                        <option value="">A carregar...</option>
-                    </select>
+                    <label for="filtro-alunos-ano">Ano letivo:</label>
+                    <select id="filtro-alunos-ano" class="campo-select"></select>
                 </div>
 
                 <div class="stats-grelha" style="margin-bottom: 16px;">
@@ -125,32 +123,27 @@
                     <select id="filtro-inscricoes-ano" class="campo-select"></select>
                 </div>
 
-                <!-- Cards de Resumo (ID adicionado) -->
                 <div class="stats-grelha" id="stats-inscricoes-container" style="margin-bottom: 24px;">
                     <div class="stat-card">
                         <div class="stat-header"><i class="fas fa-inbox"></i> Total</div>
                         <div class="stat-valor" id="stat-total-inscricoes">—</div>
-                        <div class="stat-subtexto">inscrições no ano</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-header"><i class="fas fa-check-circle"></i> Aprovadas</div>
                         <div class="stat-valor" id="stat-inscricoes-aprovadas" style="color: #059669;">—</div>
-                        <div class="stat-subtexto">aprovadas este ano</div>
                     </div>
                     <div class="stat-card stat-card-alerta">
                         <div class="stat-header"><i class="fas fa-clock"></i> Por Aprovar</div>
                         <div class="stat-valor" id="stat-inscricoes-por-aprovar" style="color: #b45309;">—</div>
-                        <div class="stat-subtexto">a aguardar análise</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-header"><i class="fas fa-credit-card"></i> Matrícula Paga</div>
                         <div class="stat-valor" id="stat-inscricoes-matricula-paga" style="color: #1e3a8a;">—</div>
-                        <div class="stat-subtexto">matrículas pagas</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-header"><i class="fas fa-times-circle"></i> Rejeitadas</div>
                         <div class="stat-valor" id="stat-inscricoes-rejeitadas" style="color: var(--cor-erro);">—</div>
-                        <div class="stat-subtexto" id="stat-rejeitadas-detalhe" style="font-size:0.7rem;">Cód. 0: — · Cód. 1: —</div>
+                        <div class="stat-subtexto" id="stat-rejeitadas-detalhe" style="font-size:0.7rem;"></div>
                     </div>
                 </div>
 
@@ -210,6 +203,21 @@
             <!-- SALAS (Exclusivo) -->
             <section class="pagina-seccao" id="seccao-salas">
                 <div class="pagina-cabecalho"><h1>Salas</h1></div>
+                <div class="stats-grelha" style="margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-door-open"></i> Total de Salas</div>
+                        <div class="stat-valor" id="stat-total-salas">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-school"></i> Pavilhões</div>
+                        <div class="stat-valor" id="stat-total-pavilhoes">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-clock"></i> Turnos</div>
+                        <div class="stat-valor" id="stat-total-turnos">0</div>
+                    </div>
+                </div>
+
                 <div class="barra-acoes" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px;">
                     <select id="dir-filtro-sala-turno" class="campo-select" style="flex: 1; min-width: 130px;">
                         <option value="">Todos os Turnos</option>
@@ -286,10 +294,58 @@
 
             <!-- AURA (Exclusivo) -->
             <section class="pagina-seccao" id="seccao-aura">
-                <div class="pagina-cabecalho"><h1>AURA</h1></div>
-                <div id="lista-regras-aura"></div>
-                <button class="botao-primario" id="btn-executar-aura" style="margin-top:16px;">Executar AURA</button>
-                <p id="msg-executar-aura" class="msg-form"></p>
+                <div class="pagina-cabecalho"><h1>AURA — Algoritmo de Distribuição</h1></div>
+
+                <div class="stats-grelha" style="margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-balance-scale"></i> Regras Definidas</div>
+                        <div class="stat-valor" id="stat-total-regras">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-door-open"></i> Alocações</div>
+                        <div class="stat-valor" id="stat-total-alocacoes">0</div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--cor-borda); padding-bottom: 10px;">
+                    <button class="botao-primario" id="btn-aba-regras" onclick="mudarAbaAura('regras')" style="background: transparent; color: var(--cor-azul); border: 1px solid var(--cor-azul);">Regras de Aprovação</button>
+                    <button class="botao-secundario" id="btn-aba-alocacao" onclick="mudarAbaAura('alocacao')" style="background: transparent; color: var(--cor-texto-suave); border: 1px solid var(--cor-borda);">Alocação de Salas</button>
+                </div>
+
+                <div id="aba-aura-regras" style="display: block;">
+                    <div class="card-info" style="margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3><i class="fas fa-balance-scale"></i> Regras de Aprovação</h3>
+                            <button class="btn-acao btn-acao-primario" onclick="abrirModalNovaRegra()">+ Adicionar Regra</button>
+                        </div>
+                        <div id="lista-regras-aura" style="margin-top: 16px;"></div>
+                    </div>
+                </div>
+
+                <div id="aba-aura-alocacao" style="display: none;">
+                    <div class="card-info" style="margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3><i class="fas fa-door-open"></i> Alocação de Salas</h3>
+                            <button class="btn-acao btn-acao-primario" onclick="abrirModalNovaAlocacao()">+ Adicionar Sala</button>
+                        </div>
+                        <div class="barra-acoes" style="padding:0; border:none; background:transparent; margin: 16px 0;">
+                            <select id="filtro-aura-ano-alocacao" class="campo-select" style="width: auto; min-width: 150px;"></select>
+                        </div>
+                        <div id="lista-alocacoes-aura"></div>
+                    </div>
+                </div>
+
+                <div class="card-info" style="margin-top: 20px; border: 2px solid var(--cor-azul); background: #f0f9ff;">
+                    <h3 style="color: var(--cor-azul);"><i class="fas fa-play-circle"></i> Executar Algoritmo</h3>
+                    <p style="font-size:0.9rem; color:var(--cor-texto-suave); margin: 10px 0;">
+                        O JUIZ avalia as notas e aprova/reprova. O DISTRIBUIDOR coloca os alunos aprovados nas salas alocadas.
+                    </p>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px;">
+                        <button class="botao-primario" id="btn-executar-juiz" style="background: #1e3a8a;"><i class="fas fa-gavel"></i> Executar JUIZ (Avaliar)</button>
+                        <button class="botao-primario" id="btn-executar-distribuidor" style="background: #059669;"><i class="fas fa-users"></i> Executar DISTRIBUIDOR (Colocar)</button>
+                    </div>
+                    <p id="msg-executar-aura" class="msg-form" style="margin-top:16px;"></p>
+                </div>
             </section>
 
         </div>
@@ -302,21 +358,22 @@
             <div class="modal-footer" id="modal-rodape"><button class="botao-secundario" id="modal-cancelar">Cancelar</button><button class="botao-primario" id="modal-confirmar">Confirmar</button></div>
         </div>
     </div>
-<script src="../scripts/api.js"></script>
-<script src="scripts/direcao-core.js"></script>
 
-<!-- Ficheiros da Secretária (incluindo o core) -->
-<script src="../secretaria/scripts/secretaria-core.js"></script>
-<script src="../secretaria/scripts/secretaria-alunos.js"></script>
-<script src="../secretaria/scripts/secretaria-inscricoes.js"></script>
-<script src="../secretaria/scripts/secretaria-matriculas.js"></script>
-<script src="../secretaria/scripts/secretaria-documentos.js"></script>
+    <script src="../scripts/api.js"></script>
+    <script src="scripts/direcao-core.js"></script>
 
-<!-- Ficheiros exclusivos do Diretor -->
-<script src="scripts/direcao-salas.js"></script>
-<script src="scripts/direcao-financeiro.js"></script>
-<script src="scripts/direcao-equipa.js"></script>
-<script src="scripts/direcao-configuracoes.js"></script>
-<script src="scripts/direcao-aura.js"></script>
+    <!-- Ficheiros da Secretária -->
+    <script src="../secretaria/scripts/secretaria-core.js"></script>
+    <script src="../secretaria/scripts/secretaria-alunos.js"></script>
+    <script src="../secretaria/scripts/secretaria-inscricoes.js"></script>
+    <script src="../secretaria/scripts/secretaria-matriculas.js"></script>
+    <script src="../secretaria/scripts/secretaria-documentos.js"></script>
+
+    <!-- Ficheiros exclusivos do Diretor -->
+    <script src="scripts/direcao-salas.js"></script>
+    <script src="scripts/direcao-financeiro.js"></script>
+    <script src="scripts/direcao-equipa.js"></script>
+    <script src="scripts/direcao-configuracoes.js"></script>
+    <script src="scripts/direcao-aura.js"></script>
 </body>
 </html>

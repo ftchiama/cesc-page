@@ -60,7 +60,7 @@ function mostrarSeccaoDir(id) {
     else if (id === "equipa" && typeof carregarEquipa === "function") { configurarFormUtilizador(); carregarEquipa(); }
     else if (id === "configuracoes" && typeof carregarConfiguracoes === "function") carregarConfiguracoes();
     else if (id === "aura" && typeof carregarAuraDir === "function") carregarAuraDir();
-    
+    else if (id === "academico" && typeof carregarAcademico === "function") carregarAcademico();
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 

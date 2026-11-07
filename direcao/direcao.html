@@ -52,6 +52,7 @@
             <a href="#" class="nav-item" data-seccao="documentos"><i class="fas fa-file-alt"></i> Documentos</a>
             <a href="#" class="nav-item" data-seccao="equipa"><i class="fas fa-users-cog"></i> Equipa</a>
             <a href="#" class="nav-item" data-seccao="configuracoes"><i class="fas fa-sliders-h"></i> Configurações</a>
+            <a href="#" class="nav-item" data-seccao="academico"><i class="fas fa-graduation-cap"></i> Académico</a>
             <a href="#" class="nav-item" data-seccao="aura"><i class="fas fa-magic"></i> AURA (Turmas)</a>
         </nav>
 
@@ -81,7 +82,7 @@
                 <div class="stats-grelha" id="stats-visao-geral"></div>
             </section>
 
-            <!-- ALUNOS (Reutiliza a Secretária) -->
+            <!-- ALUNOS -->
             <section class="pagina-seccao" id="seccao-alunos">
                 <div class="pagina-cabecalho"><h1>Alunos</h1><p>Consulta de todos os alunos registados.</p></div>
                 
@@ -114,7 +115,7 @@
                 <div id="lista-alunos-container"></div>
             </section>
 
-            <!-- INSCRIÇÕES (Reutiliza a Secretária) -->
+            <!-- INSCRIÇÕES -->
             <section class="pagina-seccao" id="seccao-inscricoes">
                 <div class="pagina-cabecalho"><h1>Inscrições</h1></div>
                 
@@ -124,27 +125,11 @@
                 </div>
 
                 <div class="stats-grelha" id="stats-inscricoes-container" style="margin-bottom: 24px;">
-                    <div class="stat-card">
-                        <div class="stat-header"><i class="fas fa-inbox"></i> Total</div>
-                        <div class="stat-valor" id="stat-total-inscricoes">—</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-header"><i class="fas fa-check-circle"></i> Aprovadas</div>
-                        <div class="stat-valor" id="stat-inscricoes-aprovadas" style="color: #059669;">—</div>
-                    </div>
-                    <div class="stat-card stat-card-alerta">
-                        <div class="stat-header"><i class="fas fa-clock"></i> Por Aprovar</div>
-                        <div class="stat-valor" id="stat-inscricoes-por-aprovar" style="color: #b45309;">—</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-header"><i class="fas fa-credit-card"></i> Matrícula Paga</div>
-                        <div class="stat-valor" id="stat-inscricoes-matricula-paga" style="color: #1e3a8a;">—</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-header"><i class="fas fa-times-circle"></i> Rejeitadas</div>
-                        <div class="stat-valor" id="stat-inscricoes-rejeitadas" style="color: var(--cor-erro);">—</div>
-                        <div class="stat-subtexto" id="stat-rejeitadas-detalhe" style="font-size:0.7rem;"></div>
-                    </div>
+                    <div class="stat-card"><div class="stat-header"><i class="fas fa-inbox"></i> Total</div><div class="stat-valor" id="stat-total-inscricoes">—</div></div>
+                    <div class="stat-card"><div class="stat-header"><i class="fas fa-check-circle"></i> Aprovadas</div><div class="stat-valor" id="stat-inscricoes-aprovadas">—</div></div>
+                    <div class="stat-card stat-card-alerta"><div class="stat-header"><i class="fas fa-clock"></i> Por Aprovar</div><div class="stat-valor" id="stat-inscricoes-por-aprovar">—</div></div>
+                    <div class="stat-card"><div class="stat-header"><i class="fas fa-credit-card"></i> Matrícula Paga</div><div class="stat-valor" id="stat-inscricoes-matricula-paga">—</div></div>
+                    <div class="stat-card"><div class="stat-header"><i class="fas fa-times-circle"></i> Rejeitadas</div><div class="stat-valor" id="stat-inscricoes-rejeitadas">—</div><div class="stat-subtexto" id="stat-rejeitadas-detalhe"></div></div>
                 </div>
 
                 <div class="barra-acoes" style="flex-direction: column; align-items: stretch; gap: 12px;">
@@ -158,28 +143,17 @@
                         </select>
                         <select id="filtro-inscricoes-classe" class="campo-select" style="flex: 1 1 180px;">
                             <option value="">Todas as classes</option>
-                            <option value="7ª Classe">7ª Classe</option>
-                            <option value="8ª Classe">8ª Classe</option>
-                            <option value="9ª Classe">9ª Classe</option>
-                            <option value="10ª Classe">10ª Classe</option>
-                            <option value="11ª Classe">11ª Classe</option>
-                            <option value="12ª Classe">12ª Classe</option>
                         </select>
                         <select id="filtro-inscricoes-ordem" class="campo-select" style="flex: 1 1 220px;">
                             <option value="data_desc">Mais recentes primeiro</option>
-                            <option value="media_desc">Maior média primeiro</option>
-                            <option value="media_asc">Menor média primeiro</option>
-                            <option value="idade_asc">Mais novos primeiro</option>
-                            <option value="idade_desc">Mais velhos primeiro</option>
                             <option value="nome_asc">Ordem alfabética (A-Z)</option>
-                            <option value="nome_desc">Ordem alfabética (Z-A)</option>
                         </select>
                     </div>
                 </div>
                 <div id="lista-inscricoes-container"></div>
             </section>
 
-            <!-- MATRÍCULAS (Reutiliza a Secretária) -->
+            <!-- MATRÍCULAS -->
             <section class="pagina-seccao" id="seccao-matriculas">
                 <div class="pagina-cabecalho"><h1>Matrículas</h1></div>
                 
@@ -190,8 +164,8 @@
 
                 <div class="stats-grelha" style="margin-bottom: 24px;">
                     <div class="stat-card"><div class="stat-header"><i class="fas fa-file-signature"></i> Total</div><div class="stat-valor" id="stat-matriculas-total">—</div></div>
-                    <div class="stat-card"><div class="stat-header"><i class="fas fa-user-check"></i> Activos</div><div class="stat-valor" id="stat-matriculas-activos" style="color: #059669;">—</div></div>
-                    <div class="stat-card stat-card-alerta"><div class="stat-header"><i class="fas fa-clock"></i> Aguardam Sala</div><div class="stat-valor" id="stat-matriculas-pendentes" style="color: #b45309;">—</div></div>
+                    <div class="stat-card"><div class="stat-header"><i class="fas fa-user-check"></i> Activos</div><div class="stat-valor" id="stat-matriculas-activos">—</div></div>
+                    <div class="stat-card stat-card-alerta"><div class="stat-header"><i class="fas fa-clock"></i> Aguardam Sala</div><div class="stat-valor" id="stat-matriculas-pendentes">—</div></div>
                 </div>
 
                 <div class="barra-acoes" style="margin-bottom: 16px;">
@@ -200,22 +174,13 @@
                 <div id="lista-matriculas-container"></div>
             </section>
 
-            <!-- SALAS (Exclusivo) -->
+            <!-- SALAS -->
             <section class="pagina-seccao" id="seccao-salas">
                 <div class="pagina-cabecalho"><h1>Salas</h1></div>
                 <div class="stats-grelha" style="margin-bottom: 24px;">
-                    <div class="stat-card">
-                        <div class="stat-header"><i class="fas fa-door-open"></i> Total de Salas</div>
-                        <div class="stat-valor" id="stat-total-salas">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-header"><i class="fas fa-school"></i> Pavilhões</div>
-                        <div class="stat-valor" id="stat-total-pavilhoes">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-header"><i class="fas fa-clock"></i> Turnos</div>
-                        <div class="stat-valor" id="stat-total-turnos">0</div>
-                    </div>
+                    <div class="stat-card"><div class="stat-header"><i class="fas fa-door-open"></i> Total de Salas</div><div class="stat-valor" id="stat-total-salas">0</div></div>
+                    <div class="stat-card"><div class="stat-header"><i class="fas fa-school"></i> Pavilhões</div><div class="stat-valor" id="stat-total-pavilhoes">0</div></div>
+                    <div class="stat-card"><div class="stat-header"><i class="fas fa-clock"></i> Turnos</div><div class="stat-valor" id="stat-total-turnos">0</div></div>
                 </div>
 
                 <div class="barra-acoes" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px;">
@@ -232,7 +197,7 @@
                 <div id="lista-dir-salas"></div>
             </section>
 
-            <!-- FINANCEIRO (Exclusivo) -->
+            <!-- FINANCEIRO -->
             <section class="pagina-seccao" id="seccao-financeiro">
                 <div class="pagina-cabecalho"><h1>Financeiro</h1></div>
                 <div class="barra-acoes">
@@ -241,7 +206,7 @@
                 <div id="resumo-financeiro"></div>
             </section>
 
-            <!-- DOCUMENTOS (Reutiliza a Secretária) -->
+            <!-- DOCUMENTOS -->
             <section class="pagina-seccao" id="seccao-documentos">
                 <div class="pagina-cabecalho"><h1>Documentos</h1></div>
                 <div class="barra-acoes">
@@ -255,7 +220,7 @@
                 <div id="lista-documentos-container"></div>
             </section>
 
-            <!-- EQUIPA (Exclusivo) -->
+            <!-- EQUIPA -->
             <section class="pagina-seccao" id="seccao-equipa">
                 <div class="pagina-cabecalho"><h1>Equipa</h1></div>
                 <div class="barra-acoes"><button class="botao-primario" id="btn-novo-utilizador"><i class="fas fa-plus"></i> Novo Utilizador</button></div>
@@ -279,7 +244,7 @@
                 <div id="lista-utilizadores-container"></div>
             </section>
 
-            <!-- CONFIGURAÇÕES (Exclusivo) -->
+            <!-- CONFIGURAÇÕES -->
             <section class="pagina-seccao" id="seccao-configuracoes">
                 <div class="pagina-cabecalho"><h1>Configurações</h1></div>
                 <div class="card-info"><h3><i class="fas fa-calendar-alt"></i> Ano Letivo Atual</h3><div id="config-ano-lectivo"></div></div>
@@ -292,19 +257,54 @@
                 </div>
             </section>
 
-            <!-- AURA (Exclusivo) -->
+            <!-- ACADÉMICO -->
+            <section class="pagina-seccao" id="seccao-academico">
+                <div class="pagina-cabecalho"><h1>Gestão Académica</h1><p>Configura as classes, cursos e disciplinas do CESC.</p></div>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--cor-borda); padding-bottom: 10px;">
+                    <button class="botao-primario" id="btn-aba-classes" onclick="mudarAbaAcademico('classes')" style="background: var(--cor-azul); color: #fff; border: 1px solid var(--cor-azul);">Classes</button>
+                    <button class="botao-secundario" id="btn-aba-cursos" onclick="mudarAbaAcademico('cursos')" style="background: transparent; color: var(--cor-texto-suave); border: 1px solid var(--cor-borda);">Cursos</button>
+                    <button class="botao-secundario" id="btn-aba-disciplinas" onclick="mudarAbaAcademico('disciplinas')" style="background: transparent; color: var(--cor-texto-suave); border: 1px solid var(--cor-borda);">Disciplinas</button>
+                </div>
+
+                <div id="aba-acad-classes" style="display: block;">
+                    <div class="card-info">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h3><i class="fas fa-layer-group"></i> Classes</h3>
+                            <button class="btn-acao btn-acao-primario" onclick="abrirModalClasse()">+ Nova Classe</button>
+                        </div>
+                        <div id="lista-classes-container"></div>
+                    </div>
+                </div>
+
+                <div id="aba-acad-cursos" style="display: none;">
+                    <div class="card-info">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h3><i class="fas fa-bookmark"></i> Cursos</h3>
+                            <button class="btn-acao btn-acao-primario" onclick="abrirModalCurso()">+ Novo Curso</button>
+                        </div>
+                        <div id="lista-cursos-container"></div>
+                    </div>
+                </div>
+
+                <div id="aba-acad-disciplinas" style="display: none;">
+                    <div class="card-info">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h3><i class="fas fa-book"></i> Disciplinas</h3>
+                            <button class="btn-acao btn-acao-primario" onclick="abrirModalDisciplina()">+ Nova Disciplina</button>
+                        </div>
+                        <div id="lista-disciplinas-container"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AURA -->
             <section class="pagina-seccao" id="seccao-aura">
                 <div class="pagina-cabecalho"><h1>AURA — Algoritmo de Distribuição</h1></div>
 
                 <div class="stats-grelha" style="margin-bottom: 24px;">
-                    <div class="stat-card">
-                        <div class="stat-header"><i class="fas fa-balance-scale"></i> Regras Definidas</div>
-                        <div class="stat-valor" id="stat-total-regras">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-header"><i class="fas fa-door-open"></i> Alocações</div>
-                        <div class="stat-valor" id="stat-total-alocacoes">0</div>
-                    </div>
+                    <div class="stat-card"><div class="stat-header"><i class="fas fa-balance-scale"></i> Regras Definidas</div><div class="stat-valor" id="stat-total-regras">0</div></div>
+                    <div class="stat-card"><div class="stat-header"><i class="fas fa-door-open"></i> Alocações</div><div class="stat-valor" id="stat-total-alocacoes">0</div></div>
                 </div>
 
                 <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--cor-borda); padding-bottom: 10px;">
@@ -374,6 +374,7 @@
     <script src="scripts/direcao-financeiro.js"></script>
     <script src="scripts/direcao-equipa.js"></script>
     <script src="scripts/direcao-configuracoes.js"></script>
+    <script src="scripts/direcao-academico.js"></script> <!-- NOVO -->
     <script src="scripts/direcao-aura.js"></script>
 </body>
 </html>
