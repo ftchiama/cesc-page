@@ -1,0 +1,3 @@
+/* CESC — Direcção */
+/* Reaproveita base.css + dashboard.css + secretaria.css */
+@import url('../../secretaria/css/secretaria.css');
