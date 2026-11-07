@@ -259,12 +259,13 @@
 
             <!-- ACADÉMICO -->
             <section class="pagina-seccao" id="seccao-academico">
-                <div class="pagina-cabecalho"><h1>Gestão Académica</h1><p>Configura as classes, cursos e disciplinas do CESC.</p></div>
+                <div class="pagina-cabecalho"><h1>Gestão Académica</h1><p>Configura as classes, cursos e a grelha curricular.</p></div>
 
-                <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--cor-borda); padding-bottom: 10px;">
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--cor-borda); padding-bottom: 10px; flex-wrap: wrap;">
                     <button class="botao-primario" id="btn-aba-classes" onclick="mudarAbaAcademico('classes')" style="background: var(--cor-azul); color: #fff; border: 1px solid var(--cor-azul);">Classes</button>
                     <button class="botao-secundario" id="btn-aba-cursos" onclick="mudarAbaAcademico('cursos')" style="background: transparent; color: var(--cor-texto-suave); border: 1px solid var(--cor-borda);">Cursos</button>
                     <button class="botao-secundario" id="btn-aba-disciplinas" onclick="mudarAbaAcademico('disciplinas')" style="background: transparent; color: var(--cor-texto-suave); border: 1px solid var(--cor-borda);">Disciplinas</button>
+                    <button class="botao-secundario" id="btn-aba-grelha" onclick="mudarAbaAcademico('grelha')" style="background: transparent; color: var(--cor-texto-suave); border: 1px solid var(--cor-borda);">Grelha Curricular</button>
                 </div>
 
                 <div id="aba-acad-classes" style="display: block;">
@@ -294,6 +295,16 @@
                             <button class="btn-acao btn-acao-primario" onclick="abrirModalDisciplina()">+ Nova Disciplina</button>
                         </div>
                         <div id="lista-disciplinas-container"></div>
+                    </div>
+                </div>
+
+                <div id="aba-acad-grelha" style="display: none;">
+                    <div class="card-info">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h3><i class="fas fa-sitemap"></i> Grelha Curricular</h3>
+                            <button class="btn-acao btn-acao-primario" onclick="abrirModalAdicionarGrelha()">+ Adicionar Disciplina</button>
+                        </div>
+                        <div id="lista-grelha-container"></div>
                     </div>
                 </div>
             </section>
@@ -374,7 +385,7 @@
     <script src="scripts/direcao-financeiro.js"></script>
     <script src="scripts/direcao-equipa.js"></script>
     <script src="scripts/direcao-configuracoes.js"></script>
-    <script src="scripts/direcao-academico.js"></script> <!-- NOVO -->
+    <script src="scripts/direcao-academico.js"></script>
     <script src="scripts/direcao-aura.js"></script>
 </body>
 </html>
