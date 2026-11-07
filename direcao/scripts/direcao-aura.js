@@ -9,7 +9,7 @@ async function carregarAuraDir() {
     const token = obterToken();
     if (!token) return;
 
-    // --- 1. CARREGAR REGRAS ---
+    // 1. CARREGAR REGRAS
     const containerRegras = document.getElementById("lista-regras-aura");
     containerRegras.innerHTML = '<div class="loader-container" style="min-height:100px;"><div class="loader"></div></div>';
 
@@ -17,11 +17,12 @@ async function carregarAuraDir() {
     if (resRegras.ok) {
         regrasAuraCache = resRegras.regras || [];
         renderizarRegrasAura(regrasAuraCache);
+        document.getElementById("stat-total-regras").textContent = regrasAuraCache.length;
     } else {
         containerRegras.innerHTML = '<div class="estado-vazio">' + esc(resRegras.erro) + '</div>';
     }
 
-    // --- 2. CARREGAR ALOCAÇÕES ---
+    // 2. CARREGAR ALOCAÇÕES
     const selAno = document.getElementById("filtro-aura-ano-alocacao");
     if (selAno && !selAno.value) {
         selAno.innerHTML = '<option value="2026/2027">2026/2027</option>';
@@ -35,11 +36,12 @@ async function carregarAuraDir() {
     if (resAloc.ok) {
         alocacoesAuraCache = resAloc.alocacoes || [];
         renderizarAlocacoesAura(alocacoesAuraCache);
+        document.getElementById("stat-total-alocacoes").textContent = alocacoesAuraCache.length;
     } else {
         containerAloc.innerHTML = '<div class="estado-vazio">' + esc(resAloc.erro) + '</div>';
     }
 
-    // --- 3. LIGAR EVENTOS (Só uma vez) ---
+    // 3. EVENTOS
     if (!window.auraLigado) {
         window.auraLigado = true;
         
@@ -93,9 +95,6 @@ function mudarAbaAura(aba) {
     }
 }
 
-// ============================================================
-// REGRAS
-// ============================================================
 function renderizarRegrasAura(regras) {
     const c = document.getElementById("lista-regras-aura");
     if (regras.length === 0) { c.innerHTML = '<div class="estado-vazio">Sem regras definidas.</div>'; return; }
@@ -112,7 +111,6 @@ function renderizarRegrasAura(regras) {
     });
     html += '</tbody></table></div>';
 
-    // Mobile
     html += '<div class="cartoes-sec">';
     regras.forEach((r, idx) => {
         let nome = r.classe + (r.curso ? ' (' + r.curso + ')' : '');
@@ -156,9 +154,6 @@ async function guardarRegraAuraMobile(idx) {
     else alert(res.erro);
 }
 
-// ============================================================
-// ALOCAÇÃO
-// ============================================================
 function renderizarAlocacoesAura(alocacoes) {
     const c = document.getElementById("lista-alocacoes-aura");
     if (alocacoes.length === 0) { c.innerHTML = '<div class="estado-vazio">Sem alocações definidas.</div>'; return; }
@@ -176,7 +171,6 @@ function renderizarAlocacoesAura(alocacoes) {
     });
     html += '</tbody></table></div>';
 
-    // Mobile
     html += '<div class="cartoes-sec">';
     alocacoes.forEach(a => {
         let salas = a.sala_inicio === a.sala_fim ? `Sala ${a.sala_inicio}` : `Salas ${a.sala_inicio} a ${a.sala_fim}`;

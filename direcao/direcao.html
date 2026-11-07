@@ -303,12 +303,26 @@
 
             <!-- AURA (Exclusivo) -->
             <section class="pagina-seccao" id="seccao-aura">
-                <div class="pagina-cabecalho"><h1>AURA</h1></div>
+                <div class="pagina-cabecalho"><h1>AURA — Algoritmo de Distribuição</h1></div>
+
+                <!-- Cards de Resumo -->
+                <div class="stats-grelha" style="margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-balance-scale"></i> Regras Definidas</div>
+                        <div class="stat-valor" id="stat-total-regras">0</div>
+                        <div class="stat-subtexto">classes/cursos configurados</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header"><i class="fas fa-door-open"></i> Alocações</div>
+                        <div class="stat-valor" id="stat-total-alocacoes">0</div>
+                        <div class="stat-subtexto">salas atribuídas</div>
+                    </div>
+                </div>
 
                 <!-- Abas -->
-                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                    <button class="botao-primario" id="btn-aba-regras" onclick="mudarAbaAura('regras')">Regras de Aprovação</button>
-                    <button class="botao-secundario" id="btn-aba-alocacao" onclick="mudarAbaAura('alocacao')">Alocação de Salas</button>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--cor-borda); padding-bottom: 10px;">
+                    <button class="botao-primario" id="btn-aba-regras" onclick="mudarAbaAura('regras')" style="background: transparent; color: var(--cor-azul); border: 1px solid var(--cor-azul);">Regras de Aprovação</button>
+                    <button class="botao-secundario" id="btn-aba-alocacao" onclick="mudarAbaAura('alocacao')" style="background: transparent; color: var(--cor-texto-suave); border: 1px solid var(--cor-borda);">Alocação de Salas</button>
                 </div>
 
                 <!-- Conteúdo: Regras -->
@@ -316,7 +330,7 @@
                     <div class="card-info" style="margin-bottom: 20px;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <h3><i class="fas fa-balance-scale"></i> Regras de Aprovação</h3>
-                            <button class="btn-acao btn-acao-primario" onclick="abrirModalNovaRegra()">+ Adicionar</button>
+                            <button class="btn-acao btn-acao-primario" onclick="abrirModalNovaRegra()">+ Adicionar Regra</button>
                         </div>
                         <div id="lista-regras-aura" style="margin-top: 16px;"></div>
                     </div>
@@ -327,22 +341,22 @@
                     <div class="card-info" style="margin-bottom: 20px;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <h3><i class="fas fa-door-open"></i> Alocação de Salas</h3>
-                            <button class="btn-acao btn-acao-primario" onclick="abrirModalNovaAlocacao()">+ Adicionar</button>
+                            <button class="btn-acao btn-acao-primario" onclick="abrirModalNovaAlocacao()">+ Adicionar Sala</button>
                         </div>
                         <div class="barra-acoes" style="padding:0; border:none; background:transparent; margin: 16px 0;">
-                            <select id="filtro-aura-ano-alocacao" class="campo-select"></select>
+                            <select id="filtro-aura-ano-alocacao" class="campo-select" style="width: auto; min-width: 150px;"></select>
                         </div>
                         <div id="lista-alocacoes-aura"></div>
                     </div>
                 </div>
 
                 <!-- Botão Executar -->
-                <div class="card-info" style="margin-top: 20px;">
-                    <h3><i class="fas fa-play-circle"></i> Executar AURA</h3>
+                <div class="card-info" style="margin-top: 20px; border: 2px solid var(--cor-azul); background: #f0f9ff;">
+                    <h3 style="color: var(--cor-azul);"><i class="fas fa-play-circle"></i> Executar Algoritmo</h3>
                     <p style="font-size:0.9rem; color:var(--cor-texto-suave); margin: 10px 0;">
                         O algoritmo vai ler as notas, aplicar as regras e distribuir os alunos pelas salas alocadas.
                     </p>
-                    <button class="botao-primario" id="btn-executar-aura"><i class="fas fa-magic"></i> Executar AURA</button>
+                    <button class="botao-primario" id="btn-executar-aura" style="background: var(--cor-azul);"><i class="fas fa-magic"></i> Executar AURA</button>
                     <p id="msg-executar-aura" class="msg-form" style="margin-top:16px;"></p>
                 </div>
             </section>
