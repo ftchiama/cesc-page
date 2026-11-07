@@ -11,15 +11,17 @@ async function carregarAuraDir() {
 
     // 1. CARREGAR REGRAS
     const containerRegras = document.getElementById("lista-regras-aura");
-    containerRegras.innerHTML = '<div class="loader-container" style="min-height:100px;"><div class="loader"></div></div>';
-
-    const resRegras = await chamarRPC("cesc_diretor_listar_regras_aura", { p_token: token, p_ano_lectivo: "2026/2027" });
-    if (resRegras.ok) {
-        regrasAuraCache = resRegras.regras || [];
-        renderizarRegrasAura(regrasAuraCache);
-        document.getElementById("stat-total-regras").textContent = regrasAuraCache.length;
-    } else {
-        containerRegras.innerHTML = '<div class="estado-vazio">' + esc(resRegras.erro) + '</div>';
+    if (containerRegras) {
+        containerRegras.innerHTML = '<div class="loader-container" style="min-height:100px;"><div class="loader"></div></div>';
+        const resRegras = await chamarRPC("cesc_diretor_listar_regras_aura", { p_token: token, p_ano_lectivo: "2026/2027" });
+        if (resRegras.ok) {
+            regrasAuraCache = resRegras.regras || [];
+            renderizarRegrasAura(regrasAuraCache);
+            const statRegras = document.getElementById("stat-total-regras");
+            if (statRegras) statRegras.textContent = regrasAuraCache.length;
+        } else {
+            containerRegras.innerHTML = '<div class="estado-vazio">' + esc(resRegras.erro) + '</div>';
+        }
     }
 
     // 2. CARREGAR ALOCAÇÕES
@@ -30,15 +32,17 @@ async function carregarAuraDir() {
     const anoAloc = selAno ? selAno.value : "2026/2027";
     
     const containerAloc = document.getElementById("lista-alocacoes-aura");
-    containerAloc.innerHTML = '<div class="loader-container" style="min-height:100px;"><div class="loader"></div></div>';
-
-    const resAloc = await chamarRPC("cesc_aura_listar_alocacoes", { p_token: token, p_ano_lectivo: anoAloc });
-    if (resAloc.ok) {
-        alocacoesAuraCache = resAloc.alocacoes || [];
-        renderizarAlocacoesAura(alocacoesAuraCache);
-        document.getElementById("stat-total-alocacoes").textContent = alocacoesAuraCache.length;
-    } else {
-        containerAloc.innerHTML = '<div class="estado-vazio">' + esc(resAloc.erro) + '</div>';
+    if (containerAloc) {
+        containerAloc.innerHTML = '<div class="loader-container" style="min-height:100px;"><div class="loader"></div></div>';
+        const resAloc = await chamarRPC("cesc_aura_listar_alocacoes", { p_token: token, p_ano_lectivo: anoAloc });
+        if (resAloc.ok) {
+            alocacoesAuraCache = resAloc.alocacoes || [];
+            renderizarAlocacoesAura(alocacoesAuraCache);
+            const statAloc = document.getElementById("stat-total-alocacoes");
+            if (statAloc) statAloc.textContent = alocacoesAuraCache.length;
+        } else {
+            containerAloc.innerHTML = '<div class="estado-vazio">' + esc(resAloc.erro) + '</div>';
+        }
     }
 
     // 3. EVENTOS
@@ -48,24 +52,59 @@ async function carregarAuraDir() {
         const selAnoAloc = document.getElementById("filtro-aura-ano-alocacao");
         if (selAnoAloc) selAnoAloc.addEventListener("change", carregarAuraDir);
 
-        // Botão JUIZ (usando modal de confirmação)
-        document.getElementById("btn-executar-juiz").addEventListener("click", function () {
-            const html = `<p>Executar o <strong>JUIZ</strong>? Isto vai avaliar todos os alunos e marcá-los como aprovados ou reprovados.</p>`;
-            abrirModal("Confirmar JUIZ", html, async function () {
-                await executarAura("cesc_aura_julgar", "JUIZ");
-                return true; // Fecha o modal após execução
-            }, "Confirmar");
-        });
+        // Botão JUIZ
+        const btnJuiz = document.getElementById("btn-executar-juiz");
+        if (btnJuiz) {
+            btnJuiz.addEventListener("click", function () {
+                abrirModalConfirmacao("Executar JUIZ", "Tens a certeza que queres avaliar as notas dos alunos?", async function() {
+                    await executarAura("cesc_aura_julgar", "JUIZ");
+                });
+            });
+        }
 
-        // Botão DISTRIBUIDOR (usando modal de confirmação)
-        document.getElementById("btn-executar-distribuidor").addEventListener("click", function () {
-            const html = `<p>Executar o <strong>DISTRIBUIDOR</strong>? Isto vai colocar os alunos aprovados nas salas alocadas.</p>`;
-            abrirModal("Confirmar DISTRIBUIDOR", html, async function () {
-                await executarAura("cesc_aura_distribuir", "DISTRIBUIDOR");
-                return true; // Fecha o modal após execução
-            }, "Confirmar");
-        });
+        // Botão DISTRIBUIDOR
+        const btnDist = document.getElementById("btn-executar-distribuidor");
+        if (btnDist) {
+            btnDist.addEventListener("click", function () {
+                abrirModalConfirmacao("Executar DISTRIBUIDOR", "Tens a certeza que queres colocar os alunos nas salas?", async function() {
+                    await executarAura("cesc_aura_distribuir", "DISTRIBUIDOR");
+                });
+            });
+        }
     }
+}
+
+// Função simples para criar um modal de confirmação sem depender do core
+function abrirModalConfirmacao(titulo, mensagem, acao) {
+    const overlay = document.getElementById("modal-overlay");
+    if (!overlay) return;
+
+    document.getElementById("modal-titulo").textContent = titulo;
+    document.getElementById("modal-corpo").innerHTML = '<p>' + mensagem + '</p>';
+    
+    const btnConfirmar = document.getElementById("modal-confirmar");
+    const btnCancelar = document.getElementById("modal-cancelar");
+    
+    btnConfirmar.style.display = "block";
+    btnConfirmar.textContent = "Confirmar";
+    
+    // Clonar para remover eventos antigos
+    const novoBtn = btnConfirmar.cloneNode(true);
+    btnConfirmar.parentNode.replaceChild(novoBtn, btnConfirmar);
+    
+    novoBtn.addEventListener("click", async function () {
+        novoBtn.disabled = true;
+        novoBtn.textContent = "A processar...";
+        await acao();
+        novoBtn.disabled = false;
+        novoBtn.textContent = "Confirmar";
+        overlay.style.display = "none";
+    });
+
+    btnCancelar.onclick = function() { overlay.style.display = "none"; };
+    document.getElementById("modal-fechar").onclick = function() { overlay.style.display = "none"; };
+
+    overlay.style.display = "flex";
 }
 
 async function executarAura(rpcName, titulo) {
@@ -114,17 +153,16 @@ function mudarAbaAura(aba) {
     if (aba === "regras") {
         abaRegras.style.display = "block";
         abaAloc.style.display = "none";
-        btnRegras.style.color = "var(--cor-azul)";
-        btnRegras.style.borderColor = "var(--cor-azul)";
-        btnAloc.style.color = "var(--cor-texto-suave)";
-        btnAloc.style.borderColor = "var(--cor-borda)";
+        
+        // Forçar o estilo visual de ativo
+        btnRegras.style.cssText = "background: var(--cor-azul); color: #fff; border: 1px solid var(--cor-azul); padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;";
+        btnAloc.style.cssText = "background: transparent; color: var(--cor-texto-suave); border: 1px solid var(--cor-borda); padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;";
     } else {
         abaRegras.style.display = "none";
         abaAloc.style.display = "block";
-        btnRegras.style.color = "var(--cor-texto-suave)";
-        btnRegras.style.borderColor = "var(--cor-borda)";
-        btnAloc.style.color = "var(--cor-azul)";
-        btnAloc.style.borderColor = "var(--cor-azul)";
+        
+        btnRegras.style.cssText = "background: transparent; color: var(--cor-texto-suave); border: 1px solid var(--cor-borda); padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;";
+        btnAloc.style.cssText = "background: var(--cor-azul); color: #fff; border: 1px solid var(--cor-azul); padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;";
     }
 }
 
@@ -133,6 +171,7 @@ function mudarAbaAura(aba) {
 // ============================================================
 function renderizarRegrasAura(regras) {
     const c = document.getElementById("lista-regras-aura");
+    if (!c) return;
     if (regras.length === 0) { c.innerHTML = '<div class="estado-vazio">Sem regras definidas.</div>'; return; }
 
     let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec"><thead><tr><th>Classe / Curso</th><th>Máx. Críticas</th><th>Máx. Secundárias</th><th>Acção</th></tr></thead><tbody>';
@@ -199,6 +238,7 @@ async function guardarRegraAuraMobile(idx) {
 // ============================================================
 function renderizarAlocacoesAura(alocacoes) {
     const c = document.getElementById("lista-alocacoes-aura");
+    if (!c) return;
     if (alocacoes.length === 0) { c.innerHTML = '<div class="estado-vazio">Sem alocações definidas.</div>'; return; }
 
     let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec"><thead><tr><th>Turno</th><th>Pavilhão</th><th>Salas</th><th>Classe / Curso</th></tr></thead><tbody>';
@@ -237,7 +277,6 @@ function abrirModalNovaAlocacao() {
     const ano = document.getElementById("filtro-aura-ano-alocacao")?.value || "2026/2027";
     
     const html = `
-        <p>Define quais salas pertencem a qual classe/curso.</p>
         <div class="form-grelha">
             <div class="campo-grupo">
                 <label>Turno *</label>
@@ -268,11 +307,25 @@ function abrirModalNovaAlocacao() {
                 <input type="text" id="aloc-curso" placeholder="Ex: C.F.B">
             </div>
         </div>
-        <p id="msg-modal-alocacao" class="msg-form" style="margin-top:10px;"></p>
+        <p id="msg-modal-alocacao" class="msg-form" style="margin-top:10px; display:none;"></p>
     `;
 
-    abrirModal("Nova Alocação de Sala", html, async function () {
+    const overlay = document.getElementById("modal-overlay");
+    document.getElementById("modal-titulo").textContent = "Nova Alocação de Sala";
+    document.getElementById("modal-corpo").innerHTML = html;
+
+    const btnConfirmar = document.getElementById("modal-confirmar");
+    const btnCancelar = document.getElementById("modal-cancelar");
+    btnConfirmar.style.display = "block";
+    btnConfirmar.textContent = "Guardar Alocação";
+
+    const novoBtn = btnConfirmar.cloneNode(true);
+    btnConfirmar.parentNode.replaceChild(novoBtn, btnConfirmar);
+
+    novoBtn.addEventListener("click", async function () {
         const msgModal = document.getElementById("msg-modal-alocacao");
+        msgModal.style.display = "none";
+        
         const turno = document.getElementById("aloc-turno").value;
         const pavilhao = document.getElementById("aloc-pavilhao").value.trim();
         const sala_inicio = parseInt(document.getElementById("aloc-sala-inicio").value, 10);
@@ -282,44 +335,62 @@ function abrirModalNovaAlocacao() {
 
         if (!pavilhao || !classe || !sala_inicio || !sala_fim) {
             mostrarMsgAura(msgModal, "Preenche todos os campos obrigatórios.", "erro");
-            return false;
+            msgModal.style.display = "block";
+            return;
         }
+
+        novoBtn.disabled = true;
+        novoBtn.textContent = "A guardar...";
 
         const res = await chamarRPC("cesc_aura_guardar_alocacao", {
-            p_token: token,
-            p_ano_lectivo: ano,
-            p_turno: turno,
-            p_pavilhao: pavilhao,
-            p_sala_inicio: sala_inicio,
-            p_sala_fim: sala_fim,
-            p_classe: classe,
-            p_curso: curso
+            p_token: token, p_ano_lectivo: ano, p_turno: turno, p_pavilhao: pavilhao,
+            p_sala_inicio: sala_inicio, p_sala_fim: sala_fim, p_classe: classe, p_curso: curso
         });
 
+        novoBtn.disabled = false;
+        novoBtn.textContent = "Guardar Alocação";
+
         if (res.ok) {
+            overlay.style.display = "none";
             carregarAuraDir();
-            // Fecha o modal após sucesso
-            return true;
         } else {
             mostrarMsgAura(msgModal, res.erro || "Erro ao guardar alocação.", "erro");
-            return false; // Mantém o modal aberto para o utilizador corrigir
+            msgModal.style.display = "block";
         }
-    }, "Guardar Alocação");
+    });
+
+    btnCancelar.onclick = function() { overlay.style.display = "none"; };
+    document.getElementById("modal-fechar").onclick = function() { overlay.style.display = "none"; };
+    overlay.style.display = "flex";
 }
 
 function abrirModalNovaRegra() {
     const html = `
-        <p>Define os limites de negativas para aprovação.</p>
         <div class="form-grelha">
             <div class="campo-grupo"><label>Classe *</label><input type="text" id="reg-classe" placeholder="Ex: 10ª Classe"></div>
             <div class="campo-grupo"><label>Curso</label><input type="text" id="reg-curso" placeholder="Ex: C.F.B"></div>
             <div class="campo-grupo"><label>Máx. Negativas Críticas</label><input type="number" id="reg-crit" value="0" min="0"></div>
             <div class="campo-grupo"><label>Máx. Negativas Secundárias</label><input type="number" id="reg-sec" value="2" min="0"></div>
         </div>
-        <p id="msg-modal-regra" class="msg-form" style="margin-top:10px;"></p>
+        <p id="msg-modal-regra" class="msg-form" style="margin-top:10px; display:none;"></p>
     `;
-    abrirModal("Nova Regra de Aprovação", html, async function() {
+
+    const overlay = document.getElementById("modal-overlay");
+    document.getElementById("modal-titulo").textContent = "Nova Regra de Aprovação";
+    document.getElementById("modal-corpo").innerHTML = html;
+
+    const btnConfirmar = document.getElementById("modal-confirmar");
+    const btnCancelar = document.getElementById("modal-cancelar");
+    btnConfirmar.style.display = "block";
+    btnConfirmar.textContent = "Guardar Regra";
+
+    const novoBtn = btnConfirmar.cloneNode(true);
+    btnConfirmar.parentNode.replaceChild(novoBtn, btnConfirmar);
+
+    novoBtn.addEventListener("click", async function () {
         const msgModal = document.getElementById("msg-modal-regra");
+        msgModal.style.display = "none";
+
         const token = obterToken();
         const classe = document.getElementById("reg-classe").value.trim();
         const curso = document.getElementById("reg-curso").value.trim() || null;
@@ -328,22 +399,30 @@ function abrirModalNovaRegra() {
 
         if (!classe) { 
             mostrarMsgAura(msgModal, "Indica a classe.", "erro");
-            return false; 
+            msgModal.style.display = "block";
+            return; 
         }
 
+        novoBtn.disabled = true;
+        novoBtn.textContent = "A guardar...";
+
         const res = await chamarRPC("cesc_aura_guardar_regra", {
-            p_token: token,
-            p_classe: classe,
-            p_curso: curso,
-            p_max_criticas: crit,
-            p_max_secundarias: sec
+            p_token: token, p_classe: classe, p_curso: curso, p_max_criticas: crit, p_max_secundarias: sec
         });
         
+        novoBtn.disabled = false;
+        novoBtn.textContent = "Guardar Regra";
+
         if (res.ok) { 
+            overlay.style.display = "none";
             carregarAuraDir(); 
-            return true; 
+        } else {
+            mostrarMsgAura(msgModal, res.erro || "Erro ao guardar regra.", "erro"); 
+            msgModal.style.display = "block";
         }
-        mostrarMsgAura(msgModal, res.erro || "Erro ao guardar regra.", "erro"); 
-        return false;
-    }, "Guardar Regra");
+    });
+
+    btnCancelar.onclick = function() { overlay.style.display = "none"; };
+    document.getElementById("modal-fechar").onclick = function() { overlay.style.display = "none"; };
+    overlay.style.display = "flex";
 }
