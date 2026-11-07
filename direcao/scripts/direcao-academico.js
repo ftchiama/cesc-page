@@ -67,14 +67,13 @@ function preencherSelects() {
 }
 
 // ============================================================
-// GRELHA CURRICULAR
+// GRELHA CURRICULAR (Responsiva)
 // ============================================================
 function renderizarGrelha() {
     const c = document.getElementById("lista-grelha-container");
     if (!c) return;
     if (grelhaCache.length === 0) { c.innerHTML = '<div class="estado-vazio">A grelha está vazia. Adiciona disciplinas às classes/cursos.</div>'; return; }
 
-    // Agrupar por Classe e Curso
     const agrupado = {};
     grelhaCache.forEach(item => {
         const classeNome = item.classe_nome;
@@ -86,36 +85,36 @@ function renderizarGrelha() {
 
     let html = "";
     for (const classe in agrupado) {
-        html += `<div class="card-info" style="margin-bottom: 20px;">`;
-        html += `<h3 style="border-bottom: 2px solid var(--cor-azul); padding-bottom: 8px; margin-bottom: 16px;"><i class="fas fa-layer-group"></i> ${esc(classe)}</h3>`;
+        html += `<div class="card-info" style="margin-bottom: 20px; padding: 16px;">`;
+        html += `<h3 style="border-bottom: 2px solid var(--cor-azul); padding-bottom: 8px; margin-bottom: 16px; font-size: 1.1rem;"><i class="fas fa-layer-group"></i> ${esc(classe)}</h3>`;
         
         for (const curso in agrupado[classe]) {
             html += `<div style="margin-bottom: 16px;">`;
-            html += `<h4 style="color: var(--cor-texto-suave); font-size: 0.9rem; margin-bottom: 8px; background: #f8fafc; padding: 6px 10px; border-radius: 6px;"><i class="fas fa-bookmark"></i> ${curso === 'Geral' ? 'Tronco Comum' : esc(curso)}</h4>`;
+            html += `<h4 style="color: var(--cor-texto-suave); font-size: 0.85rem; margin-bottom: 8px; background: #f8fafc; padding: 6px 10px; border-radius: 6px;"><i class="fas fa-bookmark"></i> ${curso === 'Geral' ? 'Tronco Comum' : esc(curso)}</h4>`;
             
-            // Lista vertical de disciplinas
-            html += `<div class="tabela-wrapper" style="border: 1px solid var(--cor-borda); border-radius: 8px; overflow: hidden;">`;
-            html += `<table class="tabela-sec" style="margin: 0;">`;
-            html += `<thead><tr><th style="width: 50%;">Disciplina</th><th style="width: 25%;">Tipo</th><th style="width: 25%; text-align: right;">Acções</th></tr></thead><tbody>`;
+            html += `<div style="display: flex; flex-direction: column; gap: 8px;">`;
             
             agrupado[classe][curso].forEach(disc => {
                 const badgeClass = disc.critica ? 'badge-desistente' : 'badge-activo';
                 const badgeText = disc.critica ? 'Crítica' : 'Secundária';
                 
-                html += `<tr>`;
-                html += `  <td><strong>${esc(disc.disciplina_nome)}</strong></td>`;
-                html += `  <td><span class="badge ${badgeClass}">${badgeText}</span></td>`;
-                html += `  <td style="text-align: right;">`;
-                html += `    <button class="btn-acao btn-acao-secundario" onclick="toggleCriticaGrelha('${disc.id}', ${disc.critica})" title="Alternar Crítica/Secundária"><i class="fas fa-pen"></i> Alternar</button>`;
-                html += `    <button class="btn-acao btn-acao-secundario" style="color: var(--cor-erro); border-color: var(--cor-erro);" onclick="apagarGrelha('${disc.id}')" title="Remover"><i class="fas fa-trash"></i></button>`;
-                html += `  </td>`;
-                html += `</tr>`;
+                // Em vez de tabela, usamos linhas flexíveis (funciona bem em mobile e desktop)
+                html += `<div style="display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid var(--cor-borda); border-left: 4px solid ${disc.critica ? '#dc2626' : '#059669'}; border-radius: 6px; padding: 10px 12px; flex-wrap: wrap; gap: 8px;">`;
+                html += `  <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 150px;">`;
+                html += `    <strong style="font-size: 0.9rem;">${esc(disc.disciplina_nome)}</strong>`;
+                html += `    <span class="badge ${badgeClass}" style="font-size: 0.65rem;">${badgeText}</span>`;
+                html += `  </div>`;
+                html += `  <div style="display: flex; gap: 6px;">`;
+                html += `    <button class="btn-acao btn-acao-secundario" style="font-size: 0.75rem; padding: 4px 8px;" onclick="toggleCriticaGrelha('${disc.id}', ${disc.critica})"><i class="fas fa-pen"></i> Alternar</button>`;
+                html += `    <button class="btn-acao btn-acao-secundario" style="font-size: 0.75rem; padding: 4px 8px; color: var(--cor-erro); border-color: var(--cor-erro);" onclick="apagarGrelha('${disc.id}')"><i class="fas fa-trash"></i></button>`;
+                html += `  </div>`;
+                html += `</div>`;
             });
             
-            html += `</tbody></table></div>`;
-            html += `</div>`;
+            html += `</div>`; // fim do flex column
+            html += `</div>`; // fim do bloco do curso
         }
-        html += `</div>`;
+        html += `</div>`; // fim do card-info da classe
     }
     c.innerHTML = html;
 }
@@ -128,7 +127,7 @@ async function toggleCriticaGrelha(id, atualCritica) {
         p_token: token, p_classe_id: item.classe_id, p_curso_id: item.curso_id, p_disciplina_id: item.disciplina_id, p_critica: !atualCritica
     });
     if (res.ok) carregarAcademico();
-    else alert(res.erro); // Este é o único alert que deixei por segurança, mas podes remover
+    else alert(res.erro);
 }
 
 function apagarGrelha(id) {
@@ -142,7 +141,6 @@ function apagarGrelha(id) {
 }
 
 function abrirModalAdicionarGrelha() {
-    // 1. Construir as opções (igual ao que tinhas)
     let opcoesClasses = '<option value="">Escolhe a Classe</option>';
     classesCache.forEach(c => { opcoesClasses += `<option value="${c.id}">${esc(c.nome)}</option>`; });
 
@@ -152,7 +150,6 @@ function abrirModalAdicionarGrelha() {
     let opcoesDisciplinas = '<option value="">Escolhe a Disciplina</option>';
     disciplinasCache.forEach(d => { opcoesDisciplinas += `<option value="${d.id}">${esc(d.nome)}</option>`; });
 
-    // 2. Construir o HTML completo do modal
     const htmlCorpo = `
         <div class="form-grelha">
             <div class="campo-grupo">
@@ -178,7 +175,6 @@ function abrirModalAdicionarGrelha() {
         <p id="msg-modal-grelha" class="msg-form" style="margin-top:10px; display:none;"></p>
     `;
 
-    // 3. INJETAR DIRETAMENTE NO DOM (sem usar abrirModal)
     const overlay = document.getElementById("modal-overlay");
     if (!overlay) return;
 
@@ -191,7 +187,6 @@ function abrirModalAdicionarGrelha() {
     btnConfirmar.style.display = "block";
     btnConfirmar.textContent = "Adicionar";
     
-    // Clonar para remover eventos antigos
     const novoBtn = btnConfirmar.cloneNode(true);
     btnConfirmar.parentNode.replaceChild(novoBtn, btnConfirmar);
     
@@ -237,22 +232,27 @@ function abrirModalAdicionarGrelha() {
 }
 
 // ============================================================
-// CLASSES
+// CLASSES (Responsivo)
 // ============================================================
 function renderizarClasses() {
     const c = document.getElementById("lista-classes-container");
     if (!c) return;
     if (classesCache.length === 0) { c.innerHTML = '<div class="estado-vazio">Sem classes.</div>'; return; }
 
-    let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec"><thead><tr><th>Ordem</th><th>Nome</th><th>Acções</th></tr></thead><tbody>';
+    let html = '<div style="display: flex; flex-direction: column; gap: 8px;">';
     classesCache.forEach(cls => {
-        html += `<tr><td>${cls.ordem}</td><td><strong>${esc(cls.nome)}</strong></td>
-            <td>
-                <button class="btn-acao btn-acao-secundario" onclick="abrirModalClasse('${cls.id}')">Editar</button>
-                <button class="btn-acao btn-acao-secundario" style="color:var(--cor-erro);" onclick="apagarClasse('${cls.id}')">Apagar</button>
-            </td></tr>`;
+        html += `<div style="display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid var(--cor-borda); border-radius: 6px; padding: 12px; flex-wrap: wrap; gap: 8px;">`;
+        html += `  <div style="display: flex; align-items: center; gap: 12px;">`;
+        html += `    <span style="background: var(--cor-azul-muito-claro); color: var(--cor-azul); font-weight: 700; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem;">Ordem: ${cls.ordem}</span>`;
+        html += `    <strong style="font-size: 0.95rem;">${esc(cls.nome)}</strong>`;
+        html += `  </div>`;
+        html += `  <div style="display: flex; gap: 6px;">`;
+        html += `    <button class="btn-acao btn-acao-secundario" style="font-size:0.8rem; padding: 4px 10px;" onclick="abrirModalClasse('${cls.id}')">Editar</button>`;
+        html += `    <button class="btn-acao btn-acao-secundario" style="font-size:0.8rem; padding: 4px 10px; color:var(--cor-erro); border-color:var(--cor-erro);" onclick="apagarClasse('${cls.id}')">Apagar</button>`;
+        html += `  </div>`;
+        html += `</div>`;
     });
-    html += '</tbody></table></div>';
+    html += '</div>';
     c.innerHTML = html;
 }
 
@@ -289,22 +289,27 @@ function apagarClasse(id) {
 }
 
 // ============================================================
-// CURSOS
+// CURSOS (Responsivo)
 // ============================================================
 function renderizarCursos() {
     const c = document.getElementById("lista-cursos-container");
     if (!c) return;
     if (cursosCache.length === 0) { c.innerHTML = '<div class="estado-vazio">Sem cursos.</div>'; return; }
 
-    let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec"><thead><tr><th>Sigla</th><th>Nome</th><th>Acções</th></tr></thead><tbody>';
+    let html = '<div style="display: flex; flex-direction: column; gap: 8px;">';
     cursosCache.forEach(cur => {
-        html += `<tr><td><strong>${esc(cur.sigla)}</strong></td><td>${esc(cur.nome)}</td>
-            <td>
-                <button class="btn-acao btn-acao-secundario" onclick="abrirModalCurso('${cur.id}')">Editar</button>
-                <button class="btn-acao btn-acao-secundario" style="color:var(--cor-erro);" onclick="apagarCurso('${cur.id}')">Apagar</button>
-            </td></tr>`;
+        html += `<div style="display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid var(--cor-borda); border-radius: 6px; padding: 12px; flex-wrap: wrap; gap: 8px;">`;
+        html += `  <div style="display: flex; align-items: center; gap: 12px;">`;
+        html += `    <span style="background: #fef3c7; color: #92400e; font-weight: 700; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem;">${esc(cur.sigla)}</span>`;
+        html += `    <strong style="font-size: 0.95rem;">${esc(cur.nome)}</strong>`;
+        html += `  </div>`;
+        html += `  <div style="display: flex; gap: 6px;">`;
+        html += `    <button class="btn-acao btn-acao-secundario" style="font-size:0.8rem; padding: 4px 10px;" onclick="abrirModalCurso('${cur.id}')">Editar</button>`;
+        html += `    <button class="btn-acao btn-acao-secundario" style="font-size:0.8rem; padding: 4px 10px; color:var(--cor-erro); border-color:var(--cor-erro);" onclick="apagarCurso('${cur.id}')">Apagar</button>`;
+        html += `  </div>`;
+        html += `</div>`;
     });
-    html += '</tbody></table></div>';
+    html += '</div>';
     c.innerHTML = html;
 }
 
@@ -341,22 +346,24 @@ function apagarCurso(id) {
 }
 
 // ============================================================
-// DISCIPLINAS
+// DISCIPLINAS (Responsivo)
 // ============================================================
 function renderizarDisciplinas() {
     const c = document.getElementById("lista-disciplinas-container");
     if (!c) return;
     if (disciplinasCache.length === 0) { c.innerHTML = '<div class="estado-vazio">Sem disciplinas.</div>'; return; }
 
-    let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec"><thead><tr><th>Nome</th><th>Acções</th></tr></thead><tbody>';
+    let html = '<div style="display: flex; flex-direction: column; gap: 8px;">';
     disciplinasCache.forEach(d => {
-        html += `<tr><td><strong>${esc(d.nome)}</strong></td>
-            <td>
-                <button class="btn-acao btn-acao-secundario" onclick="abrirModalDisciplina('${d.id}')">Editar</button>
-                <button class="btn-acao btn-acao-secundario" style="color:var(--cor-erro);" onclick="apagarDisciplina('${d.id}')">Apagar</button>
-            </td></tr>`;
+        html += `<div style="display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid var(--cor-borda); border-radius: 6px; padding: 12px; flex-wrap: wrap; gap: 8px;">`;
+        html += `  <strong style="font-size: 0.95rem;">${esc(d.nome)}</strong>`;
+        html += `  <div style="display: flex; gap: 6px;">`;
+        html += `    <button class="btn-acao btn-acao-secundario" style="font-size:0.8rem; padding: 4px 10px;" onclick="abrirModalDisciplina('${d.id}')">Editar</button>`;
+        html += `    <button class="btn-acao btn-acao-secundario" style="font-size:0.8rem; padding: 4px 10px; color:var(--cor-erro); border-color:var(--cor-erro);" onclick="apagarDisciplina('${d.id}')">Apagar</button>`;
+        html += `  </div>`;
+        html += `</div>`;
     });
-    html += '</tbody></table></div>';
+    html += '</div>';
     c.innerHTML = html;
 }
 
