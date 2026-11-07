@@ -21,103 +21,140 @@ let biTemPagamentoPendente = false;
 // ============================================================
 document.addEventListener("DOMContentLoaded", function () {
     
-// ============================================================
-// DETEÇÃO DE CONVITE (?convite=...)
-// ============================================================
-const urlParams = new URLSearchParams(window.location.search);
-const conviteCodigo = urlParams.get('convite');
+    // ============================================================
+    // CARREGAR CLASSES E CURSOS DINAMICAMENTE
+    // ============================================================
+    async function carregarOpcoesInscricao() {
+        const selClasse = document.getElementById("ins-classe");
+        const selCurso = document.getElementById("ins-curso");
+        if (!selClasse || !selCurso) return;
 
-if (conviteCodigo) {
-    // Esconde a tela inicial e mostra o formulário
-    document.getElementById("inscricao-intro").style.display = "none";
-    document.getElementById("inscricao-form").style.display = "block";
-    
-    // Muda o título do passo 1 para avisar que é um convite
-    const h2Passo1 = document.querySelector("#passo-1 h2");
-    if (h2Passo1) h2Passo1.innerHTML = '<i class="fas fa-shield-alt"></i> Confirmar Convite';
-
-    // Bloqueia o botão de próximo até o convite ser validado
-    const btnProximo = document.getElementById("btn-proximo-passo");
-    btnProximo.disabled = true;
-    btnProximo.style.opacity = "0.5";
-
-    // Criar um campo extra no passo 1 para o utilizador inserir os dados do convite
-    const divConfirmacao = document.createElement("div");
-    divConfirmacao.id = "area-validacao-convite";
-    divConfirmacao.style = "background: var(--cor-azul-muito-claro); padding: 16px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #bfdbfe;";
-    divConfirmacao.innerHTML = `
-        <p style="font-size: 0.9rem; color: var(--cor-azul); margin-top:0;"><strong>Atenção:</strong> Este link é único. Para continuares, confirma os teus dados exatamente como foram introduzidos pela secretaria.</p>
-        <div class="campo-grupo">
-            <label for="conv-bi-confirmacao">Número do BI *</label>
-            <input type="text" id="conv-bi-confirmacao" placeholder="000123456LA041" maxlength="14">
-        </div>
-        <div class="campo-grupo" style="margin-bottom:0;">
-            <label for="conv-nome-confirmacao">Nome Completo *</label>
-            <input type="text" id="conv-nome-confirmacao" placeholder="Nome exato do convite">
-        </div>
-        <button class="botao-primario" id="btn-validar-convite" style="margin-top: 12px; width: 100%;">Validar Dados</button>
-        <p id="msg-convite" class="campo-erro" style="margin-top:8px;"></p>
-    `;
-    
-    // Insere antes dos dados do aluno
-    const passo1 = document.getElementById("passo-1");
-    passo1.insertBefore(divConfirmacao, passo1.querySelector(".campo-grupo"));
-
-    // Formatar BI
-    document.getElementById("conv-bi-confirmacao").addEventListener("input", function() {
-        this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, "").substring(0, 14);
-    });
-
-    // Lógica do botão Validar
-    document.getElementById("btn-validar-convite").addEventListener("click", async function() {
-        const bi = document.getElementById("conv-bi-confirmacao").value.trim();
-        const nome = document.getElementById("conv-nome-confirmacao").value.trim();
-        const msgEl = document.getElementById("msg-convite");
-
-        if (!bi || !nome) {
-            msgEl.textContent = "Preenche o BI e o Nome.";
-            return;
+        // 1. Carregar Classes
+        const resClasses = await chamarRPC("cesc_listar_classes_publico", {});
+        if (resClasses.ok) {
+            selClasse.innerHTML = '<option value="">— Escolhe a classe —</option>';
+            resClasses.classes.forEach(c => {
+                selClasse.innerHTML += `<option value="${esc(c.nome)}">${esc(c.nome)}</option>`;
+            });
+        } else {
+            selClasse.innerHTML = '<option value="">Erro ao carregar classes</option>';
         }
 
-        this.disabled = true;
-        this.textContent = "A validar...";
-        msgEl.textContent = "";
+        // 2. Carregar Cursos
+        const resCursos = await chamarRPC("cesc_listar_cursos_publico", {});
+        if (resCursos.ok) {
+            window._cursosCache = resCursos.cursos || [];
+        }
 
-        const res = await chamarRPC("cesc_validar_convite", { 
-            p_codigo: conviteCodigo, 
-            p_bi_numero: bi, 
-            p_nome_completo: nome 
+        // 3. Quando a classe muda, atualiza os cursos disponíveis
+        selClasse.addEventListener("change", function () {
+            const classe = this.value;
+            const cursos = window._cursosCache || [];
+
+            const semCurso = ["7ª Classe", "8ª Classe", "9ª Classe"];
+            
+            if (!classe) {
+                selCurso.innerHTML = '<option value="">— Escolhe a classe primeiro —</option>';
+                return;
+            }
+
+            if (semCurso.includes(classe)) {
+                selCurso.innerHTML = '<option value="">Não aplicável (Ensino Geral)</option>';
+                selCurso.disabled = true;
+            } else {
+                selCurso.disabled = false;
+                selCurso.innerHTML = '<option value="">— Escolhe o curso —</option>';
+                cursos.forEach(c => {
+                    selCurso.innerHTML += `<option value="${esc(c.sigla)}">${esc(c.sigla)} - ${esc(c.nome)}</option>`;
+                });
+            }
+        });
+    }
+
+    // Chama a função ao iniciar
+    carregarOpcoesInscricao();
+
+    // ============================================================
+    // DETEÇÃO DE CONVITE (?convite=...)
+    // ============================================================
+    const urlParams = new URLSearchParams(window.location.search);
+    const conviteCodigo = urlParams.get('convite');
+
+    if (conviteCodigo) {
+        document.getElementById("inscricao-intro").style.display = "none";
+        document.getElementById("inscricao-form").style.display = "block";
+        
+        const h2Passo1 = document.querySelector("#passo-1 h2");
+        if (h2Passo1) h2Passo1.innerHTML = '<i class="fas fa-shield-alt"></i> Confirmar Convite';
+
+        const btnProximo = document.getElementById("btn-proximo-passo");
+        btnProximo.disabled = true;
+        btnProximo.style.opacity = "0.5";
+
+        const divConfirmacao = document.createElement("div");
+        divConfirmacao.id = "area-validacao-convite";
+        divConfirmacao.style = "background: var(--cor-azul-muito-claro); padding: 16px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #bfdbfe;";
+        divConfirmacao.innerHTML = `
+            <p style="font-size: 0.9rem; color: var(--cor-azul); margin-top:0;"><strong>Atenção:</strong> Este link é único. Para continuares, confirma os teus dados exatamente como foram introduzidos pela secretaria.</p>
+            <div class="campo-grupo">
+                <label for="conv-bi-confirmacao">Número do BI *</label>
+                <input type="text" id="conv-bi-confirmacao" placeholder="000123456LA041" maxlength="14">
+            </div>
+            <div class="campo-grupo" style="margin-bottom:0;">
+                <label for="conv-nome-confirmacao">Nome Completo *</label>
+                <input type="text" id="conv-nome-confirmacao" placeholder="Nome exato do convite">
+            </div>
+            <button class="botao-primario" id="btn-validar-convite" style="margin-top: 12px; width: 100%;">Validar Dados</button>
+            <p id="msg-convite" class="campo-erro" style="margin-top:8px;"></p>
+        `;
+        
+        const passo1 = document.getElementById("passo-1");
+        passo1.insertBefore(divConfirmacao, passo1.querySelector(".campo-grupo"));
+
+        document.getElementById("conv-bi-confirmacao").addEventListener("input", function() {
+            this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, "").substring(0, 14);
         });
 
-        this.disabled = false;
-        this.textContent = "Validar Dados";
+        document.getElementById("btn-validar-convite").addEventListener("click", async function() {
+            const bi = document.getElementById("conv-bi-confirmacao").value.trim();
+            const nome = document.getElementById("conv-nome-confirmacao").value.trim();
+            const msgEl = document.getElementById("msg-convite");
 
-        if (res.ok) {
-            // SUCESSO! Preenche os campos reais do formulário e esconde a caixa de validação
-            document.getElementById("al-bi").value = bi;
-            document.getElementById("al-bi").readOnly = true;
-            document.getElementById("al-bi").style.backgroundColor = "#f1f5f9";
-            
-            document.getElementById("al-nome").value = nome;
-            document.getElementById("al-nome").readOnly = true;
-            document.getElementById("al-nome").style.backgroundColor = "#f1f5f9";
+            if (!bi || !nome) { msgEl.textContent = "Preenche o BI e o Nome."; return; }
 
-            biValidadoNoServidor = true; // Salta a validação do BI no blur
-            formState.conviteCodigo = conviteCodigo; // Guarda para o submit
+            this.disabled = true;
+            this.textContent = "A validar...";
+            msgEl.textContent = "";
 
-            divConfirmacao.style.display = "none"; // Esconde a caixa
-            
-            // Reativa o botão Próximo
-            const btnProx = document.getElementById("btn-proximo-passo");
-            btnProx.disabled = false;
-            btnProx.style.opacity = "1";
+            const res = await chamarRPC("cesc_validar_convite", { p_codigo: conviteCodigo, p_bi_numero: bi, p_nome_completo: nome });
 
-        } else {
-            msgEl.textContent = res.erro;
-            msgEl.style.color = "var(--cor-erro)";
-        }
-    });
-}
+            this.disabled = false;
+            this.textContent = "Validar Dados";
+
+            if (res.ok) {
+                document.getElementById("al-bi").value = bi;
+                document.getElementById("al-bi").readOnly = true;
+                document.getElementById("al-bi").style.backgroundColor = "#f1f5f9";
+                
+                document.getElementById("al-nome").value = nome;
+                document.getElementById("al-nome").readOnly = true;
+                document.getElementById("al-nome").style.backgroundColor = "#f1f5f9";
+
+                biValidadoNoServidor = true;
+                formState.conviteCodigo = conviteCodigo;
+
+                divConfirmacao.style.display = "none";
+                
+                const btnProx = document.getElementById("btn-proximo-passo");
+                btnProx.disabled = false;
+                btnProx.style.opacity = "1";
+            } else {
+                msgEl.textContent = res.erro;
+                msgEl.style.color = "var(--cor-erro)";
+            }
+        });
+    }
+
     document.getElementById("btn-comecar").addEventListener("click", function () {
         document.getElementById("inscricao-intro").style.display = "none";
         document.getElementById("inscricao-form").style.display = "block";
@@ -151,10 +188,7 @@ if (conviteCodigo) {
         const bi = this.value.trim();
         const erroEl = document.getElementById("erro-al-bi");
 
-        if (!validarBI(bi)) {
-            biValidadoNoServidor = false;
-            return;
-        }
+        if (!validarBI(bi)) { biValidadoNoServidor = false; return; }
 
         erroEl.style.color = "var(--cor-texto-suave)";
         erroEl.textContent = "A verificar BI...";
@@ -256,13 +290,8 @@ if (conviteCodigo) {
         }
     }
 
-    btnEnviar.addEventListener("click", function() {
-        enviarCodigoEmail(this, "Verificar");
-    });
-
-    btnReenviar.addEventListener("click", function() {
-        enviarCodigoEmail(this, "Reenviar código");
-    });
+    btnEnviar.addEventListener("click", function() { enviarCodigoEmail(this, "Verificar"); });
+    btnReenviar.addEventListener("click", function() { enviarCodigoEmail(this, "Reenviar código"); });
 
     // ============================================================
     // VALIDAR CÓDIGO DE EMAIL
@@ -272,10 +301,7 @@ if (conviteCodigo) {
         const codigo = document.getElementById("al-codigo-email").value.trim();
         const erroCod = document.getElementById("erro-al-codigo-email");
         
-        if (codigo.length !== 6) {
-            erroCod.textContent = "O código tem 6 dígitos.";
-            return;
-        }
+        if (codigo.length !== 6) { erroCod.textContent = "O código tem 6 dígitos."; return; }
         
         this.disabled = true;
         this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A validar...';
@@ -295,7 +321,6 @@ if (conviteCodigo) {
             });
             
             const data = await res.json();
-            
             this.disabled = false;
             this.textContent = "Confirmar";
 
