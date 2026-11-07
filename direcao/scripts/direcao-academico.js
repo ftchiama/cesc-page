@@ -78,10 +78,8 @@ function renderizarGrelha() {
     grelhaCache.forEach(item => {
         const classeNome = item.classe_nome;
         const cursoNome = item.curso_nome || "Geral";
-        
         if (!agrupado[classeNome]) agrupado[classeNome] = {};
         if (!agrupado[classeNome][cursoNome]) agrupado[classeNome][cursoNome] = [];
-        
         agrupado[classeNome][cursoNome].push(item);
     });
 
@@ -89,11 +87,9 @@ function renderizarGrelha() {
     for (const classe in agrupado) {
         html += `<div class="card-info" style="margin-bottom: 20px;">`;
         html += `<h3 style="border-bottom: 2px solid var(--cor-azul); padding-bottom: 8px;"><i class="fas fa-layer-group"></i> ${esc(classe)}</h3>`;
-        
         for (const curso in agrupado[classe]) {
             html += `<div style="margin-top: 12px;">`;
             html += `<h4 style="color: var(--cor-texto-suave); font-size: 0.95rem; margin-bottom: 8px;"><i class="fas fa-bookmark"></i> ${curso === 'Geral' ? 'Tronco Comum' : esc(curso)}</h4>`;
-            
             html += `<div style="display: flex; flex-wrap: wrap; gap: 8px;">`;
             agrupado[classe][curso].forEach(disc => {
                 const corCritica = disc.critica ? "border-left: 4px solid #dc2626;" : "border-left: 4px solid #059669;";
@@ -109,7 +105,6 @@ function renderizarGrelha() {
         }
         html += `</div>`;
     }
-
     c.innerHTML = html;
 }
 
@@ -117,25 +112,25 @@ async function toggleCriticaGrelha(id, atualCritica) {
     const token = obterToken();
     const item = grelhaCache.find(x => x.id === id);
     if (!item) return;
-
     const res = await chamarRPC("cesc_diretor_guardar_grelha", {
         p_token: token, p_classe_id: item.classe_id, p_curso_id: item.curso_id, p_disciplina_id: item.disciplina_id, p_critica: !atualCritica
     });
-
     if (res.ok) carregarAcademico();
-    else alert(res.erro);
+    else alert(res.erro); // Este é o único alert que deixei por segurança, mas podes remover
 }
 
-async function apagarGrelha(id) {
-    if (!confirm("Remover esta disciplina desta classe/curso?")) return;
+function apagarGrelha(id) {
     const token = obterToken();
-    const res = await chamarRPC("cesc_diretor_apagar_grelha", { p_token: token, p_id: id });
-    if (res.ok) carregarAcademico();
-    else alert(res.erro);
+    const html = `<p>Tens a certeza que queres remover esta disciplina da grelha?</p>`;
+    abrirModal("Remover Disciplina", html, async function () {
+        const res = await chamarRPC("cesc_diretor_apagar_grelha", { p_token: token, p_id: id });
+        if (res.ok) { carregarAcademico(); return true; }
+        return false;
+    }, "Remover");
 }
 
 function abrirModalAdicionarGrelha() {
-    preencherSelects();
+    preencherSelects(); // Garante que os selects estão preenchidos
     const html = `
         <div class="form-grelha">
             <div class="campo-grupo"><label>Classe *</label><select id="gr-classe" class="campo-select"></select></div>
@@ -152,6 +147,7 @@ function abrirModalAdicionarGrelha() {
     `;
     abrirModal("Adicionar à Grelha Curricular", html, async function () {
         const msgModal = document.getElementById("msg-modal-grelha");
+        msgModal.style.display = "none";
         const token = obterToken();
         const classeId = document.getElementById("gr-classe").value;
         const cursoId = document.getElementById("gr-curso").value || null;
@@ -185,14 +181,11 @@ function renderizarClasses() {
 
     let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec"><thead><tr><th>Ordem</th><th>Nome</th><th>Acções</th></tr></thead><tbody>';
     classesCache.forEach(cls => {
-        html += `<tr>
-            <td>${cls.ordem}</td>
-            <td><strong>${esc(cls.nome)}</strong></td>
+        html += `<tr><td>${cls.ordem}</td><td><strong>${esc(cls.nome)}</strong></td>
             <td>
                 <button class="btn-acao btn-acao-secundario" onclick="abrirModalClasse('${cls.id}')">Editar</button>
                 <button class="btn-acao btn-acao-secundario" style="color:var(--cor-erro);" onclick="apagarClasse('${cls.id}')">Apagar</button>
-            </td>
-        </tr>`;
+            </td></tr>`;
     });
     html += '</tbody></table></div>';
     c.innerHTML = html;
@@ -209,22 +202,25 @@ function abrirModalClasse(id = null) {
     `;
     abrirModal(id ? "Editar Classe" : "Nova Classe", html, async function() {
         const msgModal = document.getElementById("msg-modal-class");
+        msgModal.style.display = "none";
         const token = obterToken();
         const nome = document.getElementById("class-nome").value.trim();
         const ordem = parseInt(document.getElementById("class-ordem").value, 10);
         if (!nome || isNaN(ordem)) { mostrarMsg(msgModal, "Preenche todos os campos.", "erro"); msgModal.style.display = "block"; return false; }
-        
         const res = await chamarRPC("cesc_diretor_guardar_classe", { p_token: token, p_id: id, p_nome: nome, p_ordem: ordem });
         if (res.ok) { carregarAcademico(); return true; }
         mostrarMsg(msgModal, res.erro, "erro"); msgModal.style.display = "block"; return false;
     }, "Guardar");
 }
 
-async function apagarClasse(id) {
-    if (!confirm("Apagar esta classe?")) return;
+function apagarClasse(id) {
     const token = obterToken();
-    const res = await chamarRPC("cesc_diretor_apagar_classe", { p_token: token, p_id: id });
-    if (res.ok) carregarAcademico();
+    const html = `<p>Tens a certeza que queres apagar esta classe?</p>`;
+    abrirModal("Apagar Classe", html, async function () {
+        const res = await chamarRPC("cesc_diretor_apagar_classe", { p_token: token, p_id: id });
+        if (res.ok) { carregarAcademico(); return true; }
+        return false;
+    }, "Apagar");
 }
 
 // ============================================================
@@ -237,14 +233,11 @@ function renderizarCursos() {
 
     let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec"><thead><tr><th>Sigla</th><th>Nome</th><th>Acções</th></tr></thead><tbody>';
     cursosCache.forEach(cur => {
-        html += `<tr>
-            <td><strong>${esc(cur.sigla)}</strong></td>
-            <td>${esc(cur.nome)}</td>
+        html += `<tr><td><strong>${esc(cur.sigla)}</strong></td><td>${esc(cur.nome)}</td>
             <td>
                 <button class="btn-acao btn-acao-secundario" onclick="abrirModalCurso('${cur.id}')">Editar</button>
                 <button class="btn-acao btn-acao-secundario" style="color:var(--cor-erro);" onclick="apagarCurso('${cur.id}')">Apagar</button>
-            </td>
-        </tr>`;
+            </td></tr>`;
     });
     html += '</tbody></table></div>';
     c.innerHTML = html;
@@ -261,22 +254,25 @@ function abrirModalCurso(id = null) {
     `;
     abrirModal(id ? "Editar Curso" : "Novo Curso", html, async function() {
         const msgModal = document.getElementById("msg-modal-cur");
+        msgModal.style.display = "none";
         const token = obterToken();
         const nome = document.getElementById("cur-nome").value.trim();
         const sigla = document.getElementById("cur-sigla").value.trim();
         if (!nome || !sigla) { mostrarMsg(msgModal, "Preenche todos os campos.", "erro"); msgModal.style.display = "block"; return false; }
-        
         const res = await chamarRPC("cesc_diretor_guardar_curso", { p_token: token, p_id: id, p_nome: nome, p_sigla: sigla });
         if (res.ok) { carregarAcademico(); return true; }
         mostrarMsg(msgModal, res.erro, "erro"); msgModal.style.display = "block"; return false;
     }, "Guardar");
 }
 
-async function apagarCurso(id) {
-    if (!confirm("Apagar este curso?")) return;
+function apagarCurso(id) {
     const token = obterToken();
-    const res = await chamarRPC("cesc_diretor_apagar_curso", { p_token: token, p_id: id });
-    if (res.ok) carregarAcademico();
+    const html = `<p>Tens a certeza que queres apagar este curso?</p>`;
+    abrirModal("Apagar Curso", html, async function () {
+        const res = await chamarRPC("cesc_diretor_apagar_curso", { p_token: token, p_id: id });
+        if (res.ok) { carregarAcademico(); return true; }
+        return false;
+    }, "Apagar");
 }
 
 // ============================================================
@@ -289,13 +285,11 @@ function renderizarDisciplinas() {
 
     let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec"><thead><tr><th>Nome</th><th>Acções</th></tr></thead><tbody>';
     disciplinasCache.forEach(d => {
-        html += `<tr>
-            <td><strong>${esc(d.nome)}</strong></td>
+        html += `<tr><td><strong>${esc(d.nome)}</strong></td>
             <td>
                 <button class="btn-acao btn-acao-secundario" onclick="abrirModalDisciplina('${d.id}')">Editar</button>
                 <button class="btn-acao btn-acao-secundario" style="color:var(--cor-erro);" onclick="apagarDisciplina('${d.id}')">Apagar</button>
-            </td>
-        </tr>`;
+            </td></tr>`;
     });
     html += '</tbody></table></div>';
     c.innerHTML = html;
@@ -311,19 +305,22 @@ function abrirModalDisciplina(id = null) {
     `;
     abrirModal(id ? "Editar Disciplina" : "Nova Disciplina", html, async function() {
         const msgModal = document.getElementById("msg-modal-disc");
+        msgModal.style.display = "none";
         const token = obterToken();
         const nome = document.getElementById("disc-nome").value.trim();
         if (!nome) { mostrarMsg(msgModal, "Preenche o nome.", "erro"); msgModal.style.display = "block"; return false; }
-        
         const res = await chamarRPC("cesc_diretor_guardar_disciplina", { p_token: token, p_id: id, p_nome: nome, p_critica: false });
         if (res.ok) { carregarAcademico(); return true; }
         mostrarMsg(msgModal, res.erro, "erro"); msgModal.style.display = "block"; return false;
     }, "Guardar");
 }
 
-async function apagarDisciplina(id) {
-    if (!confirm("Apagar esta disciplina?")) return;
+function apagarDisciplina(id) {
     const token = obterToken();
-    const res = await chamarRPC("cesc_diretor_apagar_disciplina", { p_token: token, p_id: id });
-    if (res.ok) carregarAcademico();
+    const html = `<p>Tens a certeza que queres apagar esta disciplina?</p>`;
+    abrirModal("Apagar Disciplina", html, async function () {
+        const res = await chamarRPC("cesc_diretor_apagar_disciplina", { p_token: token, p_id: id });
+        if (res.ok) { carregarAcademico(); return true; }
+        return false;
+    }, "Apagar");
 }

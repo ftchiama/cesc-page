@@ -1,6 +1,11 @@
+/*
+ CESC — Direcção · Académico
+ */
+
 let classesCache = [];
 let cursosCache = [];
 let disciplinasCache = [];
+let grelhaCache = [];
 
 async function carregarAcademico() {
     const token = obterToken();
@@ -17,22 +22,157 @@ async function carregarAcademico() {
     // 3. Disciplinas
     const resDisc = await chamarRPC("cesc_diretor_listar_disciplinas", { p_token: token });
     if (resDisc.ok) { disciplinasCache = resDisc.disciplinas || []; renderizarDisciplinas(); }
+
+    // 4. Grelha Curricular
+    const resGrelha = await chamarRPC("cesc_diretor_listar_grelha", { p_token: token });
+    if (resGrelha.ok) { grelhaCache = resGrelha.grelha || []; renderizarGrelha(); }
+    
+    preencherSelects();
 }
 
 function mudarAbaAcademico(aba) {
-    document.querySelectorAll("#seccao-academico .pagina-seccao").forEach(s => s.style.display = "none");
-    // Usar os IDs certos
-    const ids = { classes: "aba-acad-classes", cursos: "aba-acad-cursos", disciplinas: "aba-acad-disciplinas" };
-    const btnIds = { classes: "btn-aba-classes", cursos: "btn-aba-cursos", disciplinas: "btn-aba-disciplinas" };
+    const ids = { classes: "aba-acad-classes", cursos: "aba-acad-cursos", disciplinas: "aba-acad-disciplinas", grelha: "aba-acad-grelha" };
+    const btnIds = { classes: "btn-aba-classes", cursos: "btn-aba-cursos", disciplinas: "btn-aba-disciplinas", grelha: "btn-aba-grelha" };
 
     Object.keys(ids).forEach(k => {
-        document.getElementById(ids[k]).style.display = (k === aba) ? "block" : "none";
+        const el = document.getElementById(ids[k]);
+        if (el) el.style.display = (k === aba) ? "block" : "none";
+        
         const btn = document.getElementById(btnIds[k]);
         if (btn) {
             if (k === aba) btn.style.cssText = "background: var(--cor-azul); color: #fff; border: 1px solid var(--cor-azul); padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;";
             else btn.style.cssText = "background: transparent; color: var(--cor-texto-suave); border: 1px solid var(--cor-borda); padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;";
         }
     });
+}
+
+function preencherSelects() {
+    const selClasse = document.getElementById("gr-classe");
+    if (selClasse) {
+        selClasse.innerHTML = '<option value="">Escolhe a Classe</option>';
+        classesCache.forEach(c => { selClasse.innerHTML += `<option value="${c.id}">${esc(c.nome)}</option>`; });
+    }
+
+    const selCurso = document.getElementById("gr-curso");
+    if (selCurso) {
+        selCurso.innerHTML = '<option value="">Sem Curso (Geral)</option>';
+        cursosCache.forEach(c => { selCurso.innerHTML += `<option value="${c.id}">${esc(c.nome)} (${esc(c.sigla)})</option>`; });
+    }
+
+    const selDisc = document.getElementById("gr-disciplina");
+    if (selDisc) {
+        selDisc.innerHTML = '<option value="">Escolhe a Disciplina</option>';
+        disciplinasCache.forEach(d => { selDisc.innerHTML += `<option value="${d.id}">${esc(d.nome)}</option>`; });
+    }
+}
+
+// ============================================================
+// GRELHA CURRICULAR
+// ============================================================
+function renderizarGrelha() {
+    const c = document.getElementById("lista-grelha-container");
+    if (!c) return;
+    if (grelhaCache.length === 0) { c.innerHTML = '<div class="estado-vazio">A grelha está vazia. Adiciona disciplinas às classes/cursos.</div>'; return; }
+
+    const agrupado = {};
+    grelhaCache.forEach(item => {
+        const classeNome = item.classe_nome;
+        const cursoNome = item.curso_nome || "Geral";
+        
+        if (!agrupado[classeNome]) agrupado[classeNome] = {};
+        if (!agrupado[classeNome][cursoNome]) agrupado[classeNome][cursoNome] = [];
+        
+        agrupado[classeNome][cursoNome].push(item);
+    });
+
+    let html = "";
+    for (const classe in agrupado) {
+        html += `<div class="card-info" style="margin-bottom: 20px;">`;
+        html += `<h3 style="border-bottom: 2px solid var(--cor-azul); padding-bottom: 8px;"><i class="fas fa-layer-group"></i> ${esc(classe)}</h3>`;
+        
+        for (const curso in agrupado[classe]) {
+            html += `<div style="margin-top: 12px;">`;
+            html += `<h4 style="color: var(--cor-texto-suave); font-size: 0.95rem; margin-bottom: 8px;"><i class="fas fa-bookmark"></i> ${curso === 'Geral' ? 'Tronco Comum' : esc(curso)}</h4>`;
+            
+            html += `<div style="display: flex; flex-wrap: wrap; gap: 8px;">`;
+            agrupado[classe][curso].forEach(disc => {
+                const corCritica = disc.critica ? "border-left: 4px solid #dc2626;" : "border-left: 4px solid #059669;";
+                html += `
+                <div style="background: #fff; border: 1px solid var(--cor-borda); ${corCritica} border-radius: 6px; padding: 8px 12px; display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.85rem; font-weight: 600;">${esc(disc.disciplina_nome)}</span>
+                    <span class="badge badge-${disc.critica ? 'desistente' : 'activo'}" style="font-size: 0.6rem;">${disc.critica ? 'Crítica' : 'Secund.'}</span>
+                    <button onclick="toggleCriticaGrelha('${disc.id}', ${disc.critica})" style="background:none; border:none; cursor:pointer; color: var(--cor-azul);" title="Alternar Crítica"><i class="fas fa-sync"></i></button>
+                    <button onclick="apagarGrelha('${disc.id}')" style="background:none; border:none; cursor:pointer; color: var(--cor-erro);" title="Remover"><i class="fas fa-trash"></i></button>
+                </div>`;
+            });
+            html += `</div></div>`;
+        }
+        html += `</div>`;
+    }
+
+    c.innerHTML = html;
+}
+
+async function toggleCriticaGrelha(id, atualCritica) {
+    const token = obterToken();
+    const item = grelhaCache.find(x => x.id === id);
+    if (!item) return;
+
+    const res = await chamarRPC("cesc_diretor_guardar_grelha", {
+        p_token: token, p_classe_id: item.classe_id, p_curso_id: item.curso_id, p_disciplina_id: item.disciplina_id, p_critica: !atualCritica
+    });
+
+    if (res.ok) carregarAcademico();
+    else alert(res.erro);
+}
+
+async function apagarGrelha(id) {
+    if (!confirm("Remover esta disciplina desta classe/curso?")) return;
+    const token = obterToken();
+    const res = await chamarRPC("cesc_diretor_apagar_grelha", { p_token: token, p_id: id });
+    if (res.ok) carregarAcademico();
+    else alert(res.erro);
+}
+
+function abrirModalAdicionarGrelha() {
+    preencherSelects();
+    const html = `
+        <div class="form-grelha">
+            <div class="campo-grupo"><label>Classe *</label><select id="gr-classe" class="campo-select"></select></div>
+            <div class="campo-grupo"><label>Curso</label><select id="gr-curso" class="campo-select"></select></div>
+            <div class="campo-grupo"><label>Disciplina *</label><select id="gr-disciplina" class="campo-select"></select></div>
+            <div class="campo-grupo"><label>Tipo *</label>
+                <select id="gr-critica" class="campo-select">
+                    <option value="false">Secundária</option>
+                    <option value="true">Crítica</option>
+                </select>
+            </div>
+        </div>
+        <p id="msg-modal-grelha" class="msg-form" style="margin-top:10px; display:none;"></p>
+    `;
+    abrirModal("Adicionar à Grelha Curricular", html, async function () {
+        const msgModal = document.getElementById("msg-modal-grelha");
+        const token = obterToken();
+        const classeId = document.getElementById("gr-classe").value;
+        const cursoId = document.getElementById("gr-curso").value || null;
+        const discId = document.getElementById("gr-disciplina").value;
+        const critica = document.getElementById("gr-critica").value === "true";
+
+        if (!classeId || !discId) {
+            mostrarMsg(msgModal, "Escolhe a classe e a disciplina.", "erro");
+            msgModal.style.display = "block";
+            return false;
+        }
+
+        const res = await chamarRPC("cesc_diretor_guardar_grelha", {
+            p_token: token, p_classe_id: classeId, p_curso_id: cursoId, p_disciplina_id: discId, p_critica: critica
+        });
+
+        if (res.ok) { carregarAcademico(); return true; }
+        mostrarMsg(msgModal, res.erro || "Erro ao guardar.", "erro");
+        msgModal.style.display = "block";
+        return false;
+    }, "Adicionar");
 }
 
 // ============================================================
@@ -49,7 +189,7 @@ function renderizarClasses() {
             <td>${cls.ordem}</td>
             <td><strong>${esc(cls.nome)}</strong></td>
             <td>
-                <button class="btn-acao btn-acao-secundario" onclick="editarClasse('${cls.id}')">Editar</button>
+                <button class="btn-acao btn-acao-secundario" onclick="abrirModalClasse('${cls.id}')">Editar</button>
                 <button class="btn-acao btn-acao-secundario" style="color:var(--cor-erro);" onclick="apagarClasse('${cls.id}')">Apagar</button>
             </td>
         </tr>`;
@@ -80,9 +220,8 @@ function abrirModalClasse(id = null) {
     }, "Guardar");
 }
 
-function editarClasse(id) { abrirModalClasse(id); }
-
 async function apagarClasse(id) {
+    if (!confirm("Apagar esta classe?")) return;
     const token = obterToken();
     const res = await chamarRPC("cesc_diretor_apagar_classe", { p_token: token, p_id: id });
     if (res.ok) carregarAcademico();
@@ -102,7 +241,7 @@ function renderizarCursos() {
             <td><strong>${esc(cur.sigla)}</strong></td>
             <td>${esc(cur.nome)}</td>
             <td>
-                <button class="btn-acao btn-acao-secundario" onclick="editarCurso('${cur.id}')">Editar</button>
+                <button class="btn-acao btn-acao-secundario" onclick="abrirModalCurso('${cur.id}')">Editar</button>
                 <button class="btn-acao btn-acao-secundario" style="color:var(--cor-erro);" onclick="apagarCurso('${cur.id}')">Apagar</button>
             </td>
         </tr>`;
@@ -133,9 +272,8 @@ function abrirModalCurso(id = null) {
     }, "Guardar");
 }
 
-function editarCurso(id) { abrirModalCurso(id); }
-
 async function apagarCurso(id) {
+    if (!confirm("Apagar este curso?")) return;
     const token = obterToken();
     const res = await chamarRPC("cesc_diretor_apagar_curso", { p_token: token, p_id: id });
     if (res.ok) carregarAcademico();
@@ -149,13 +287,12 @@ function renderizarDisciplinas() {
     if (!c) return;
     if (disciplinasCache.length === 0) { c.innerHTML = '<div class="estado-vazio">Sem disciplinas.</div>'; return; }
 
-    let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec"><thead><tr><th>Nome</th><th>Tipo</th><th>Acções</th></tr></thead><tbody>';
+    let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec"><thead><tr><th>Nome</th><th>Acções</th></tr></thead><tbody>';
     disciplinasCache.forEach(d => {
         html += `<tr>
             <td><strong>${esc(d.nome)}</strong></td>
-            <td><span class="badge badge-${d.critica ? 'desistente' : 'activo'}">${d.critica ? 'Crítica' : 'Secundária'}</span></td>
             <td>
-                <button class="btn-acao btn-acao-secundario" onclick="editarDisciplina('${d.id}')">Editar</button>
+                <button class="btn-acao btn-acao-secundario" onclick="abrirModalDisciplina('${d.id}')">Editar</button>
                 <button class="btn-acao btn-acao-secundario" style="color:var(--cor-erro);" onclick="apagarDisciplina('${d.id}')">Apagar</button>
             </td>
         </tr>`;
@@ -169,12 +306,6 @@ function abrirModalDisciplina(id = null) {
     const html = `
         <div class="form-grelha">
             <div class="campo-grupo"><label>Nome *</label><input type="text" id="disc-nome" value="${disc ? disc.nome : ''}" placeholder="Ex: Matemática"></div>
-            <div class="campo-grupo"><label>Tipo *</label>
-                <select id="disc-critica" class="campo-select">
-                    <option value="true" ${disc && disc.critica ? 'selected' : ''}>Crítica</option>
-                    <option value="false" ${disc && !disc.critica ? 'selected' : ''}>Secundária</option>
-                </select>
-            </div>
         </div>
         <p id="msg-modal-disc" class="msg-form" style="display:none;"></p>
     `;
@@ -182,18 +313,16 @@ function abrirModalDisciplina(id = null) {
         const msgModal = document.getElementById("msg-modal-disc");
         const token = obterToken();
         const nome = document.getElementById("disc-nome").value.trim();
-        const critica = document.getElementById("disc-critica").value === "true";
         if (!nome) { mostrarMsg(msgModal, "Preenche o nome.", "erro"); msgModal.style.display = "block"; return false; }
         
-        const res = await chamarRPC("cesc_diretor_guardar_disciplina", { p_token: token, p_id: id, p_nome: nome, p_critica: critica });
+        const res = await chamarRPC("cesc_diretor_guardar_disciplina", { p_token: token, p_id: id, p_nome: nome, p_critica: false });
         if (res.ok) { carregarAcademico(); return true; }
         mostrarMsg(msgModal, res.erro, "erro"); msgModal.style.display = "block"; return false;
     }, "Guardar");
 }
 
-function editarDisciplina(id) { abrirModalDisciplina(id); }
-
 async function apagarDisciplina(id) {
+    if (!confirm("Apagar esta disciplina?")) return;
     const token = obterToken();
     const res = await chamarRPC("cesc_diretor_apagar_disciplina", { p_token: token, p_id: id });
     if (res.ok) carregarAcademico();
