@@ -74,6 +74,7 @@ function renderizarGrelha() {
     if (!c) return;
     if (grelhaCache.length === 0) { c.innerHTML = '<div class="estado-vazio">A grelha está vazia. Adiciona disciplinas às classes/cursos.</div>'; return; }
 
+    // Agrupar por Classe e Curso
     const agrupado = {};
     grelhaCache.forEach(item => {
         const classeNome = item.classe_nome;
@@ -86,22 +87,33 @@ function renderizarGrelha() {
     let html = "";
     for (const classe in agrupado) {
         html += `<div class="card-info" style="margin-bottom: 20px;">`;
-        html += `<h3 style="border-bottom: 2px solid var(--cor-azul); padding-bottom: 8px;"><i class="fas fa-layer-group"></i> ${esc(classe)}</h3>`;
+        html += `<h3 style="border-bottom: 2px solid var(--cor-azul); padding-bottom: 8px; margin-bottom: 16px;"><i class="fas fa-layer-group"></i> ${esc(classe)}</h3>`;
+        
         for (const curso in agrupado[classe]) {
-            html += `<div style="margin-top: 12px;">`;
-            html += `<h4 style="color: var(--cor-texto-suave); font-size: 0.95rem; margin-bottom: 8px;"><i class="fas fa-bookmark"></i> ${curso === 'Geral' ? 'Tronco Comum' : esc(curso)}</h4>`;
-            html += `<div style="display: flex; flex-wrap: wrap; gap: 8px;">`;
+            html += `<div style="margin-bottom: 16px;">`;
+            html += `<h4 style="color: var(--cor-texto-suave); font-size: 0.9rem; margin-bottom: 8px; background: #f8fafc; padding: 6px 10px; border-radius: 6px;"><i class="fas fa-bookmark"></i> ${curso === 'Geral' ? 'Tronco Comum' : esc(curso)}</h4>`;
+            
+            // Lista vertical de disciplinas
+            html += `<div class="tabela-wrapper" style="border: 1px solid var(--cor-borda); border-radius: 8px; overflow: hidden;">`;
+            html += `<table class="tabela-sec" style="margin: 0;">`;
+            html += `<thead><tr><th style="width: 50%;">Disciplina</th><th style="width: 25%;">Tipo</th><th style="width: 25%; text-align: right;">Acções</th></tr></thead><tbody>`;
+            
             agrupado[classe][curso].forEach(disc => {
-                const corCritica = disc.critica ? "border-left: 4px solid #dc2626;" : "border-left: 4px solid #059669;";
-                html += `
-                <div style="background: #fff; border: 1px solid var(--cor-borda); ${corCritica} border-radius: 6px; padding: 8px 12px; display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 0.85rem; font-weight: 600;">${esc(disc.disciplina_nome)}</span>
-                    <span class="badge badge-${disc.critica ? 'desistente' : 'activo'}" style="font-size: 0.6rem;">${disc.critica ? 'Crítica' : 'Secund.'}</span>
-                    <button onclick="toggleCriticaGrelha('${disc.id}', ${disc.critica})" style="background:none; border:none; cursor:pointer; color: var(--cor-azul);" title="Alternar Crítica"><i class="fas fa-sync"></i></button>
-                    <button onclick="apagarGrelha('${disc.id}')" style="background:none; border:none; cursor:pointer; color: var(--cor-erro);" title="Remover"><i class="fas fa-trash"></i></button>
-                </div>`;
+                const badgeClass = disc.critica ? 'badge-desistente' : 'badge-activo';
+                const badgeText = disc.critica ? 'Crítica' : 'Secundária';
+                
+                html += `<tr>`;
+                html += `  <td><strong>${esc(disc.disciplina_nome)}</strong></td>`;
+                html += `  <td><span class="badge ${badgeClass}">${badgeText}</span></td>`;
+                html += `  <td style="text-align: right;">`;
+                html += `    <button class="btn-acao btn-acao-secundario" onclick="toggleCriticaGrelha('${disc.id}', ${disc.critica})" title="Alternar Crítica/Secundária"><i class="fas fa-pen"></i> Alternar</button>`;
+                html += `    <button class="btn-acao btn-acao-secundario" style="color: var(--cor-erro); border-color: var(--cor-erro);" onclick="apagarGrelha('${disc.id}')" title="Remover"><i class="fas fa-trash"></i></button>`;
+                html += `  </td>`;
+                html += `</tr>`;
             });
-            html += `</div></div>`;
+            
+            html += `</tbody></table></div>`;
+            html += `</div>`;
         }
         html += `</div>`;
     }
