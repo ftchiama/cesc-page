@@ -3,46 +3,131 @@
  */
 
 let regrasAuraCache = [];
+let alocacoesAuraCache = [];
 
 async function carregarAuraDir() {
     const token = obterToken();
-    const container = document.getElementById("lista-regras-aura");
-    container.innerHTML = '<div class="loader-container" style="min-height:100px;"><div class="loader"></div></div>';
+    if (!token) return;
 
-    const dados = await chamarRPC("cesc_diretor_listar_regras_aura", { p_token: token, p_ano_lectivo: "2026/2027" });
-    if (!dados.ok) { container.innerHTML = '<div class="estado-vazio">' + esc(dados.erro) + '</div>'; return; }
+    // --- 1. CARREGAR REGRAS ---
+    const containerRegras = document.getElementById("lista-regras-aura");
+    containerRegras.innerHTML = '<div class="loader-container" style="min-height:100px;"><div class="loader"></div></div>';
 
-    regrasAuraCache = dados.regras || [];
+    const resRegras = await chamarRPC("cesc_diretor_listar_regras_aura", { p_token: token, p_ano_lectivo: "2026/2027" });
+    if (resRegras.ok) {
+        regrasAuraCache = resRegras.regras || [];
+        renderizarRegrasAura(regrasAuraCache);
+    } else {
+        containerRegras.innerHTML = '<div class="estado-vazio">' + esc(resRegras.erro) + '</div>';
+    }
 
-    let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec">';
-    html += '<thead><tr><th>Classe / Curso</th><th>Máx. Negativas Críticas</th><th>Máx. Negativas Secundárias</th><th>Acção</th></tr></thead><tbody>';
-    regrasAuraCache.forEach((r, idx) => {
+    // --- 2. CARREGAR ALOCAÇÕES ---
+    const selAno = document.getElementById("filtro-aura-ano-alocacao");
+    if (selAno && !selAno.value) {
+        selAno.innerHTML = '<option value="2026/2027">2026/2027</option>';
+    }
+    const anoAloc = selAno ? selAno.value : "2026/2027";
+    
+    const containerAloc = document.getElementById("lista-alocacoes-aura");
+    containerAloc.innerHTML = '<div class="loader-container" style="min-height:100px;"><div class="loader"></div></div>';
+
+    const resAloc = await chamarRPC("cesc_diretor_listar_alocacoes", { p_token: token, p_ano_lectivo: anoAloc });
+    if (resAloc.ok) {
+        alocacoesAuraCache = resAloc.alocacoes || [];
+        renderizarAlocacoesAura(alocacoesAuraCache);
+    } else {
+        containerAloc.innerHTML = '<div class="estado-vazio">' + esc(resAloc.erro) + '</div>';
+    }
+
+    // --- 3. LIGAR EVENTOS (Só uma vez) ---
+    if (!window.auraLigado) {
+        window.auraLigado = true;
+        
+        const selAnoAloc = document.getElementById("filtro-aura-ano-alocacao");
+        if (selAnoAloc) selAnoAloc.addEventListener("change", carregarAuraDir);
+
+        const btnExecutar = document.getElementById("btn-executar-aura");
+        if (btnExecutar) {
+            btnExecutar.addEventListener("click", async function () {
+                if (!confirm("Tens a certeza que queres executar a AURA? Isto vai distribuir os alunos e mudar os estados das inscrições.")) return;
+
+                const btn = this;
+                const msg = document.getElementById("msg-executar-aura");
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A processar...';
+                msg.textContent = "";
+
+                const res = await chamarRPC("cesc_executar_aura", { p_token: obterToken(), p_ano_lectivo: "2026/2027" });
+
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-magic"></i> Executar AURA';
+
+                if (res.ok) {
+                    msg.className = "msg-form sucesso";
+                    msg.textContent = "AURA executada! Alunos processados: " + res.total_processados + ". Aprovados: " + res.aprovados + ". Reprovados: " + res.reprovados + ".";
+                } else {
+                    msg.className = "msg-form erro";
+                    msg.textContent = res.erro || "Erro ao executar AURA.";
+                }
+            });
+        }
+    }
+}
+
+function mudarAbaAura(aba) {
+    const abaRegras = document.getElementById("aba-aura-regras");
+    const abaAloc = document.getElementById("aba-aura-alocacao");
+    const btnRegras = document.getElementById("btn-aba-regras");
+    const btnAloc = document.getElementById("btn-aba-alocacao");
+
+    if (aba === "regras") {
+        abaRegras.style.display = "block";
+        abaAloc.style.display = "none";
+        btnRegras.className = "botao-primario";
+        btnAloc.className = "botao-secundario";
+    } else {
+        abaRegras.style.display = "none";
+        abaAloc.style.display = "block";
+        btnRegras.className = "botao-secundario";
+        btnAloc.className = "botao-primario";
+    }
+}
+
+// ============================================================
+// REGRAS
+// ============================================================
+function renderizarRegrasAura(regras) {
+    const c = document.getElementById("lista-regras-aura");
+    if (regras.length === 0) { c.innerHTML = '<div class="estado-vazio">Sem regras definidas.</div>'; return; }
+
+    let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec"><thead><tr><th>Classe / Curso</th><th>Máx. Críticas</th><th>Máx. Secundárias</th><th>Acção</th></tr></thead><tbody>';
+    regras.forEach((r, idx) => {
         let nome = r.classe + (r.curso ? ' (' + r.curso + ')' : '');
-        html += '<tr>';
-        html += '<td><strong>' + esc(nome) + '</strong></td>';
-        html += '<td><input type="number" id="regra-crit-' + idx + '" class="campo-input" style="width:80px; padding:4px;" value="' + r.max_criticas + '"></td>';
-        html += '<td><input type="number" id="regra-sec-' + idx + '" class="campo-input" style="width:80px; padding:4px;" value="' + r.max_secundarias + '"></td>';
-        html += '<td><button class="btn-acao btn-acao-primario" onclick="guardarRegraAura(' + idx + ')"><i class="fas fa-save"></i></button></td>';
-        html += '</tr>';
+        html += `<tr>
+            <td><strong>${esc(nome)}</strong></td>
+            <td><input type="number" id="regra-crit-${idx}" class="campo-input" style="width:80px; padding:4px;" value="${r.max_criticas}"></td>
+            <td><input type="number" id="regra-sec-${idx}" class="campo-input" style="width:80px; padding:4px;" value="${r.max_secundarias}"></td>
+            <td><button class="btn-acao btn-acao-primario" onclick="guardarRegraAura(${idx})"><i class="fas fa-save"></i></button></td>
+        </tr>`;
     });
     html += '</tbody></table></div>';
-    
+
     // Mobile
     html += '<div class="cartoes-sec">';
-    regrasAuraCache.forEach((r, idx) => {
+    regras.forEach((r, idx) => {
         let nome = r.classe + (r.curso ? ' (' + r.curso + ')' : '');
-        html += '<div class="cartao-sec">';
-        html += '  <div class="cartao-sec-topo"><div class="cartao-sec-info"><strong>' + esc(nome) + '</strong></div></div>';
-        html += '  <div class="cartao-sec-meta">';
-        html += '    <div class="meta-item"><span class="meta-rotulo">Máx. Neg. Críticas</span><input type="number" id="regra-crit-m-' + idx + '" class="campo-input" style="width:60px; padding:4px;" value="' + r.max_criticas + '"></div>';
-        html += '    <div class="meta-item"><span class="meta-rotulo">Máx. Neg. Secundárias</span><input type="number" id="regra-sec-m-' + idx + '" class="campo-input" style="width:60px; padding:4px;" value="' + r.max_secundarias + '"></div>';
-        html += '  </div>';
-        html += '  <div class="cartao-sec-acoes"><button class="btn-acao btn-acao-primario" onclick="guardarRegraAuraMobile(' + idx + ')"><i class="fas fa-save"></i> Guardar</button></div>';
-        html += '</div>';
+        html += `<div class="cartao-sec">
+            <div class="cartao-sec-topo"><div class="cartao-sec-info"><strong>${esc(nome)}</strong></div></div>
+            <div class="cartao-sec-meta">
+                <div class="meta-item"><span class="meta-rotulo">Máx. Críticas</span><input type="number" id="regra-crit-m-${idx}" class="campo-input" style="width:60px; padding:4px;" value="${r.max_criticas}"></div>
+                <div class="meta-item"><span class="meta-rotulo">Máx. Secundárias</span><input type="number" id="regra-sec-m-${idx}" class="campo-input" style="width:60px; padding:4px;" value="${r.max_secundarias}"></div>
+            </div>
+            <div class="cartao-sec-acoes"><button class="btn-acao btn-acao-primario" onclick="guardarRegraAuraMobile(${idx})"><i class="fas fa-save"></i> Guardar</button></div>
+        </div>`;
     });
     html += '</div>';
 
-    container.innerHTML = html;
+    c.innerHTML = html;
 }
 
 async function guardarRegraAura(idx) {
@@ -71,31 +156,144 @@ async function guardarRegraAuraMobile(idx) {
     else alert(res.erro);
 }
 
-// Executar AURA
-document.addEventListener("DOMContentLoaded", function () {
-    const btnExecutar = document.getElementById("btn-executar-aura");
-    if (!btnExecutar) return;
+// ============================================================
+// ALOCAÇÃO
+// ============================================================
+function renderizarAlocacoesAura(alocacoes) {
+    const c = document.getElementById("lista-alocacoes-aura");
+    if (alocacoes.length === 0) { c.innerHTML = '<div class="estado-vazio">Sem alocações definidas.</div>'; return; }
 
-    btnExecutar.addEventListener("click", async function () {
-        if (!confirm("Tens a certeza que queres executar a AURA? Isto vai distribuir os alunos e mudar os estados das inscrições.")) return;
+    let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec"><thead><tr><th>Turno</th><th>Pavilhão</th><th>Salas</th><th>Classe / Curso</th></tr></thead><tbody>';
+    alocacoes.forEach(a => {
+        let salas = a.sala_inicio === a.sala_fim ? `Sala ${a.sala_inicio}` : `Salas ${a.sala_inicio} a ${a.sala_fim}`;
+        let classe = a.classe + (a.curso ? ' (' + a.curso + ')' : '');
+        html += `<tr>
+            <td>${esc(a.turno)}</td>
+            <td>${esc(a.pavilhao)}</td>
+            <td>${esc(salas)}</td>
+            <td>${esc(classe)}</td>
+        </tr>`;
+    });
+    html += '</tbody></table></div>';
 
-        const btn = this;
-        const msg = document.getElementById("msg-executar-aura");
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A processar...';
-        msg.textContent = "";
+    // Mobile
+    html += '<div class="cartoes-sec">';
+    alocacoes.forEach(a => {
+        let salas = a.sala_inicio === a.sala_fim ? `Sala ${a.sala_inicio}` : `Salas ${a.sala_inicio} a ${a.sala_fim}`;
+        let classe = a.classe + (a.curso ? ' (' + a.curso + ')' : '');
+        html += `<div class="cartao-sec">
+            <div class="cartao-sec-topo"><div class="cartao-sec-info"><strong>${esc(classe)}</strong></div></div>
+            <div class="cartao-sec-meta">
+                <div class="meta-item"><span class="meta-rotulo">Turno</span><span class="meta-valor">${esc(a.turno)}</span></div>
+                <div class="meta-item"><span class="meta-rotulo">Pavilhão</span><span class="meta-valor">${esc(a.pavilhao)}</span></div>
+                <div class="meta-item"><span class="meta-rotulo">Salas</span><span class="meta-valor">${esc(salas)}</span></div>
+            </div>
+        </div>`;
+    });
+    html += '</div>';
 
-        const res = await chamarRPC("cesc_executar_aura", { p_token: obterToken(), p_ano_lectivo: "2026/2027" });
+    c.innerHTML = html;
+}
 
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-magic"></i> Executar AURA';
+function abrirModalNovaAlocacao() {
+    const token = obterToken();
+    const ano = document.getElementById("filtro-aura-ano-alocacao")?.value || "2026/2027";
+    
+    const html = `
+        <p>Define quais salas pertencem a qual classe/curso.</p>
+        <div class="form-grelha">
+            <div class="campo-grupo">
+                <label>Turno *</label>
+                <select id="aloc-turno" class="campo-select">
+                    <option value="Matinal">Matinal</option>
+                    <option value="Vespertino">Vespertino</option>
+                    <option value="Noturno">Noturno</option>
+                </select>
+            </div>
+            <div class="campo-grupo">
+                <label>Pavilhão *</label>
+                <input type="text" id="aloc-pavilhao" placeholder="Ex: Pavilhão 1">
+            </div>
+            <div class="campo-grupo">
+                <label>Sala Início *</label>
+                <input type="number" id="aloc-sala-inicio" value="1" min="1">
+            </div>
+            <div class="campo-grupo">
+                <label>Sala Fim *</label>
+                <input type="number" id="aloc-sala-fim" value="1" min="1">
+            </div>
+            <div class="campo-grupo">
+                <label>Classe *</label>
+                <input type="text" id="aloc-classe" placeholder="Ex: 10ª Classe">
+            </div>
+            <div class="campo-grupo">
+                <label>Curso</label>
+                <input type="text" id="aloc-curso" placeholder="Ex: C.F.B">
+            </div>
+        </div>
+    `;
+
+    abrirModal("Nova Alocação de Sala", html, async function () {
+        const turno = document.getElementById("aloc-turno").value;
+        const pavilhao = document.getElementById("aloc-pavilhao").value.trim();
+        const sala_inicio = parseInt(document.getElementById("aloc-sala-inicio").value, 10);
+        const sala_fim = parseInt(document.getElementById("aloc-sala-fim").value, 10);
+        const classe = document.getElementById("aloc-classe").value.trim();
+        const curso = document.getElementById("aloc-curso").value.trim() || null;
+
+        if (!pavilhao || !classe || !sala_inicio || !sala_fim) {
+            alert("Preenche todos os campos obrigatórios.");
+            return false;
+        }
+
+        const res = await chamarRPC("cesc_diretor_guardar_alocacao", {
+            p_token: token,
+            p_ano_lectivo: ano,
+            p_turno: turno,
+            p_pavilhao: pavilhao,
+            p_sala_inicio: sala_inicio,
+            p_sala_fim: sala_fim,
+            p_classe: classe,
+            p_curso: curso
+        });
 
         if (res.ok) {
-            msg.className = "msg-form sucesso";
-            msg.textContent = "AURA executada! Alunos processados: " + res.total_processados + ". Aprovados: " + res.aprovados + ". Reprovados: " + res.reprovados + ".";
+            carregarAuraDir();
+            return true;
         } else {
-            msg.className = "msg-form erro";
-            msg.textContent = res.erro || "Erro ao executar AURA.";
+            alert(res.erro);
+            return false;
         }
-    });
-});
+    }, "Guardar Alocação");
+}
+
+function abrirModalNovaRegra() {
+    const html = `
+        <p>Define os limites de negativas para aprovação.</p>
+        <div class="form-grelha">
+            <div class="campo-grupo"><label>Classe *</label><input type="text" id="reg-classe" placeholder="Ex: 10ª Classe"></div>
+            <div class="campo-grupo"><label>Curso</label><input type="text" id="reg-curso" placeholder="Ex: C.F.B"></div>
+            <div class="campo-grupo"><label>Máx. Negativas Críticas</label><input type="number" id="reg-crit" value="0" min="0"></div>
+            <div class="campo-grupo"><label>Máx. Negativas Secundárias</label><input type="number" id="reg-sec" value="2" min="0"></div>
+        </div>
+    `;
+    abrirModal("Nova Regra de Aprovação", html, async function() {
+        const token = obterToken();
+        const classe = document.getElementById("reg-classe").value.trim();
+        const curso = document.getElementById("reg-curso").value.trim() || null;
+        const crit = parseInt(document.getElementById("reg-crit").value, 10);
+        const sec = parseInt(document.getElementById("reg-sec").value, 10);
+
+        if (!classe) { alert("Indica a classe."); return false; }
+
+        const res = await chamarRPC("cesc_aura_guardar_regra", {
+            p_token: token,
+            p_classe: classe,
+            p_curso: curso,
+            p_max_criticas: crit,
+            p_max_secundarias: sec
+        });
+        if (res.ok) { carregarAuraDir(); return true; }
+        alert(res.erro); return false;
+    }, "Guardar Regra");
+}

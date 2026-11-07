@@ -301,20 +301,46 @@
                 </div>
             </section>
 
-            <!-- AURA -->
+            <!-- AURA (Exclusivo) -->
             <section class="pagina-seccao" id="seccao-aura">
-                <div class="pagina-cabecalho"><h1>AURA — Algoritmo</h1><p>Configuração de regras e execução.</p></div>
-                
-                <div class="card-info" style="margin-bottom:20px;">
-                    <h3><i class="fas fa-cogs"></i> Configuração de Regras</h3>
-                    <p style="font-size:0.9rem; color:var(--cor-texto-suave);">Define o limite de negativas permitido para os alunos passarem de ano.</p>
-                    <div id="lista-regras-aura" style="margin-top:16px;"></div>
+                <div class="pagina-cabecalho"><h1>AURA</h1></div>
+
+                <!-- Abas -->
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button class="botao-primario" id="btn-aba-regras" onclick="mudarAbaAura('regras')">Regras de Aprovação</button>
+                    <button class="botao-secundario" id="btn-aba-alocacao" onclick="mudarAbaAura('alocacao')">Alocação de Salas</button>
                 </div>
 
-                <div class="card-info">
-                    <h3><i class="fas fa-play-circle"></i> Execução da AURA</h3>
-                    <p style="font-size:0.9rem; color:var(--cor-texto-suave); margin-bottom:16px;">
-                        O algoritmo vai ler as notas do professor, aplicar as regras acima e distribuir os alunos aprovados pelas salas disponíveis.
+                <!-- Conteúdo: Regras -->
+                <div id="aba-aura-regras" style="display: block;">
+                    <div class="card-info" style="margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3><i class="fas fa-balance-scale"></i> Regras de Aprovação</h3>
+                            <button class="btn-acao btn-acao-primario" onclick="abrirModalNovaRegra()">+ Adicionar</button>
+                        </div>
+                        <div id="lista-regras-aura" style="margin-top: 16px;"></div>
+                    </div>
+                </div>
+
+                <!-- Conteúdo: Alocação -->
+                <div id="aba-aura-alocacao" style="display: none;">
+                    <div class="card-info" style="margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3><i class="fas fa-door-open"></i> Alocação de Salas</h3>
+                            <button class="btn-acao btn-acao-primario" onclick="abrirModalNovaAlocacao()">+ Adicionar</button>
+                        </div>
+                        <div class="barra-acoes" style="padding:0; border:none; background:transparent; margin: 16px 0;">
+                            <select id="filtro-aura-ano-alocacao" class="campo-select"></select>
+                        </div>
+                        <div id="lista-alocacoes-aura"></div>
+                    </div>
+                </div>
+
+                <!-- Botão Executar -->
+                <div class="card-info" style="margin-top: 20px;">
+                    <h3><i class="fas fa-play-circle"></i> Executar AURA</h3>
+                    <p style="font-size:0.9rem; color:var(--cor-texto-suave); margin: 10px 0;">
+                        O algoritmo vai ler as notas, aplicar as regras e distribuir os alunos pelas salas alocadas.
                     </p>
                     <button class="botao-primario" id="btn-executar-aura"><i class="fas fa-magic"></i> Executar AURA</button>
                     <p id="msg-executar-aura" class="msg-form" style="margin-top:16px;"></p>
@@ -335,7 +361,7 @@
     <script src="../scripts/api.js"></script>
     <script src="scripts/direcao-core.js"></script>
 
-    <!-- Ficheiros da Secretária -->
+    <!-- Ficheiros da Secretária (incluindo o core) -->
     <script src="../secretaria/scripts/secretaria-core.js"></script>
     <script src="../secretaria/scripts/secretaria-alunos.js"></script>
     <script src="../secretaria/scripts/secretaria-inscricoes.js"></script>
