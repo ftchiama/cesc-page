@@ -24,7 +24,7 @@ async function carregarAuraDir() {
         }
     }
 
-    // 2. CARREGAR ALOCAÇÕES
+    // 2. CARREGAR ALOCAÇÕES (Usando a RPC do Diretor que já existe no public)
     const selAno = document.getElementById("filtro-aura-ano-alocacao");
     if (selAno && !selAno.value) {
         selAno.innerHTML = '<option value="2026/2027">2026/2027</option>';
@@ -34,7 +34,7 @@ async function carregarAuraDir() {
     const containerAloc = document.getElementById("lista-alocacoes-aura");
     if (containerAloc) {
         containerAloc.innerHTML = '<div class="loader-container" style="min-height:100px;"><div class="loader"></div></div>';
-        const resAloc = await chamarRPC("cesc_aura_listar_alocacoes", { p_token: token, p_ano_lectivo: anoAloc });
+        const resAloc = await chamarRPC("cesc_diretor_listar_alocacoes", { p_token: token, p_ano_lectivo: anoAloc });
         if (resAloc.ok) {
             alocacoesAuraCache = resAloc.alocacoes || [];
             renderizarAlocacoesAura(alocacoesAuraCache);
