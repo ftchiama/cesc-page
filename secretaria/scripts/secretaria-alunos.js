@@ -174,15 +174,8 @@ async function abrirPerfilAluno(aluno, idx, éMobile) {
     painel.style.display = éMobile ? "block" : "table-row";
     conteudo.innerHTML = '<div class="loader" style="width:24px; height:24px; margin:10px auto;"></div>';
 
-    const dados = await chamarRPC("cesc_secretaria_perfil_aluno", {
-        p_token: token,
-        p_aluno_id: aluno.id
-    });
-
-    if (!dados.ok) {
-        conteudo.innerHTML = '<p style="color:var(--cor-erro);">' + esc(dados.erro) + '</p>';
-        return;
-    }
+    const dados = await chamarRPC("cesc_secretaria_perfil_aluno", { p_token: token, p_aluno_id: aluno.id });
+    if (!dados.ok) { conteudo.innerHTML = '<p style="color:var(--cor-erro);">' + esc(dados.erro) + '</p>'; return; }
 
     const a = dados.aluno;
     const m = dados.matricula || {};
@@ -190,96 +183,108 @@ async function abrirPerfilAluno(aluno, idx, éMobile) {
     const hist = dados.historico || [];
     const histMat = dados.historico_matriculas || [];
 
-    let html = '<div class="inscricao-detalhe-box">';
-    html += '<h3 style="margin-bottom:12px; color:var(--cor-azul);">' + esc(a.nome_completo) + '</h3>';
-    html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:0.9rem; margin-bottom:16px;">';
-    html += '<div><strong>BI:</strong> ' + esc(a.bi_numero) + '</div>';
-    html += '<div><strong>Data Nasc:</strong> ' + fmtData(a.data_nascimento) + '</div>';
-    html += '<div><strong>Género:</strong> ' + (a.genero === "M" ? "Masculino" : "Feminino") + '</div>';
-    html += '<div><strong>Telefone:</strong> ' + esc(a.telefone || "—") + '</div>';
-    html += '<div><strong>Email:</strong> ' + esc(a.email_contacto || "—") + '</div>';
-    html += '<div><strong>Encarregado:</strong> ' + esc(a.nome_encarregado || "—") + ' (' + esc(a.telefone_encarregado || "—") + ')</div>';
-    const estadoMatricula = m.estado || "—";
-    html += '<div><strong>Estado:</strong> <span class="badge badge-' + esc(estadoMatricula) + '">' + esc(capitalizar(estadoMatricula)) + '</span></div>';
-    html += '<div><strong>Conta:</strong> ' + (a.tem_conta ? 'Criada' : 'Sem conta') + '</div>';
+    let html = '<div class="inscricao-detalhe-box" style="padding: 20px; background: #fff; border-radius: 8px;">';
+    
+    // HEADER
+    html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; border-bottom:2px solid var(--cor-borda); padding-bottom:12px;">';
+    html += '<div><h3 style="margin:0; color:var(--cor-azul); font-size:1.3rem;">' + esc(a.nome_completo) + '</h3><div style="color:var(--cor-texto-suave); font-size:0.85rem;">BI: ' + esc(a.bi_numero) + ' | Nascimento: ' + fmtData(a.data_nascimento) + '</div></div>';
+    html += '<div style="text-align:right;"><span class="badge badge-' + esc(m.estado || 'activo') + '">Aluno ' + esc(capitalizar(m.estado || 'activo')) + '</span><br><span style="font-size:0.8rem; color:var(--cor-texto-suave);">Conta: ' + (a.tem_conta ? 'Ativa' : 'Não criada') + '</span></div>';
     html += '</div>';
 
-    if (m && m.id) {
-        html += '<h4 style="margin-top:16px; margin-bottom:8px; color:var(--cor-azul);">Situação Escolar (Atual)</h4>';
-        html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:0.9rem; margin-bottom:16px; background:var(--cor-fundo); padding:12px; border-radius:8px;">';
-        html += '<div><strong>Ano letivo:</strong> ' + esc(m.ano_lectivo || "—") + '</div>';
-        html += '<div><strong>Classe:</strong> ' + esc(m.classe || "—") + '</div>';
-        html += '<div><strong>Curso:</strong> ' + esc(m.curso || "—") + '</div>';
-        html += '<div><strong>Nº Aluno:</strong> ' + (m.numero_aluno != null ? m.numero_aluno : "—") + '</div>';
-        html += '<div><strong>Sala:</strong> ' + esc(m.sala || "—") + '</div>';
-        html += '<div><strong>Pavilhão:</strong> ' + esc(m.pavilhao || "—") + '</div>';
-        html += '<div><strong>Turno:</strong> ' + esc(m.turno || "—") + '</div>';
-        html += '<div><strong>Capacidade da sala:</strong> ' + (m.capacidade_sala != null ? m.capacidade_sala + ' alunos' : "—") + '</div>';
-        html += '</div>';
-    }
+    // BLOCO 1: DADOS PESSOAIS E CONTACTO
+    html += '<div class="card-info" style="margin-bottom:16px; background:var(--cor-fundo); border:none; padding:16px;">';
+    html += '<h4 style="margin:0 0 12px 0; font-size:0.9rem; color:var(--cor-texto-suave); text-transform:uppercase;">Contactos & Encarregado</h4>';
+    html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:0.85rem;">';
+    html += '<div><strong>Telefone:</strong> ' + esc(a.telefone || "—") + '</div>';
+    html += '<div><strong>Email:</strong> ' + esc(a.email_contacto || "—") + '</div>';
+    html += '<div><strong>Encarregado:</strong> ' + esc(a.nome_encarregado || "—") + '</div>';
+    html += '<div><strong>Tel. Encarregado:</strong> ' + esc(a.telefone_encarregado || "—") + '</div>';
+    html += '</div></div>';
 
+    // BLOCO 2: SITUAÇÃO ATUAL VS INSCRIÇÃO NOVA (Lado a Lado)
+    html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">';
+    
+    // Lado Esquerdo: Matrícula Atual
+    html += '<div class="card-info" style="margin:0; padding:16px;">';
+    html += '<h4 style="margin:0 0 12px 0; font-size:0.9rem; color:var(--cor-azul);"><i class="fas fa-school"></i> Matrícula em Curso (' + esc(m.ano_lectivo || "—") + ')</h4>';
+    if (m && m.id) {
+        html += '<div style="font-size:0.85rem; line-height:1.6;">';
+        html += '<div><strong>Classe:</strong> ' + esc(m.classe) + '</div>';
+        html += '<div><strong>Curso:</strong> ' + esc(m.curso || "—") + '</div>';
+        html += '<div><strong>Sala:</strong> ' + esc(m.sala || "—") + ' (' + esc(m.pavilhao || "—") + ')</div>';
+        html += '<div><strong>Turno:</strong> ' + esc(m.turno || "—") + '</div>';
+        html += '<div><strong>Nº Aluno:</strong> ' + (m.numero_aluno != null ? m.numero_aluno : "—") + '</div>';
+        html += '</div>';
+    } else { html += '<p style="font-size:0.85rem; color:var(--cor-texto-suave);">Sem matrícula ativa.</p>'; }
+    html += '</div>';
+
+    // Lado Direito: Última Inscrição
+    html += '<div class="card-info" style="margin:0; padding:16px; border:1px solid var(--cor-azul-claro);">';
+    html += '<h4 style="margin:0 0 12px 0; font-size:0.9rem; color:var(--cor-azul);"><i class="fas fa-file-signature"></i> Última Inscrição (' + esc(i.ano_lectivo || "—") + ')</h4>';
+    if (i && i.id) {
+        html += '<div style="font-size:0.85rem; line-height:1.6;">';
+        html += '<div><strong>Classe pretendida:</strong> ' + esc(i.classe_pretendida) + '</div>';
+        html += '<div><strong>Curso:</strong> ' + esc(i.curso_pretendido || "—") + '</div>';
+        html += '<div><strong>Estado:</strong> <span class="badge badge-' + esc(i.estado) + '">' + esc(capitalizar(i.estado)) + '</span></div>';
+        html += '<div><strong>Data:</strong> ' + fmtData(i.data_submissao) + '</div>';
+        html += '</div>';
+    } else { html += '<p style="font-size:0.85rem; color:var(--cor-texto-suave);">Sem nova inscrição.</p>'; }
+    html += '</div>';
+
+    html += '</div>'; // Fim do grid lado a lado
+
+    // BLOCO 3: HISTÓRICO DE MATRÍCULAS (se existir)
     if (histMat.length > 0) {
-        html += '<h4 style="margin-top:16px; margin-bottom:8px; color:var(--cor-azul);">Histórico de Matrículas</h4>';
-        html += '<div style="font-size:0.85rem; border:1px solid var(--cor-borda); border-radius:6px; padding:8px; background:#fff;">';
-        histMat.forEach(function (hm) {
-            html += '<div style="padding:8px 0; border-bottom:1px dashed #f1f5f9;">';
-            html += '<strong>' + esc(hm.ano_lectivo) + '</strong> — ' + esc(hm.classe);
-            if (hm.curso) html += ' (' + esc(hm.curso) + ')';
-            if (hm.numero_aluno != null) html += ' · Nº ' + hm.numero_aluno;
-            html += '<br>';
-            html += '<span style="color:var(--cor-texto-suave);">' + esc(hm.sala || "—") + ' · ' + esc(hm.pavilhao || "—") + ' · ' + esc(hm.turno || "—") + '</span>';
-            html += ' <span class="badge badge-' + esc(hm.estado) + '">' + esc(capitalizar(hm.estado)) + '</span>';
+        html += '<div class="card-info" style="margin-bottom:16px; padding:16px;">';
+        html += '<h4 style="margin:0 0 12px 0; font-size:0.9rem; color:var(--cor-azul);"><i class="fas fa-history"></i> Histórico Escolar</h4>';
+        html += '<div style="font-size:0.82rem;">';
+        histMat.forEach(hm => {
+            html += '<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px dashed #e2e8f0;">';
+            html += '<div><strong>' + esc(hm.ano_lectivo) + '</strong> — ' + esc(hm.classe) + (hm.curso ? ' ('+esc(hm.curso)+')' : '') + '</div>';
+            html += '<div style="color:var(--cor-texto-suave);">' + esc(hm.sala || '—') + ' · Nº ' + (hm.numero_aluno || '—') + '</div>';
             html += '</div>';
         });
-        html += '</div>';
+        html += '</div></div>';
     }
 
+    // BLOCO 4: DOCUMENTOS (Botões lado a lado)
     if (i && i.id) {
-        html += '<h4 style="margin-top:16px; margin-bottom:8px; color:var(--cor-azul);">Última Inscrição</h4>';
-        html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:0.9rem; margin-bottom:16px;">';
-        html += '<div><strong>Referência:</strong> ' + esc(i.referencia || "—") + '</div>';
-        html += '<div><strong>Ano letivo:</strong> ' + esc(i.ano_lectivo || "—") + '</div>';
-        html += '<div><strong>Classe:</strong> ' + esc(i.classe_pretendida || "—") + '</div>';
-        html += '<div><strong>Curso:</strong> ' + esc(i.curso_pretendido || "—") + '</div>';
-        html += '<div><strong>Média do Certificado:</strong> ' + (i.media_certificado != null ? Number(i.media_certificado).toFixed(1) + ' / 20' : '— / 20') + '</div>';
-        html += '<div><strong>Estado:</strong> ' + esc(capitalizar(i.estado || "—")) + '</div>';
-        html += '<div><strong>Data de Submissão:</strong> ' + fmtData(i.data_submissao) + '</div>';
-        html += '</div>';
-
-        html += '<h4 style="margin-top:16px; margin-bottom:8px; color:var(--cor-azul);">Documentos</h4>';
-        html += '<div class="docs-grelha" style="grid-template-columns:1fr 1fr;">';
+        html += '<div class="card-info" style="margin-bottom:16px; padding:16px;">';
+        html += '<h4 style="margin:0 0 12px 0; font-size:0.9rem; color:var(--cor-azul);"><i class="fas fa-file-alt"></i> Documentos da Inscrição</h4>';
+        html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">';
         const docs = [
             { label: "BI Frente", path: i.doc_bi_frente_url },
             { label: "BI Verso", path: i.doc_bi_verso_url },
             { label: "Certificado", path: i.doc_certificado_url },
             { label: "Foto", path: i.doc_foto_url }
         ];
-        for (const d of docs) {
+        docs.forEach(d => {
             if (d.path) {
-                html += '<button class="doc-btn" onclick="abrirDocumento(\'' + esc(d.path) + '\')"><i class="fas fa-file-image"></i> ' + d.label + '</button>';
+                html += '<button class="btn-acao btn-acao-secundario" style="justify-content:flex-start;" onclick="abrirDocumento(\'' + esc(d.path) + '\')"><i class="fas fa-file-image"></i> ' + d.label + '</button>';
             } else {
-                html += '<span class="doc-btn" style="opacity:0.5;"><i class="fas fa-times"></i> ' + d.label + ' (Sem doc)</span>';
+                html += '<button class="btn-acao btn-acao-secundario" style="justify-content:flex-start; opacity:0.5;" disabled><i class="fas fa-times"></i> ' + d.label + '</button>';
             }
-        }
-        html += '</div>';
+        });
+        html += '</div></div>';
     }
 
-    html += '<h4 style="margin-top:16px; margin-bottom:8px; color:var(--cor-azul);">Histórico de Alterações</h4>';
+    // BLOCO 5: HISTÓRICO DE ALTERAÇÕES
+    html += '<div class="card-info" style="padding:16px;">';
+    html += '<h4 style="margin:0 0 12px 0; font-size:0.9rem; color:var(--cor-azul);"><i class="fas fa-edit"></i> Histórico de Alterações</h4>';
     if (hist.length === 0) {
-        html += '<p style="color:var(--cor-texto-suave); font-size:0.85rem;">Sem alterações registadas.</p>';
+        html += '<p style="color:var(--cor-texto-suave); font-size:0.85rem; margin:0;">Sem alterações registadas.</p>';
     } else {
-        const mapa = { "nome_completo": "Nome", "data_nascimento": "Data Nasc.", "genero": "Género", "telefone": "Telefone", "nome_encarregado": "Encarregado", "telefone_encarregado": "Tel. Encarregado", "doc_bi_frente": "BI Frente", "doc_bi_verso": "BI Verso", "doc_certificado": "Certificado", "doc_foto": "Foto", "bi_numero": "BI", "media_certificado": "Média" };
-        html += '<div style="max-height:200px; overflow-y:auto; font-size:0.82rem; border:1px solid var(--cor-borda); border-radius:6px; padding:8px; background:#fff;">';
-        hist.forEach(function (h) {
-            html += '<div style="padding:6px 0; border-bottom:1px dashed #f1f5f9;"><strong>' + esc(mapa[h.campo] || h.campo) + ':</strong> <span style="color:#dc2626; text-decoration:line-through;">' + esc(h.valor_anterior || "—") + '</span> → <span style="color:#065f46;">' + esc(h.valor_novo || "—") + '</span> <span style="color:#94a3b8;">(' + new Date(h.alterado_em).toLocaleString("pt-PT") + ')</span></div>';
+        html += '<div style="max-height:150px; overflow-y:auto; font-size:0.82rem;">';
+        hist.forEach(h => {
+            html += '<div style="padding:4px 0; border-bottom:1px solid #f1f5f9;"><strong>' + esc(h.campo) + ':</strong> <span style="color:#dc2626; text-decoration:line-through;">' + esc(h.valor_anterior || "—") + '</span> → <span style="color:#065f46;">' + esc(h.valor_novo || "—") + '</span></div>';
         });
         html += '</div>';
     }
+    html += '</div>';
 
     html += '</div>';
     conteudo.innerHTML = html;
 }
-
 async function abrirDocumento(caminho) {
     try {
         const res = await fetch(API.SUPABASE_URL + "/functions/v1/gerar-url-assinada", {

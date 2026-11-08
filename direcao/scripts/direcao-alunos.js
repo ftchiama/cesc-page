@@ -74,116 +74,57 @@ function renderizarAlunosDir(alunos) {
 // ============================================================
 async function verPerfilAlunoDir(alunoId, nome) {
     const token = obterToken();
-    
-    // Trocar a lista pela ficha
     document.getElementById("lista-alunos-wrapper").style.display = "none";
     document.getElementById("ficha-aluno-wrapper").style.display = "block";
     document.getElementById("ficha-aluno-conteudo").innerHTML = '<div class="loader-container" style="min-height:200px;"><div class="loader"></div></div>';
     window.scrollTo({ top: 0, behavior: "smooth" });
 
     const dados = await chamarRPC("cesc_diretor_perfil_aluno", { p_token: token, p_aluno_id: alunoId });
-    
-    if (!dados.ok) { 
-        document.getElementById("ficha-aluno-conteudo").innerHTML = '<p style="color:var(--cor-erro);">' + esc(dados.erro) + '</p>'; 
-        return; 
-    }
+    if (!dados.ok) { document.getElementById("ficha-aluno-conteudo").innerHTML = '<p style="color:var(--cor-erro);">' + esc(dados.erro) + '</p>'; return; }
 
     const a = dados.aluno;
-    let html = '<div class="card-info" style="margin-bottom:20px;">';
-    html += '<h3><i class="fas fa-user"></i> ' + esc(a.nome_completo) + '</h3>';
-    html += '<div class="info-linha"><span class="rotulo">BI</span><span class="valor">' + esc(a.bi_numero) + '</span></div>';
-    html += '<div class="info-linha"><span class="rotulo">Data de Nascimento</span><span class="valor">' + fmtData(a.data_nascimento) + '</span></div>';
-    html += '<div class="info-linha"><span class="rotulo">Género</span><span class="valor">' + (a.genero === 'M' ? 'Masculino' : 'Feminino') + '</span></div>';
-    html += '<div class="info-linha"><span class="rotulo">Telefone</span><span class="valor">' + esc(a.telefone || "—") + '</span></div>';
-    html += '<div class="info-linha"><span class="rotulo">Email</span><span class="valor">' + esc(a.email_contacto || "—") + '</span></div>';
-    html += '<div class="info-linha"><span class="rotulo">Estado</span><span class="valor"><span class="badge badge-' + (a.estado === 'activo' ? 'activo' : 'desistente') + '">' + capitalizar(a.estado) + '</span></span></div>';
+    const m = dados.matricula || {}; // Se a RPC do diretor não devolver isso, adaptamos
+    const i = dados.inscricao || {};
+    const histMat = dados.historico || [];
+
+    let html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">';
+    html += '<button class="btn-acao btn-acao-secundario" onclick="fecharFichaAlunoDir()"><i class="fas fa-arrow-left"></i> Voltar à lista</button>';
+    html += '<span class="badge badge-activo">Ficha do Aluno</span>';
     html += '</div>';
 
-    // Encarregado
-    html += '<div class="card-info" style="margin-bottom:20px;">';
-    html += '<h3><i class="fas fa-users"></i> Encarregado</h3>';
-    html += '<div class="info-linha"><span class="rotulo">Nome</span><span class="valor">' + esc(a.nome_encarregado || "—") + '</span></div>';
-    html += '<div class="info-linha"><span class="rotulo">Telefone</span><span class="valor">' + esc(a.telefone_encarregado || "—") + '</span></div>';
+    html += '<div class="card-info" style="padding:20px;">';
+    html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid var(--cor-borda); padding-bottom:12px; margin-bottom:16px;">';
+    html += '<div><h2 style="margin:0; color:var(--cor-azul); font-size:1.4rem;">' + esc(a.nome_completo) + '</h2><span style="color:var(--cor-texto-suave); font-size:0.9rem;">BI: ' + esc(a.bi_numero) + '</span></div>';
+    html += '<div><span class="badge badge-' + (a.estado === 'activo' ? 'activo' : 'desistente') + '">' + capitalizar(a.estado) + '</span></div>';
     html += '</div>';
 
-    // Documentos
-    html += '<div class="card-info" style="margin-bottom:20px;">';
-    html += '<h3><i class="fas fa-file-alt"></i> Documentos</h3>';
-    html += '<div class="docs-grelha" style="grid-template-columns:1fr 1fr;">';
-    const docs = [
-        { label: "BI Frente", url: dados.documentos.doc_bi_frente_url },
-        { label: "BI Verso", url: dados.documentos.doc_bi_verso_url },
-        { label: "Certificado", url: dados.documentos.doc_certificado_url },
-        { label: "Foto", url: dados.documentos.doc_foto_url }
-    ];
-    for (const d of docs) {
-        if (d.url) {
-            const link = await obterUrlAssinada(d.url);
-            if (link) { html += '<a href="' + link + '" target="_blank" class="doc-btn"><i class="fas fa-file-image"></i> ' + d.label + '</a>'; }
-            else { html += '<span class="doc-btn" style="opacity:0.5;"><i class="fas fa-times"></i> ' + d.label + ' (Erro)</span>'; }
-        } else { html += '<span class="doc-btn" style="opacity:0.5;"><i class="fas fa-times"></i> ' + d.label + ' (Sem doc)</span>'; }
-    }
-    html += '</div></div>';
+    html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">';
+    html += '<div><strong>Data Nasc:</strong> ' + fmtData(a.data_nascimento) + '</div>';
+    html += '<div><strong>Género:</strong> ' + (a.genero === 'M' ? 'Masculino' : 'Feminino') + '</div>';
+    html += '<div><strong>Telefone:</strong> ' + esc(a.telefone || "—") + '</div>';
+    html += '<div><strong>Email:</strong> ' + esc(a.email_contacto || "—") + '</div>';
+    html += '<div><strong>Encarregado:</strong> ' + esc(a.nome_encarregado || "—") + '</div>';
+    html += '<div><strong>Tel. Encarregado:</strong> ' + esc(a.telefone_encarregado || "—") + '</div>';
+    html += '</div>';
 
-    // Pagamentos
-    html += '<div class="card-info" style="margin-bottom:20px;">';
-    html += '<h3><i class="fas fa-money-bill-wave"></i> Pagamentos</h3>';
-    if (dados.pagamentos.length === 0) { html += '<p style="font-size:0.85rem; color:var(--cor-texto-suave);">Sem pagamentos.</p>'; }
-    else {
-        html += '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec">';
-        html += '<thead><tr><th>Tipo</th><th>Valor</th><th>Data</th><th>Estado</th></tr></thead><tbody>';
-        dados.pagamentos.forEach(p => {
-            html += '<tr><td>' + capitalizar(p.tipo) + '</td><td>' + Number(p.valor).toLocaleString("pt-PT") + ' Kz</td><td>' + fmtData(p.pago_em) + '</td><td><span class="badge badge-' + (p.estado === 'pago' ? 'activo' : 'pendente') + '">' + capitalizar(p.estado) + '</span></td></tr>';
+    // Histórico
+    html += '<h4 style="color:var(--cor-azul); margin-bottom:8px; font-size:1rem;"><i class="fas fa-history"></i> Histórico Escolar</h4>';
+    if (histMat.length > 0) {
+        html += '<div style="font-size:0.85rem; border:1px solid var(--cor-borda); border-radius:8px; padding:12px; background:var(--cor-fundo);">';
+        histMat.forEach(hm => {
+            html += '<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px dashed #cbd5e1;">';
+            html += '<div><strong>' + esc(hm.ano_lectivo) + '</strong> — ' + esc(hm.classe) + (hm.curso ? ' ('+esc(hm.curso)+')' : '') + '</div>';
+            html += '<div>' + esc(hm.sala || '—') + ' · Nº ' + (hm.numero_aluno || '—') + ' <span class="badge badge-' + esc(hm.estado || 'activo') + '" style="margin-left:8px;">' + capitalizar(hm.estado || 'activo') + '</span></div>';
+            html += '</div>';
         });
-        html += '</tbody></table></div>';
+        html += '</div>';
+    } else {
+        html += '<p style="color:var(--cor-texto-suave); font-size:0.85rem;">Sem histórico.</p>';
     }
-    html += '</div>';
 
-    // Histórico de Matrículas
-    html += '<div class="card-info" style="margin-bottom:20px;">';
-    html += '<h3><i class="fas fa-history"></i> Histórico de Matrículas</h3>';
-    if (dados.historico.length === 0) { html += '<p style="font-size:0.85rem; color:var(--cor-texto-suave);">Sem histórico.</p>'; }
-    else {
-        html += '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec">';
-        html += '<thead><tr><th>Ano Letivo</th><th>Classe</th><th>Sala</th><th>Curso</th><th>Estado</th></tr></thead><tbody>';
-        dados.historico.forEach(h => {
-            html += '<tr><td>' + esc(h.ano_lectivo) + '</td><td>' + esc(h.classe) + '</td><td>' + esc(h.turma) + '</td><td>' + esc(h.curso || '—') + '</td><td>' + capitalizar(h.estado) + '</td></tr>';
-        });
-        html += '</tbody></table></div>';
-    }
-    html += '</div>';
-
-    // Notas
-    html += '<div class="card-info" style="margin-bottom:20px;">';
-    html += '<h3><i class="fas fa-chart-line"></i> Notas</h3>';
-    if (dados.notas.length === 0) { html += '<p style="font-size:0.85rem; color:var(--cor-texto-suave);">Sem notas lançadas.</p>'; }
-    else {
-        html += '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec">';
-        html += '<thead><tr><th>Disciplina</th><th>Trimestre</th><th>MAC</th><th>NPT</th><th>MT</th><th>MFD</th></tr></thead><tbody>';
-        dados.notas.forEach(n => {
-            html += '<tr><td>' + esc(n.disciplina) + '</td><td>' + n.trimestre + 'º</td><td>' + (n.mac || '—') + '</td><td>' + (n.npt || '—') + '</td><td>' + (n.mt || '—') + '</td><td><strong>' + (n.mfd || '—') + '</strong></td></tr>';
-        });
-        html += '</tbody></table></div>';
-    }
-    html += '</div>';
-
-    // Faltas
-    html += '<div class="card-info" style="margin-bottom:20px;">';
-    html += '<h3><i class="fas fa-user-clock"></i> Faltas</h3>';
-    if (dados.faltas.length === 0) { html += '<p style="font-size:0.85rem; color:var(--cor-texto-suave);">Sem faltas registadas.</p>'; }
-    else {
-        html += '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec">';
-        html += '<thead><tr><th>Disciplina</th><th>Mês</th><th>Qtd</th><th>Justificada</th></tr></thead><tbody>';
-        dados.faltas.forEach(f => {
-            html += '<tr><td>' + esc(f.disciplina) + '</td><td>' + esc(f.mes || '—') + '</td><td>' + f.quantidade + '</td><td>' + (f.justificada ? 'Sim' : 'Não') + '</td></tr>';
-        });
-        html += '</tbody></table></div>';
-    }
-    html += '</div>';
-
+    html += '</div>'; // Fim do card-info
     document.getElementById("ficha-aluno-conteudo").innerHTML = html;
 }
-
 function fecharFichaAlunoDir() {
     document.getElementById("ficha-aluno-wrapper").style.display = "none";
     document.getElementById("lista-alunos-wrapper").style.display = "block";
