@@ -1,131 +1,184 @@
-let listaAlunosDir = [];
-
-async function carregarAlunosDir() {
+document.addEventListener("DOMContentLoaded", async function () {
     const token = obterToken();
-    const container = document.getElementById("lista-dir-alunos");
-    container.innerHTML = '<div class="loader-container" style="min-height:180px;"><div class="loader"></div></div>';
+    if (!token) { window.location.href = "login.html"; return; }
 
-    if (listaAlunosDir.length > 0) {
-        renderizarAlunosDir(listaAlunosDir);
+    const urlParams = new URLSearchParams(window.location.search);
+    const alunoId = urlParams.get("id");
+
+    if (!alunoId) {
+        document.getElementById("loader").innerHTML = "<p>ID do aluno não fornecido.</p>";
         return;
     }
 
-    const res = await chamarRPC("cesc_diretor_listar_alunos", { p_token: token });
-    if (!res.ok) { container.innerHTML = '<div class="estado-vazio">' + esc(res.erro) + '</div>'; return; }
+    const res = await chamarRPC("cesc_obter_perfil_aluno_completo", { p_token: token, p_aluno_id: alunoId });
 
-    listaAlunosDir = res.alunos || [];
-    renderizarAlunosDir(listaAlunosDir);
-
-    const filtro = document.getElementById("filtro-dir-alunos");
-    if (filtro && !filtro.dataset.ligado) {
-        filtro.dataset.ligado = "1";
-        filtro.addEventListener("input", function () {
-            const termo = this.value.trim().toLowerCase();
-            const filtrados = listaAlunosDir.filter(a => 
-                (a.nome_completo || "").toLowerCase().includes(termo) ||
-                (a.bi_numero || "").toLowerCase().includes(termo) ||
-                (a.turma_actual || "").toLowerCase().includes(termo)
-            );
-            renderizarAlunosDir(filtrados);
-        });
+    if (!res.ok) {
+        document.getElementById("loader").innerHTML = "<p style='color:red;'>" + esc(res.erro) + "</p>";
+        return;
     }
-}
 
-function renderizarAlunosDir(alunos) {
-    const container = document.getElementById("lista-dir-alunos");
-    if (!container) return;
-    if (alunos.length === 0) { container.innerHTML = '<div class="estado-vazio">Nenhum aluno encontrado.</div>'; return; }
+    await renderizarPerfil(res);
+    document.getElementById("loader").style.display = "none";
+    document.getElementById("perfil-conteudo").style.display = "block";
+});
 
-    let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec">';
-    html += '<thead><tr><th>Aluno</th><th>BI</th><th>Sala (Turno)</th><th>Estado</th><th>Acções</th></tr></thead><tbody>';
-    alunos.forEach(a => {
-        let salaVisual = "—";
-        if (a.pavilhao && a.sala) salaVisual = a.pavilhao + ' · ' + a.sala + ' (' + a.turno + ')';
-
-        html += '<tr>';
-        html += '  <td><strong>' + esc(a.nome_completo) + '</strong></td>';
-        html += '  <td>' + esc(a.bi_numero) + '</td>';
-        html += '  <td>' + esc(salaVisual) + '</td>';
-        html += '  <td><span class="badge badge-' + (a.estado === 'activo' ? 'activo' : 'desistente') + '">' + capitalizar(a.estado) + '</span></td>';
-        html += '  <td><button class="btn-acao btn-acao-secundario" onclick="window.open(\'../paginas/perfil-aluno.html?id=' + a.id + '\', \'_blank\')"><i class="fas fa-eye"></i> Ver Ficha</button></td>';
-        html += '</tr>';
-    });
-    html += '</tbody></table></div>';
-    
-    // Mobile
-    html += '<div class="cartoes-sec">';
-    alunos.forEach(a => {
-        let salaVisual = "—";
-        if (a.pavilhao && a.sala) salaVisual = a.pavilhao + ' · ' + a.sala + ' (' + a.turno + ')';
-
-        html += '<div class="cartao-sec">';
-        html += '  <div class="cartao-sec-topo"><div class="cartao-sec-info"><strong>' + esc(a.nome_completo) + '</strong><span>BI: ' + esc(a.bi_numero) + '</span></div><span class="badge badge-' + (a.estado === 'activo' ? 'activo' : 'desistente') + '">' + capitalizar(a.estado) + '</span></div>';
-        html += '  <div class="cartao-sec-meta"><div class="meta-item"><span class="meta-rotulo">Sala</span><span class="meta-valor">' + esc(salaVisual) + '</span></div></div>';
-        html += '  <div class="cartao-sec-acoes"><button class="btn-acao btn-acao-secundario" onclick="window.open(\'../paginas/perfil-aluno.html?id=' + a.id + '\', \'_blank\')"><i class="fas fa-eye"></i> Ver Ficha</button></div>';
-        html += '</div>';
-    });
-    html += '</div>';
-
-    container.innerHTML = html;
-}
-
-// ============================================================
-// FICHA DO ALUNO (In-Page)
-// ============================================================
-async function verPerfilAlunoDir(alunoId, nome) {
-    const token = obterToken();
-    document.getElementById("lista-alunos-wrapper").style.display = "none";
-    document.getElementById("ficha-aluno-wrapper").style.display = "block";
-    document.getElementById("ficha-aluno-conteudo").innerHTML = '<div class="loader-container" style="min-height:200px;"><div class="loader"></div></div>';
-    window.scrollTo({ top: 0, behavior: "smooth" });
-
-    const dados = await chamarRPC("cesc_diretor_perfil_aluno", { p_token: token, p_aluno_id: alunoId });
-    if (!dados.ok) { document.getElementById("ficha-aluno-conteudo").innerHTML = '<p style="color:var(--cor-erro);">' + esc(dados.erro) + '</p>'; return; }
-
+async function renderizarPerfil(dados) {
     const a = dados.aluno;
-    const m = dados.matricula || {}; // Se a RPC do diretor não devolver isso, adaptamos
+    const m = dados.matricula || {};
     const i = dados.inscricao || {};
-    const histMat = dados.historico || [];
+    const notas = dados.notas || [];
+    const faltas = dados.faltas || [];
+    const pagamentos = dados.pagamentos || [];
+    const histMat = dados.historico_matriculas || [];
+    const histAlt = dados.historico_alteracoes || [];
 
-    let html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">';
-    html += '<button class="btn-acao btn-acao-secundario" onclick="fecharFichaAlunoDir()"><i class="fas fa-arrow-left"></i> Voltar à lista</button>';
-    html += '<span class="badge badge-activo">Ficha do Aluno</span>';
-    html += '</div>';
+    // Header
+    document.getElementById("perf-avatar").textContent = (a.nome_completo || "?").charAt(0).toUpperCase();
+    document.getElementById("perf-nome").textContent = a.nome_completo;
+    document.getElementById("perf-bi").textContent = "BI: " + a.bi_numero;
+    document.getElementById("perf-estado").textContent = capitalizar(a.estado);
 
-    html += '<div class="card-info" style="padding:20px;">';
-    html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid var(--cor-borda); padding-bottom:12px; margin-bottom:16px;">';
-    html += '<div><h2 style="margin:0; color:var(--cor-azul); font-size:1.4rem;">' + esc(a.nome_completo) + '</h2><span style="color:var(--cor-texto-suave); font-size:0.9rem;">BI: ' + esc(a.bi_numero) + '</span></div>';
-    html += '<div><span class="badge badge-' + (a.estado === 'activo' ? 'activo' : 'desistente') + '">' + capitalizar(a.estado) + '</span></div>';
-    html += '</div>';
+    // Sobre
+    let htmlSobre = "";
+    htmlSobre += linha("Data de Nascimento", fmtData(a.data_nascimento));
+    htmlSobre += linha("Género", a.genero === 'M' ? 'Masculino' : 'Feminino');
+    htmlSobre += linha("Telefone", a.telefone || "—");
+    htmlSobre += linha("Email", a.email_contacto || "—");
+    htmlSobre += linha("Encarregado", a.nome_encarregado || "—");
+    htmlSobre += linha("Tel. Encarregado", a.telefone_encarregado || "—");
+    htmlSobre += linha("Conta de Aluno", a.tem_conta ? "Criada" : "Não criada");
+    document.getElementById("perf-sobre").innerHTML = htmlSobre;
 
-    html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">';
-    html += '<div><strong>Data Nasc:</strong> ' + fmtData(a.data_nascimento) + '</div>';
-    html += '<div><strong>Género:</strong> ' + (a.genero === 'M' ? 'Masculino' : 'Feminino') + '</div>';
-    html += '<div><strong>Telefone:</strong> ' + esc(a.telefone || "—") + '</div>';
-    html += '<div><strong>Email:</strong> ' + esc(a.email_contacto || "—") + '</div>';
-    html += '<div><strong>Encarregado:</strong> ' + esc(a.nome_encarregado || "—") + '</div>';
-    html += '<div><strong>Tel. Encarregado:</strong> ' + esc(a.telefone_encarregado || "—") + '</div>';
-    html += '</div>';
-
-    // Histórico
-    html += '<h4 style="color:var(--cor-azul); margin-bottom:8px; font-size:1rem;"><i class="fas fa-history"></i> Histórico Escolar</h4>';
-    if (histMat.length > 0) {
-        html += '<div style="font-size:0.85rem; border:1px solid var(--cor-borda); border-radius:8px; padding:12px; background:var(--cor-fundo);">';
-        histMat.forEach(hm => {
-            html += '<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px dashed #cbd5e1;">';
-            html += '<div><strong>' + esc(hm.ano_lectivo) + '</strong> — ' + esc(hm.classe) + (hm.curso ? ' ('+esc(hm.curso)+')' : '') + '</div>';
-            html += '<div>' + esc(hm.sala || '—') + ' · Nº ' + (hm.numero_aluno || '—') + ' <span class="badge badge-' + esc(hm.estado || 'activo') + '" style="margin-left:8px;">' + capitalizar(hm.estado || 'activo') + '</span></div>';
-            html += '</div>';
-        });
-        html += '</div>';
+    // Turma Atual
+    let htmlTurma = "";
+    if (m && m.id) {
+        htmlTurma += linha("Ano Letivo", m.ano_lectivo);
+        htmlTurma += linha("Classe", m.classe);
+        htmlTurma += linha("Curso", m.curso || "—");
+        htmlTurma += linha("Sala", m.sala || "—");
+        htmlTurma += linha("Pavilhão", m.pavilhao || "—");
+        htmlTurma += linha("Turno", m.turno || "—");
+        htmlTurma += linha("Nº Aluno", m.numero_aluno || "—");
     } else {
-        html += '<p style="color:var(--cor-texto-suave); font-size:0.85rem;">Sem histórico.</p>';
+        htmlTurma = "<p style='font-size:0.9rem; color:#64748b;'>Sem matrícula ativa.</p>";
+    }
+    document.getElementById("perf-turma").innerHTML = htmlTurma;
+
+    // Histórico Escolar
+    if (histMat.length > 0) {
+        let htmlHist = '<div style="display:flex; flex-direction:column; gap:8px;">';
+        histMat.forEach(h => {
+            htmlHist += `<div style="background:var(--cor-fundo); padding:10px; border-radius:6px; font-size:0.85rem;">
+                <strong>${esc(h.ano_lectivo)}</strong> — ${esc(h.classe)} ${h.curso ? '('+esc(h.curso)+')' : ''}
+                <br><span style="color:#64748b;">${esc(h.sala || '—')} · Nº ${h.numero_aluno || '—'}</span>
+            </div>`;
+        });
+        htmlHist += '</div>';
+        document.getElementById("perf-historico").innerHTML = htmlHist;
+    } else {
+        document.getElementById("perf-historico").innerHTML = "<p style='font-size:0.9rem; color:#64748b;'>Sem histórico.</p>";
     }
 
-    html += '</div>'; // Fim do card-info
-    document.getElementById("ficha-aluno-conteudo").innerHTML = html;
+    // Notas
+    if (notas.length > 0) {
+        const agrupado = {};
+        notas.forEach(n => {
+            if (!agrupado[n.disciplina]) agrupado[n.disciplina] = [];
+            agrupado[n.disciplina].push(n);
+        });
+
+        let htmlNotas = '<table class="tabela-perfil"><thead><tr><th>Disciplina</th><th>Trim.</th><th>MAC</th><th>NPT</th><th>MT</th><th>MFD</th></tr></thead><tbody>';
+        for (const disc in agrupado) {
+            agrupado[disc].forEach((n, idx) => {
+                htmlNotas += `<tr>`;
+                if (idx === 0) htmlNotas += `<td rowspan="${agrupado[disc].length}"><strong>${esc(disc)}</strong></td>`;
+                htmlNotas += `<td>${n.trimestre}º</td><td>${n.mac || '—'}</td><td>${n.npt || '—'}</td><td>${n.mt || '—'}</td><td><strong>${n.mfd || '—'}</strong></td></tr>`;
+            });
+        }
+        htmlNotas += '</tbody></table>';
+        document.getElementById("perf-notas").innerHTML = htmlNotas;
+    } else {
+        document.getElementById("perf-notas").innerHTML = "<p style='font-size:0.9rem; color:#64748b;'>Sem notas lançadas.</p>";
+    }
+
+    // Documentos
+    const containerDocs = document.getElementById("perf-documentos");
+    if (i && i.id) {
+        const docs = [
+            { label: "BI Frente", path: i.doc_bi_frente_url },
+            { label: "BI Verso", path: i.doc_bi_verso_url },
+            { label: "Certificado", path: i.doc_certificado_url },
+            { label: "Foto", path: i.doc_foto_url }
+        ];
+        let htmlDocs = "";
+        for (const d of docs) {
+            if (d.path) {
+                const link = await obterUrlAssinada(d.path);
+                if (link) htmlDocs += `<a href="${link}" target="_blank" class="btn-acao btn-acao-secundario" style="justify-content:center;"><i class="fas fa-file-image"></i> ${d.label}</a>`;
+                else htmlDocs += `<span class="btn-acao btn-acao-secundario" style="justify-content:center; opacity:0.5;"><i class="fas fa-times"></i> ${d.label}</span>`;
+            } else {
+                htmlDocs += `<span class="btn-acao btn-acao-secundario" style="justify-content:center; opacity:0.5;"><i class="fas fa-times"></i> ${d.label}</span>`;
+            }
+        }
+        containerDocs.innerHTML = htmlDocs;
+    } else {
+        containerDocs.innerHTML = "<p style='font-size:0.9rem; color:#64748b; grid-column: 1/-1;'>Sem documentos.</p>";
+    }
+
+    // Faltas
+    if (faltas.length > 0) {
+        let htmlFaltas = '<table class="tabela-perfil"><thead><tr><th>Disciplina</th><th>Mês</th><th>Qtd</th><th>Justificada</th></tr></thead><tbody>';
+        faltas.forEach(f => {
+            htmlFaltas += `<tr><td>${esc(f.disciplina)}</td><td>${esc(f.mes || '—')}</td><td>${f.quantidade}</td><td>${f.justificada ? 'Sim' : 'Não'}</td></tr>`;
+        });
+        htmlFaltas += '</tbody></table>';
+        document.getElementById("perf-faltas").innerHTML = htmlFaltas;
+    } else {
+        document.getElementById("perf-faltas").innerHTML = "<p style='font-size:0.9rem; color:#64748b;'>Sem faltas registadas.</p>";
+    }
+
+    // Pagamentos
+    if (pagamentos.length > 0) {
+        let htmlPag = '<table class="tabela-perfil"><thead><tr><th>Tipo</th><th>Valor</th><th>Data</th><th>Estado</th></tr></thead><tbody>';
+        pagamentos.forEach(p => {
+            htmlPag += `<tr><td>${capitalizar(p.tipo)}</td><td>${Number(p.valor).toLocaleString("pt-PT")} Kz</td><td>${fmtData(p.data)}</td><td>${capitalizar(p.estado)}</td></tr>`;
+        });
+        htmlPag += '</tbody></table>';
+        document.getElementById("perf-pagamentos").innerHTML = htmlPag;
+    } else {
+        document.getElementById("perf-pagamentos").innerHTML = "<p style='font-size:0.9rem; color:#64748b;'>Sem pagamentos.</p>";
+    }
+
+    // Histórico de Alterações
+    if (histAlt.length > 0) {
+        let htmlAlt = '<div style="max-height:200px; overflow-y:auto; font-size:0.82rem;">';
+        histAlt.forEach(h => {
+            htmlAlt += `<div style="padding:6px 0; border-bottom:1px dashed #f1f5f9;"><strong>${esc(h.campo)}:</strong> <span style="color:#dc2626; text-decoration:line-through;">${esc(h.valor_anterior || "—")}</span> → <span style="color:#065f46;">${esc(h.valor_novo || "—")}</span> <span style="color:#94a3b8;">(${new Date(h.alterado_em).toLocaleString("pt-PT")})</span></div>`;
+        });
+        htmlAlt += '</div>';
+        document.getElementById("perf-historico-alt").innerHTML = htmlAlt;
+    } else {
+        document.getElementById("perf-historico-alt").innerHTML = "<p style='font-size:0.9rem; color:#64748b;'>Sem alterações.</p>";
+    }
 }
-function fecharFichaAlunoDir() {
-    document.getElementById("ficha-aluno-wrapper").style.display = "none";
-    document.getElementById("lista-alunos-wrapper").style.display = "block";
+
+function linha(rotulo, valor) {
+    return `<div class="info-linha"><span class="rotulo">${rotulo}</span><span class="valor">${esc(valor || "—")}</span></div>`;
+}
+
+function capitalizar(s) {
+    if (!s) return "";
+    return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+async function obterUrlAssinada(caminho) {
+    try {
+        const res = await fetch(API.SUPABASE_URL + "/functions/v1/gerar-url-assinada", {
+            method: "POST",
+            headers: { "apikey": API.SUPABASE_ANON_KEY, "Authorization": "Bearer " + API.SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+            body: JSON.stringify({ caminho: caminho })
+        });
+        if (res.ok) { const data = await res.json(); if (data.ok && data.url) return data.url; }
+    } catch (e) { console.error(e); }
+    return null;
 }
