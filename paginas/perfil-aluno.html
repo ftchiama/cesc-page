@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil do Aluno — CESC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/perfil-aluno.css">
+</head>
+<body class="dashboard-body" style="background-color: #f1f5f9;">
+
+    <div class="loader-container" id="loader">
+        <div class="loader"></div>
+        <p>A carregar o perfil do aluno...</p>
+    </div>
+
+    <main class="container" id="perfil-conteudo" style="display: none; padding: 24px 0;">
+        
+        <!-- Botão Voltar -->
+        <a href="javascript:history.back()" class="botao-secundario" style="margin-bottom: 16px; display: inline-flex;">
+            <i class="fas fa-arrow-left"></i> Voltar atrás
+        </a>
+
+        <!-- Capa e Avatar -->
+        <div class="perfil-capa"></div>
+        <div class="perfil-header-conteudo">
+            <div class="perfil-avatar-grande" id="perf-avatar">?</div>
+            <div class="perfil-info-principal">
+                <h1 id="perf-nome">A carregar...</h1>
+                <p id="perf-bi">BI: —</p>
+                <span class="perfil-badge-estado" id="perf-estado">Activo</span>
+            </div>
+        </div>
+
+        <!-- Grelha de Conteúdo -->
+        <div class="perfil-grelha">
+            
+            <!-- Coluna Esquerda (Sobre) -->
+            <div>
+                <div class="perfil-card">
+                    <h3><i class="fas fa-info-circle"></i> Sobre o Aluno</h3>
+                    <div id="perf-sobre"></div>
+                </div>
+
+                <div class="perfil-card">
+                    <h3><i class="fas fa-school"></i> Situação Escolar</h3>
+                    <div id="perf-turma"></div>
+                </div>
+
+                <div class="perfil-card">
+                    <h3><i class="fas fa-history"></i> Histórico Escolar</h3>
+                    <div id="perf-historico"></div>
+                </div>
+            </div>
+
+            <!-- Coluna Direita (Notas, Faltas, Pagamentos) -->
+            <div>
+                <div class="perfil-card">
+                    <h3><i class="fas fa-chart-line"></i> Notas do Ano Letivo</h3>
+                    <div id="perf-notas" style="overflow-x:auto;"></div>
+                </div>
+
+                <div class="perfil-card">
+                    <h3><i class="fas fa-user-clock"></i> Faltas Registadas</h3>
+                    <div id="perf-faltas"></div>
+                </div>
+
+                <div class="perfil-card">
+                    <h3><i class="fas fa-money-bill-wave"></i> Histórico de Pagamentos</h3>
+                    <div id="perf-pagamentos"></div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="../scripts/api.js"></script>
+    <script src="../scripts/perfil-aluno.js"></script>
+</body>
+</html>

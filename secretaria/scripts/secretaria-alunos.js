@@ -127,7 +127,7 @@ function renderizarListaAlunos(alunos) {
         html += '  <td>' + conta + '</td>';
         html += '  <td><span class="badge badge-' + esc(estado) + '">' + esc(estadoLabel) + '</span></td>';
         html += '  <td><div class="acoes-linha">';
-        html += '    <button class="btn-acao btn-acao-secundario" data-ver-aluno="' + idx + '"><i class="fas fa-eye"></i> Ver Detalhes</button>';
+        html += '    <button class="btn-acao btn-acao-secundario" onclick="window.open(\'../paginas/perfil-aluno.html?id=' + a.id + '\', \'_blank\')"><i class="fas fa-eye"></i> Ver Detalhes</button>';
         html += '  </div></td></tr>';
         html += '<tr class="linha-editar" data-aluno-linha="' + idx + '" style="display:none;"><td colspan="6"><div data-aluno-conteudo="' + idx + '"></div></td></tr>';
     });
@@ -143,7 +143,7 @@ function renderizarListaAlunos(alunos) {
         html += '<div class="cartao-sec">';
         html += '  <div class="cartao-sec-topo"><div class="cartao-sec-info"><strong>' + esc(a.nome_completo) + '</strong><span>BI: ' + esc(a.bi_numero) + '</span></div><span class="badge badge-' + esc(estado) + '">' + esc(estadoLabel) + '</span></div>';
         html += '  <div class="cartao-sec-meta"><div class="meta-item"><span class="meta-rotulo">Sala</span><span class="meta-valor">' + esc(a.sala_actual || "—") + '</span></div><div class="meta-item"><span class="meta-rotulo">Contacto</span><span class="meta-valor">' + esc(a.telefone || a.email_contacto || "—") + '</span></div><div class="meta-item"><span class="meta-rotulo">Conta</span><span class="meta-valor">' + conta + '</span></div></div>';
-        html += '  <div class="cartao-sec-acoes"><button class="btn-acao btn-acao-secundario" data-ver-aluno-mobile="' + idx + '"><i class="fas fa-eye"></i> Ver Detalhes</button></div>';
+        html += '  <div class="cartao-sec-acoes"><button class="btn-acao btn-acao-secundario" onclick="window.open(\'../paginas/perfil-aluno.html?id=' + a.id + '\', \'_blank\')"><i class="fas fa-eye"></i> Ver Detalhes</button></div>';
         html += '  <div data-aluno-mobile="' + idx + '" style="display:none; margin-top:12px;"></div>';
         html += '</div>';
     });

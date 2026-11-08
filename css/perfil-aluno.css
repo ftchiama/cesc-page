@@ -1,0 +1,178 @@
+/* ============================================================
+   CESC — Perfil do Aluno
+   ============================================================ */
+
+.perfil-capa {
+    background: linear-gradient(135deg, var(--cor-azul) 0%, #1e40af 100%);
+    height: 220px;
+    border-radius: 12px 12px 0 0;
+    position: relative;
+}
+
+.perfil-header-conteudo {
+    background: #fff;
+    border-radius: 0 0 12px 12px;
+    padding: 0 24px 24px;
+    border: 1px solid var(--cor-borda);
+    border-top: none;
+    margin-bottom: 24px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+}
+
+.perfil-avatar-grande {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background-color: var(--cor-dourado-claro);
+    color: var(--cor-azul);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    font-weight: 700;
+    border: 6px solid #fff;
+    margin-top: -70px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    flex-shrink: 0;
+}
+
+.perfil-info-principal {
+    padding-bottom: 10px;
+}
+
+.perfil-info-principal h1 {
+    font-family: var(--fonte-titulos);
+    font-size: 2rem;
+    color: var(--cor-azul);
+    margin: 0;
+}
+
+.perfil-info-principal p {
+    color: var(--cor-texto-suave);
+    margin: 4px 0 0 0;
+    font-size: 0.95rem;
+}
+
+.perfil-badge-estado {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    background-color: var(--cor-sucesso-fundo);
+    color: #065f46;
+    margin-top: 8px;
+}
+
+/* Layout de Grelha Principal (2 colunas) */
+.perfil-grelha {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 24px;
+    align-items: start;
+}
+
+/* Blocos de Informação */
+.perfil-card {
+    background: #fff;
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.perfil-card h3 {
+    font-size: 1rem;
+    color: var(--cor-azul);
+    margin: 0 0 16px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--cor-fundo);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.perfil-card h3 i { 
+    color: var(--cor-dourado); 
+}
+
+.info-linha { 
+    display: flex; 
+    justify-content: space-between; 
+    padding: 6px 0; 
+    font-size: 0.9rem; 
+    border-bottom: 1px dashed #f1f5f9; 
+}
+
+.info-linha:last-child { 
+    border-bottom: none; 
+}
+
+.info-linha .rotulo { 
+    color: var(--cor-texto-suave); 
+    font-weight: 500; 
+}
+
+.info-linha .valor { 
+    font-weight: 600; 
+    color: var(--cor-texto); 
+    text-align: right; 
+}
+
+/* Tabelas de Notas */
+.tabela-perfil { 
+    width: 100%; 
+    border-collapse: collapse; 
+    font-size: 0.85rem; 
+}
+
+.tabela-perfil th, 
+.tabela-perfil td { 
+    padding: 10px; 
+    text-align: left; 
+    border-bottom: 1px solid #f1f5f9; 
+}
+
+.tabela-perfil th { 
+    background: var(--cor-fundo); 
+    color: var(--cor-texto-suave); 
+    font-weight: 600; 
+    text-transform: uppercase; 
+    font-size: 0.7rem; 
+}
+
+.tabela-perfil tr:last-child td { 
+    border-bottom: none; 
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .perfil-grelha { 
+        grid-template-columns: 1fr; 
+    }
+    
+    .perfil-header-conteudo { 
+        flex-direction: column; 
+        align-items: center; 
+        text-align: center; 
+        padding-bottom: 20px; 
+    }
+    
+    .perfil-avatar-grande { 
+        margin-top: -70px; 
+        width: 120px; 
+        height: 120px; 
+        font-size: 3rem; 
+    }
+    
+    .perfil-capa { 
+        height: 150px; 
+    }
+    
+    .perfil-info-principal h1 { 
+        font-size: 1.5rem; 
+    }
+}

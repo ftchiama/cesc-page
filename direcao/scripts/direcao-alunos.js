@@ -47,7 +47,7 @@ function renderizarAlunosDir(alunos) {
         html += '  <td>' + esc(a.bi_numero) + '</td>';
         html += '  <td>' + esc(salaVisual) + '</td>';
         html += '  <td><span class="badge badge-' + (a.estado === 'activo' ? 'activo' : 'desistente') + '">' + capitalizar(a.estado) + '</span></td>';
-        html += '  <td><button class="btn-acao btn-acao-secundario" onclick="verPerfilAlunoDir(\'' + a.id + '\', \'' + esc(a.nome_completo) + '\')"><i class="fas fa-eye"></i> Ver Ficha</button></td>';
+        html += '  <td><button class="btn-acao btn-acao-secundario" onclick="window.open(\'../paginas/perfil-aluno.html?id=' + a.id + '\', \'_blank\')"><i class="fas fa-eye"></i> Ver Ficha</button></td>';
         html += '</tr>';
     });
     html += '</tbody></table></div>';
@@ -61,7 +61,7 @@ function renderizarAlunosDir(alunos) {
         html += '<div class="cartao-sec">';
         html += '  <div class="cartao-sec-topo"><div class="cartao-sec-info"><strong>' + esc(a.nome_completo) + '</strong><span>BI: ' + esc(a.bi_numero) + '</span></div><span class="badge badge-' + (a.estado === 'activo' ? 'activo' : 'desistente') + '">' + capitalizar(a.estado) + '</span></div>';
         html += '  <div class="cartao-sec-meta"><div class="meta-item"><span class="meta-rotulo">Sala</span><span class="meta-valor">' + esc(salaVisual) + '</span></div></div>';
-        html += '  <div class="cartao-sec-acoes"><button class="btn-acao btn-acao-secundario" onclick="verPerfilAlunoDir(\'' + a.id + '\', \'' + esc(a.nome_completo) + '\')"><i class="fas fa-eye"></i> Ver Ficha</button></div>';
+        html += '  <div class="cartao-sec-acoes"><button class="btn-acao btn-acao-secundario" onclick="window.open(\'../paginas/perfil-aluno.html?id=' + a.id + '\', \'_blank\')"><i class="fas fa-eye"></i> Ver Ficha</button></div>';
         html += '</div>';
     });
     html += '</div>';
