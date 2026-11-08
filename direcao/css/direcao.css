@@ -3,8 +3,9 @@
 @import url('../../secretaria/css/secretaria.css');
 
 /* ============================================================
-   CORREÇÃO MOBILE (Diretor e Académico)
-   Garante que as tabelas aparecem no desktop e os cartões no mobile
+   CORREÇÃO GLOBAL
+   Garante que, no mobile, as listas (Alunos, Salas, etc.) 
+   continuam a usar os cartões da Secretaria e as tabelas no PC.
    ============================================================ */
 
 /* No desktop: tabelas visíveis, cartões escondidos */
@@ -16,7 +17,7 @@
     display: none !important;
 }
 
-/* No mobile: esconde tabelas e força os cartões */
+/* No mobile: esconde tabelas e força os cartões da Secretaria */
 @media (max-width: 768px) {
     .tabela-sec-wrapper {
         display: none !important;
@@ -28,38 +29,21 @@
         gap: 12px;
     }
 
-    /* Estilo base dos cartões no mobile */
     .cartao-sec {
         display: flex !important;
         flex-direction: column;
         background: #fff;
         border: 1px solid var(--cor-borda);
         border-radius: 8px;
-        padding: 12px;
+        padding: 16px;
         margin-bottom: 10px;
     }
 
-    /* Corrige a Grelha Curricular (que gera tabelas dentro dos cartões) */
-    .cartao-sec .tabela-wrapper,
-    .cartao-sec .tabela-sec-wrapper {
-        display: block !important;
-        border: none !important;
-        overflow-x: auto;
-        width: 100%;
-    }
-    
-    .cartao-sec .tabela-sec {
-        display: table !important;
-        width: 100%;
-        min-width: 100%;
-    }
-
-    /* Ajuste para o cabeçalho dos cartões ficar alinhado */
     .cartao-sec-topo {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
+        align-items: flex-start;
+        margin-bottom: 12px;
         flex-wrap: wrap;
         gap: 8px;
     }
@@ -68,5 +52,6 @@
         display: flex;
         flex-direction: column;
         gap: 4px;
+        word-break: break-word;
     }
 }

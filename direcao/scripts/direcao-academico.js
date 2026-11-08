@@ -74,10 +74,11 @@ function renderizarGrelha() {
     if (!c) return;
     if (grelhaCache.length === 0) { c.innerHTML = '<div class="estado-vazio">A grelha está vazia. Adiciona disciplinas às classes/cursos.</div>'; return; }
 
+    // Agrupar por Classe e Curso
     const agrupado = {};
     grelhaCache.forEach(item => {
         const classeNome = item.classe_nome;
-        const cursoNome = item.curso_nome || "Geral";
+        const cursoNome = item.curso_nome || "Tronco Comum";
         if (!agrupado[classeNome]) agrupado[classeNome] = {};
         if (!agrupado[classeNome][cursoNome]) agrupado[classeNome][cursoNome] = [];
         agrupado[classeNome][cursoNome].push(item);
@@ -85,36 +86,43 @@ function renderizarGrelha() {
 
     let html = "";
     for (const classe in agrupado) {
-        html += `<div class="card-info" style="margin-bottom: 20px; padding: 16px;">`;
-        html += `<h3 style="border-bottom: 2px solid var(--cor-azul); padding-bottom: 8px; margin-bottom: 16px; font-size: 1.1rem;"><i class="fas fa-layer-group"></i> ${esc(classe)}</h3>`;
+        html += `<div class="card-info" style="margin-bottom: 24px; padding: 16px; background: #f8fafc; border: 1px solid var(--cor-borda);">`;
+        html += `<h3 style="border-bottom: 2px solid var(--cor-azul); padding-bottom: 8px; margin-bottom: 16px; font-size: 1.1rem; color: var(--cor-azul);"><i class="fas fa-layer-group"></i> ${esc(classe)}</h3>`;
         
         for (const curso in agrupado[classe]) {
-            html += `<div style="margin-bottom: 16px;">`;
-            html += `<h4 style="color: var(--cor-texto-suave); font-size: 0.85rem; margin-bottom: 8px; background: #f8fafc; padding: 6px 10px; border-radius: 6px;"><i class="fas fa-bookmark"></i> ${curso === 'Geral' ? 'Tronco Comum' : esc(curso)}</h4>`;
+            // Separador visual para cada curso
+            html += `<div style="margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px dashed var(--cor-borda);">`;
             
+            // Título do Curso mais limpo e pequeno
+            if (curso === "Tronco Comum") {
+                html += `<h4 style="color: var(--cor-texto-suave); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; font-weight: 700;"><i class="fas fa-book"></i> ${curso}</h4>`;
+            } else {
+                html += `<h4 style="color: var(--cor-azul); font-size: 0.85rem; font-weight: 700; margin-bottom: 12px;"><i class="fas fa-bookmark"></i> ${esc(curso)}</h4>`;
+            }
+            
+            // Lista vertical de disciplinas
             html += `<div style="display: flex; flex-direction: column; gap: 8px;">`;
             
             agrupado[classe][curso].forEach(disc => {
                 const badgeClass = disc.critica ? 'badge-desistente' : 'badge-activo';
                 const badgeText = disc.critica ? 'Crítica' : 'Secundária';
                 
-                // Em vez de tabela, usamos linhas flexíveis (funciona bem em mobile e desktop)
                 html += `<div style="display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid var(--cor-borda); border-left: 4px solid ${disc.critica ? '#dc2626' : '#059669'}; border-radius: 6px; padding: 10px 12px; flex-wrap: wrap; gap: 8px;">`;
                 html += `  <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 150px;">`;
-                html += `    <strong style="font-size: 0.9rem;">${esc(disc.disciplina_nome)}</strong>`;
-                html += `    <span class="badge ${badgeClass}" style="font-size: 0.65rem;">${badgeText}</span>`;
+                html += `    <strong style="font-size: 0.88rem; color: var(--cor-texto);">${esc(disc.disciplina_nome)}</strong>`;
+                html += `    <span class="badge ${badgeClass}" style="font-size: 0.6rem; padding: 2px 6px;">${badgeText}</span>`;
                 html += `  </div>`;
                 html += `  <div style="display: flex; gap: 6px;">`;
-                html += `    <button class="btn-acao btn-acao-secundario" style="font-size: 0.75rem; padding: 4px 8px;" onclick="toggleCriticaGrelha('${disc.id}', ${disc.critica})"><i class="fas fa-pen"></i> Alternar</button>`;
+                html += `    <button class="btn-acao btn-acao-secundario" style="font-size: 0.75rem; padding: 4px 8px;" onclick="toggleCriticaGrelha('${disc.id}', ${disc.critica})"><i class="fas fa-pen"></i></button>`;
                 html += `    <button class="btn-acao btn-acao-secundario" style="font-size: 0.75rem; padding: 4px 8px; color: var(--cor-erro); border-color: var(--cor-erro);" onclick="apagarGrelha('${disc.id}')"><i class="fas fa-trash"></i></button>`;
                 html += `  </div>`;
                 html += `</div>`;
             });
             
-            html += `</div>`; // fim do flex column
+            html += `</div>`; // fim da lista de disciplinas
             html += `</div>`; // fim do bloco do curso
         }
-        html += `</div>`; // fim do card-info da classe
+        html += `</div>`; // fim do card da classe
     }
     c.innerHTML = html;
 }
