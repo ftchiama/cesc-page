@@ -208,10 +208,15 @@ function renderizarRegrasAura(regras) {
     regras.forEach((r, idx) => {
         let nome = r.classe + (r.curso ? ' (' + r.curso + ')' : '');
         let dataCriacao = r.criado_em ? new Date(r.criado_em).toLocaleDateString('pt-PT') : '—';
+        
+        // AQUI ESTÁ A CORREÇÃO: Se for null, mete 0. Se não, mete o valor.
+        let crit = (r.max_negativas_criticas !== null && r.max_negativas_criticas !== undefined) ? r.max_negativas_criticas : 0;
+        let sec = (r.max_negativas_secundarias !== null && r.max_negativas_secundarias !== undefined) ? r.max_negativas_secundarias : 0;
+        
         html += `<tr>
             <td><strong>${esc(nome)}</strong></td>
-            <td><input type="number" id="regra-crit-${idx}" class="campo-input" style="width:70px; padding:4px;" value="${r.max_criticas}"></td>
-            <td><input type="number" id="regra-sec-${idx}" class="campo-input" style="width:70px; padding:4px;" value="${r.max_secundarias}"></td>
+            <td><input type="number" id="regra-crit-${idx}" class="campo-input" style="width:70px; padding:4px;" value="${crit}"></td>
+            <td><input type="number" id="regra-sec-${idx}" class="campo-input" style="width:70px; padding:4px;" value="${sec}"></td>
             <td style="font-size:0.8rem; color:var(--cor-texto-suave);">${dataCriacao}</td>
             <td>
                 <button class="btn-acao btn-acao-primario" style="padding:4px 8px;" onclick="guardarRegraAura(${idx})"><i class="fas fa-save"></i></button>
@@ -225,11 +230,14 @@ function renderizarRegrasAura(regras) {
     regras.forEach((r, idx) => {
         let nome = r.classe + (r.curso ? ' (' + r.curso + ')' : '');
         let dataCriacao = r.criado_em ? new Date(r.criado_em).toLocaleDateString('pt-PT') : '—';
+        let crit = (r.max_negativas_criticas !== null && r.max_negativas_criticas !== undefined) ? r.max_negativas_criticas : 0;
+        let sec = (r.max_negativas_secundarias !== null && r.max_negativas_secundarias !== undefined) ? r.max_negativas_secundarias : 0;
+        
         html += `<div class="cartao-sec">
             <div class="cartao-sec-topo"><div class="cartao-sec-info"><strong>${esc(nome)}</strong><span style="font-size:0.7rem;">Criada: ${dataCriacao}</span></div></div>
             <div class="cartao-sec-meta">
-                <div class="meta-item"><span class="meta-rotulo">Críticas</span><input type="number" id="regra-crit-m-${idx}" class="campo-input" style="width:60px; padding:4px;" value="${r.max_criticas}"></div>
-                <div class="meta-item"><span class="meta-rotulo">Secundárias</span><input type="number" id="regra-sec-m-${idx}" class="campo-input" style="width:60px; padding:4px;" value="${r.max_secundarias}"></div>
+                <div class="meta-item"><span class="meta-rotulo">Críticas</span><input type="number" id="regra-crit-m-${idx}" class="campo-input" style="width:60px; padding:4px;" value="${crit}"></div>
+                <div class="meta-item"><span class="meta-rotulo">Secundárias</span><input type="number" id="regra-sec-m-${idx}" class="campo-input" style="width:60px; padding:4px;" value="${sec}"></div>
             </div>
             <div class="cartao-sec-acoes">
                 <button class="btn-acao btn-acao-primario" onclick="guardarRegraAuraMobile(${idx})"><i class="fas fa-save"></i> Guardar</button>
