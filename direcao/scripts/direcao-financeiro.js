@@ -1,25 +1,43 @@
 async function carregarFinanceiroDir() {
     const token = obterToken();
     const container = document.getElementById("resumo-financeiro");
+    if (!container) return;
     container.innerHTML = '<div class="loader-container" style="min-height:100px;"><div class="loader"></div></div>';
 
     const selAno = document.getElementById("filtro-dir-financeiro-ano");
-    const ano = selAno ? selAno.value : "";
-    if (selAno && selAno.options.length <= 1) {
-        ["2025/2026", "2026/2027"].forEach(a => { const opt = document.createElement("option"); opt.value = a; opt.textContent = a; selAno.appendChild(opt); });
+
+    // 1. Carregar anos reais da base de dados e selecionar o ano atual
+    if (selAno && !selAno.dataset.ligado) {
+        const rAnos = await chamarRPC("cesc_secretaria_listar_anos_inscricoes", { p_token: token });
+        if (rAnos.ok && rAnos.anos && rAnos.anos.length > 0) {
+            selAno.innerHTML = "";
+            rAnos.anos.forEach(a => { selAno.innerHTML += `<option value="${a}">${a}</option>`; });
+
+            // Tentar obter o ano atual das configurações
+            const cfg = await chamarRPC("cesc_diretor_listar_configuracoes", { p_token: token });
+            if (cfg.ok) {
+                const anoAtual = (cfg.configuracoes || []).find(c => c.chave === "ano_lectivo_actual");
+                if (anoAtual && rAnos.anos.includes(anoAtual.valor)) selAno.value = anoAtual.valor;
+                else selAno.value = rAnos.anos[0]; // fallback: o mais recente
+            }
+        }
+        selAno.dataset.ligado = "1";
         selAno.addEventListener("change", carregarFinanceiroDir);
     }
 
+    const ano = selAno ? selAno.value : "";
+
+    // 2. Buscar os dados da receita
     const dados = await chamarRPC("cesc_diretor_receita", { p_token: token, p_ano_lectivo: ano || null });
     if (!dados.ok) { container.innerHTML = '<div class="estado-vazio">' + esc(dados.erro) + '</div>'; return; }
 
-    // 1. Cartão Principal (Receita Total)
+    // 3. Cartão Principal (Receita Total)
     let html = '<div class="stat-card" style="margin-bottom:20px; text-align:center;">';
     html += '<div class="stat-header" style="justify-content:center;"><i class="fas fa-money-bill-wave"></i> Receita Total (' + (ano || 'Geral') + ')</div>';
     html += '<div class="stat-valor" style="color:#059669; font-size:2.5rem;">' + Number(dados.total).toLocaleString("pt-PT") + ' Kz</div>';
     html += '</div>';
 
-    // 2. Tabela (Desktop)
+    // 4. Tabela (Desktop)
     html += '<div class="tabela-wrapper tabela-sec-wrapper">';
     html += '<table class="tabela-sec">';
     html += '<thead><tr><th>Tipo de Serviço</th><th>Total Recebido</th></tr></thead><tbody>';
@@ -31,7 +49,7 @@ async function carregarFinanceiroDir() {
     });
     html += '</tbody></table></div>';
 
-    // 3. Cartões (Mobile) - O que faltava
+    // 5. Cartões (Mobile)
     html += '<div class="cartoes-sec">';
     dados.por_tipo.forEach(t => {
         html += '<div class="cartao-sec">';
