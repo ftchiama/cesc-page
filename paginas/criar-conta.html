@@ -4,29 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Criar Conta - CESC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/auth.css">
 </head>
 <body>
-    <!--
-     Autor: Francisco Tchiama
-     Companhia: TCLabs
-     Data: 19/10/2026
-     Versão: 1.0
-     Descrição:
-     Página de criação de conta para alunos do CESC.
-     O aluno prova que é aluno através do BI (que já está em cesc.alunos).
-
-     Como faz:
-     - Pede BI, e-mail e password.
-     - Chama a RPC cesc_criar_conta.
-     - Se o BI existir em cesc.alunos, cria a conta.
-     - Se não existir, mostra erro.
-
-     Porque faz:
-     - Só alunos matriculados (com BI registado) podem criar conta.
-     - A conta fica ligada ao aluno pelo e-mail.
-    -->
 
     <div class="auth-container">
         <div class="auth-card">
@@ -40,7 +25,7 @@
                 <div class="campo-grupo">
                     <label for="reg-bi">Número do BI</label>
                     <input type="text" id="reg-bi" placeholder="Ex: 000123456LA041" autocomplete="off">
-                    <small style="color:#666; font-size:0.75rem;">O BI que consta na tua matrícula.</small>
+                    <small style="color:#94a3b8; font-size:0.75rem;">O BI que consta na tua matrícula.</small>
                 </div>
 
                 <div class="campo-grupo">
@@ -69,7 +54,8 @@
             </div>
         </div>
     </div>
- <script src="../scripts/api.js"></script>
-<script src="../scripts/auth.js"></script>
+
+    <script src="../scripts/api.js"></script>
+    <script src="../scripts/auth.js"></script>
 </body>
 </html>

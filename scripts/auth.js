@@ -1,26 +1,20 @@
 /*
  Autor: Francisco Tchiama
  Companhia: TCLabs
- Data: 23/10/2026
- Versão: 3.0
+ Data: 11/11/2026
+ Versão: 4.0
  Descrição:
- Autenticação do CESC.
+ Autenticação do CESC com reenvio de código (cooldown 60s).
+
  - Passo 1: chama a Edge Function enviar-codigo (email + password)
  - Passo 2: chama a RPC cesc_validar_codigo (email + código → token)
  - Guarda o token em sessionStorage
- - Redireciona para a página certa do role:
-     aluno       → dashboard.html
-     professor   → ../admin/professor.html
-     secretaria  → ../secretaria/secretaria.html
-     diretor     → ../direcao/direcao.html      (a criar)
-     sub_diretor → ../direcao/direcao.html      (a criar)
-     coordenador → ../direcao/direcao.html      (a criar)
-     encarregado → ../encarregado/encarregado.html (a criar)
-
- Usa o módulo api.js (configuração, chamadas, sessão, utilitários).
+ - Redireciona para a página certa do role
+ - Reenvio de código com cooldown de 60 segundos
  */
 
 let emailAtual = "";
+let cooldownTimer = null;
 
 // ============================================================
 // HELPER: redireccionar por role
@@ -29,7 +23,6 @@ async function redirecionarPorRole(token) {
     const perfil = await chamarRPC("cesc_perfil_role", { p_token: token });
 
     if (!perfil.ok) {
-        // Não conseguiu obter o role — manda para o login com erro
         try { sessionStorage.removeItem("cesc_token"); } catch (e) {}
         window.location.href = "login.html?erro=1";
         return;
@@ -42,16 +35,12 @@ async function redirecionarPorRole(token) {
     } else if (role === "secretaria") {
         window.location.href = "../secretaria/secretaria.html";
     } else if (role === "diretor" || role === "sub_diretor") {
-    window.location.href = "../direcao/direcao.html";
-} else if (role === "coordenador") {
-    // Página do coordenador ainda não existe. Por agora vai para o dashboard.
-    window.location.href = "dashboard.html";
-} else if (role === "encarregado") {
-        // Página do encarregado ainda não existe.
-        // Quando existir, trocar para: "../encarregado/encarregado.html"
+        window.location.href = "../direcao/direcao.html";
+    } else if (role === "coordenador") {
+        window.location.href = "dashboard.html";
+    } else if (role === "encarregado") {
         window.location.href = "dashboard.html";
     } else {
-        // aluno (ou role desconhecido — trata como aluno)
         window.location.href = "dashboard.html";
     }
 }
@@ -94,25 +83,13 @@ async function pedirCodigo() {
     btn.disabled = true;
     btn.textContent = "A verificar...";
 
-    let dados = await chamarEdge("enviar-codigo", {
-        email: email,
-        password: password
-    });
+    let dados = await chamarEdge("enviar-codigo", { email: email, password: password });
 
-    // Se deu timeout (o Render estava a dormir), tentamos novamente após 5s
     if (!dados.ok && dados.erro && dados.erro.includes("Tempo esgotado")) {
         btn.textContent = "O servidor está a acordar. Aguarda...";
-        
-        // Espera 5 segundos
         await new Promise(r => setTimeout(r, 5000));
-        
         btn.textContent = "A tentar novamente...";
-        
-        // Segunda tentativa
-        dados = await chamarEdge("enviar-codigo", {
-            email: email,
-            password: password
-        });
+        dados = await chamarEdge("enviar-codigo", { email: email, password: password });
     }
 
     btn.disabled = false;
@@ -124,8 +101,8 @@ async function pedirCodigo() {
         document.getElementById("passo-1").style.display = "none";
         document.getElementById("passo-2").style.display = "block";
         document.getElementById("login-codigo").focus();
+        iniciarCooldownReenvio();
     } else {
-        // Se for erro de credenciais, mostra a mensagem correta
         if (dados.erro && dados.erro.includes("incorreta")) {
             mostrarErroAuth("msg-erro-1", "Palavra-passe incorreta.");
         } else {
@@ -133,8 +110,9 @@ async function pedirCodigo() {
         }
     }
 }
+
 // ============================================================
-// PASSO 2: validar código (RPC → token → redireccionar)
+// PASSO 2: validar código
 // ============================================================
 async function validarCodigo() {
     limparErrosAuth();
@@ -150,10 +128,7 @@ async function validarCodigo() {
     btn.disabled = true;
     btn.textContent = "A validar...";
 
-    const dados = await chamarRPC("cesc_validar_codigo", {
-        p_email: emailAtual,
-        p_codigo: codigo
-    });
+    const dados = await chamarRPC("cesc_validar_codigo", { p_email: emailAtual, p_codigo: codigo });
 
     btn.disabled = false;
     btn.textContent = "Entrar";
@@ -167,6 +142,61 @@ async function validarCodigo() {
 }
 
 // ============================================================
+// REENVIAR CÓDIGO (com cooldown de 60s)
+// ============================================================
+async function reenviarCodigo() {
+    if (!emailAtual) return;
+    const btn = document.getElementById("btn-reenviar-codigo");
+    if (btn.disabled) return;
+
+    btn.disabled = true;
+    btn.textContent = "A reenviar...";
+
+    const dados = await chamarEdge("enviar-codigo", { email: emailAtual, password: null });
+
+    if (dados.ok) {
+        const msgErro = document.getElementById("msg-erro-2");
+        msgErro.textContent = "Novo código enviado! Verifica o teu e-mail.";
+        msgErro.style.color = "#065f46";
+        msgErro.style.background = "#d1fae5";
+        msgErro.style.border = "1px solid #10b981";
+        msgErro.style.display = "block";
+        setTimeout(() => {
+            msgErro.style.display = "none";
+            msgErro.style.color = "";
+            msgErro.style.background = "";
+            msgErro.style.border = "";
+        }, 4000);
+        iniciarCooldownReenvio();
+    } else {
+        btn.disabled = false;
+        btn.textContent = "Não recebeste o código? Reenviar";
+        mostrarErroAuth("msg-erro-2", dados.erro || "Erro ao reenviar. Tenta novamente.");
+    }
+}
+
+function iniciarCooldownReenvio() {
+    const btn = document.getElementById("btn-reenviar-codigo");
+    if (!btn) return;
+    let segundos = 60;
+    btn.disabled = true;
+    btn.textContent = `Reenviar em ${segundos}s`;
+
+    if (cooldownTimer) clearInterval(cooldownTimer);
+
+    cooldownTimer = setInterval(() => {
+        segundos--;
+        if (segundos <= 0) {
+            clearInterval(cooldownTimer);
+            btn.disabled = false;
+            btn.textContent = "Não recebeste o código? Reenviar";
+        } else {
+            btn.textContent = `Reenviar em ${segundos}s`;
+        }
+    }, 1000);
+}
+
+// ============================================================
 // VOLTAR AO PASSO 1
 // ============================================================
 function voltarPasso1() {
@@ -174,10 +204,11 @@ function voltarPasso1() {
     document.getElementById("login-codigo").value = "";
     document.getElementById("passo-2").style.display = "none";
     document.getElementById("passo-1").style.display = "block";
+    if (cooldownTimer) clearInterval(cooldownTimer);
 }
 
 // ============================================================
-// CRIAR CONTA (BI + e-mail + password)
+// CRIAR CONTA
 // ============================================================
 async function criarConta() {
     limparErrosAuth();
@@ -235,7 +266,6 @@ async function criarConta() {
 document.addEventListener("DOMContentLoaded", async function () {
     const temErro = window.location.search.indexOf("erro=1") !== -1;
 
-    // Se já tem token e não veio de erro, redirecciona por role
     if (obterToken() && !temErro) {
         await redirecionarPorRole(obterToken());
         return;
@@ -244,12 +274,14 @@ document.addEventListener("DOMContentLoaded", async function () {
         try { sessionStorage.removeItem("cesc_token"); } catch (e) {}
     }
 
-    // Login
     const btnEnviar = document.getElementById("btn-enviar-codigo");
     if (btnEnviar) btnEnviar.addEventListener("click", pedirCodigo);
 
     const btnValidar = document.getElementById("btn-validar-codigo");
     if (btnValidar) btnValidar.addEventListener("click", validarCodigo);
+
+    const btnReenviar = document.getElementById("btn-reenviar-codigo");
+    if (btnReenviar) btnReenviar.addEventListener("click", reenviarCodigo);
 
     const btnVoltar = document.getElementById("btn-voltar");
     if (btnVoltar) btnVoltar.addEventListener("click", voltarPasso1);
@@ -268,7 +300,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
     }
 
-    // Criar conta
     const btnCriar = document.getElementById("btn-criar-conta");
     if (btnCriar) {
         btnCriar.addEventListener("click", criarConta);
