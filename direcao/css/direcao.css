@@ -55,3 +55,23 @@
         word-break: break-word;
     }
 }
+/* Corrigir os selects no mobile */
+@media (max-width: 768px) {
+    .barra-acoes select.campo-select {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: 44px;
+        padding: 10px 12px;
+        flex: 1 1 100% !important;
+    }
+    
+    .barra-acoes {
+        flex-direction: column !important;
+        gap: 12px;
+    }
+    
+    .barra-acoes input.campo-input {
+        width: 100% !important;
+    }
+}

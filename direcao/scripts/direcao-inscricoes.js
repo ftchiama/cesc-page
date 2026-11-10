@@ -11,7 +11,7 @@ async function carregarInscricoesDir() {
     const selOrdem = document.getElementById("filtro-inscricoes-ordem");
     const inputPesquisa = document.getElementById("filtro-dir-inscricoes-pesquisa");
 
-    // 1. Carregar anos (só uma vez) e selecionar o ano atual
+    // 1. Carregar anos e selecionar o ano atual
     if (selAno && !selAno.dataset.ligado) {
         const rAnos = await chamarRPC("cesc_secretaria_listar_anos_inscricoes", { p_token: token });
         if (rAnos.ok && rAnos.anos && rAnos.anos.length > 0) {
@@ -22,14 +22,14 @@ async function carregarInscricoesDir() {
             if (cfg.ok) {
                 const anoAtual = (cfg.configuracoes || []).find(c => c.chave === "ano_lectivo_actual");
                 if (anoAtual && rAnos.anos.includes(anoAtual.valor)) selAno.value = anoAtual.valor;
-                else selAno.value = rAnos.anos[0]; // fallback: o mais recente
+                else selAno.value = rAnos.anos[0];
             }
         }
         selAno.dataset.ligado = "1";
         selAno.addEventListener("change", carregarInscricoesDir);
     }
 
-    // 2. Carregar classes (só uma vez)
+    // 2. Carregar classes
     if (selClasse && !selClasse.dataset.ligado) {
         const rClasses = await chamarRPC("cesc_diretor_listar_classes", { p_token: token });
         if (rClasses.ok) {
@@ -49,7 +49,7 @@ async function carregarInscricoesDir() {
     const ordemFiltro = selOrdem ? selOrdem.value : "data_desc";
     const termo = inputPesquisa ? inputPesquisa.value.trim().toLowerCase() : "";
 
-    // 3. Cards de resumo
+    // 3. Cards
     if (ano) {
         const stats = await chamarRPC("cesc_secretaria_stats_inscricoes", { p_token: token, p_ano_lectivo: ano });
         if (stats.ok) {
@@ -84,7 +84,7 @@ async function carregarInscricoesDir() {
     let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec">';
     html += '<thead><tr><th>Referência</th><th>Candidato</th><th>Classe</th><th>Média</th><th>Data</th><th>Estado</th><th>Acções</th></tr></thead><tbody>';
 
-    lista.forEach((i) => {
+    lista.forEach((i, idx) => {
         const media = i.media_certificado != null ? Number(i.media_certificado).toFixed(1) : "—";
         const mediaClasse = i.media_certificado != null ? (i.media_certificado >= 14 ? "cor-media-alta" : (i.media_certificado >= 10 ? "cor-media-media" : "cor-media-baixa")) : "";
         
@@ -100,14 +100,15 @@ async function carregarInscricoesDir() {
         html += '  <td class="' + mediaClasse + '" style="font-weight:700; text-align:center;">' + media + '</td>';
         html += '  <td>' + fmtData(i.data_submissao) + '</td>';
         html += '  <td>' + estadoHtml + '</td>';
-        html += '  <td><button class="btn-acao btn-acao-secundario" onclick="verDetalheInscricaoDir(\'' + i.id + '\')"><i class="fas fa-eye"></i> Ver</button></td>';
+        html += '  <td><button class="btn-acao btn-acao-secundario" data-ver-inscricao-dir="' + idx + '"><i class="fas fa-eye"></i> Ver</button></td>';
         html += '</tr>';
+        html += '<tr class="linha-editar" data-inscricao-dir-linha="' + idx + '" style="display:none;"><td colspan="7"><div data-inscricao-dir-conteudo="' + idx + '"></div></td></tr>';
     });
     html += '</tbody></table></div>';
 
     // Mobile
     html += '<div class="cartoes-sec">';
-    lista.forEach((i) => {
+    lista.forEach((i, idx) => {
         const media = i.media_certificado != null ? Number(i.media_certificado).toFixed(1) : "—";
         const mediaClasse = i.media_certificado != null ? (i.media_certificado >= 14 ? "cor-media-alta" : (i.media_certificado >= 10 ? "cor-media-media" : "cor-media-baixa")) : "";
         
@@ -123,38 +124,98 @@ async function carregarInscricoesDir() {
         if (i.curso_pretendido) html += '<div class="meta-item"><span class="meta-rotulo">Curso</span><span class="meta-valor">' + esc(i.curso_pretendido) + '</span></div>';
         html += '    <div class="meta-item"><span class="meta-rotulo">Média</span><span class="meta-valor ' + mediaClasse + '">' + media + '</span></div>';
         html += '  </div>';
-        html += '  <div class="cartao-sec-acoes"><button class="btn-acao btn-acao-primario" onclick="verDetalheInscricaoDir(\'' + i.id + '\')"><i class="fas fa-eye"></i> Ver detalhes</button></div>';
+        html += '  <div class="cartao-sec-acoes"><button class="btn-acao btn-acao-primario" data-ver-inscricao-dir-mobile="' + idx + '"><i class="fas fa-eye"></i> Ver detalhes</button></div>';
+        html += '  <div data-inscricao-dir-mobile="' + idx + '" style="display:none; margin-top:12px;"></div>';
         html += '</div>';
     });
     html += '</div>';
 
     container.innerHTML = html;
+
+    container.querySelectorAll("[data-ver-inscricao-dir]").forEach(btn => {
+        btn.addEventListener("click", function() { 
+            const idx = parseInt(this.getAttribute("data-ver-inscricao-dir"), 10); 
+            abrirDetalheInscricaoDir(lista[idx], idx, false); 
+        });
+    });
+    container.querySelectorAll("[data-ver-inscricao-dir-mobile]").forEach(btn => {
+        btn.addEventListener("click", function() { 
+            const idx = parseInt(this.getAttribute("data-ver-inscricao-dir-mobile"), 10); 
+            abrirDetalheInscricaoDir(lista[idx], idx, true); 
+        });
+    });
 }
 
-async function verDetalheInscricaoDir(inscricaoId) {
+async function abrirDetalheInscricaoDir(insc, idx, éMobile) {
     const token = obterToken();
-    const dados = await chamarRPC("cesc_diretor_listar_inscricoes", { p_token: token, p_ano_lectivo: null });
-    if (!dados.ok) { alert("Erro ao carregar detalhes."); return; }
-    
-    const insc = (dados.inscricoes || []).find(i => i.id === inscricaoId);
-    if (!insc) { alert("Inscrição não encontrada."); return; }
+    const selLinha = éMobile ? '[data-inscricao-dir-mobile="' + idx + '"]' : '[data-inscricao-dir-linha="' + idx + '"]';
+    const selConteudo = éMobile ? '[data-inscricao-dir-mobile="' + idx + '"]' : '[data-inscricao-dir-conteudo="' + idx + '"]';
+    const painel = document.querySelector(selLinha);
+    const conteudo = document.querySelector(selConteudo);
 
-    let html = '<div style="font-size:0.9rem; line-height:1.8;">';
-    html += '<h4 style="margin:0 0 8px 0; color:var(--cor-azul);">Dados do Candidato</h4>';
-    html += `<div><strong>Referência:</strong> ${esc(insc.referencia)}</div>`;
-    html += `<div><strong>Nome:</strong> ${esc(insc.nome_completo)}</div>`;
-    html += `<div><strong>BI:</strong> ${esc(insc.bi_numero)}</div>`;
-    html += `<div><strong>Data de Nascimento:</strong> ${fmtData(insc.data_nascimento || '')}</div>`;
-    html += `<div><strong>Género:</strong> ${insc.genero === 'M' ? 'Masculino' : 'Feminino'}</div>`;
-    html += `<div><strong>Telefone:</strong> ${esc(insc.telefone || '—')}</div>`;
-    html += `<div><strong>Email:</strong> ${esc(insc.email || '—')}</div>`;
-    html += `<div><strong>Encarregado:</strong> ${esc(insc.nome_encarregado || '—')} (${esc(insc.telefone_encarregado || '—')})</div>`;
-    html += `<div><strong>Classe pretendida:</strong> ${esc(insc.classe_pretendida)}</div>`;
-    html += `<div><strong>Curso pretendido:</strong> ${esc(insc.curso_pretendido || '—')}</div>`;
-    html += `<div><strong>Média do Certificado:</strong> ${insc.media_certificado != null ? Number(insc.media_certificado).toFixed(1) + ' / 20' : '—'}</div>`;
-    html += `<div><strong>Estado:</strong> <span class="badge badge-${esc(insc.estado)}">${esc(capitalizar(insc.estado))}</span></div>`;
-    if (insc.motivo_rejeicao) html += `<div><strong>Motivo de Rejeição:</strong> ${esc(insc.motivo_rejeicao)}</div>`;
+    if (painel.style.display === "block" || painel.style.display === "table-row") {
+        painel.style.display = "none";
+        return;
+    }
+
+    painel.style.display = éMobile ? "block" : "table-row";
+    conteudo.innerHTML = '<div class="loader" style="width:24px; height:24px; margin:10px auto;"></div>';
+
+    const media = insc.media_certificado != null ? Number(insc.media_certificado).toFixed(2) : "—";
+    const urls = await obterUrlsDocumentosDir(insc);
+
+    let html = '<div class="inscricao-detalhe-box">';
+    html += '<h3 style="margin-bottom:12px; color:var(--cor-azul);">Detalhes da Inscrição</h3>';
+    html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:0.9rem; margin-bottom:16px;">';
+    html += '<div><strong>BI:</strong> ' + esc(insc.bi_numero) + '</div>';
+    html += '<div><strong>Data Nasc:</strong> ' + fmtData(insc.data_nascimento) + '</div>';
+    html += '<div><strong>Género:</strong> ' + (insc.genero === "M" ? "Masculino" : "Feminino") + '</div>';
+    html += '<div><strong>Telefone:</strong> ' + esc(insc.telefone) + '</div>';
+    html += '<div><strong>Email:</strong> ' + esc(insc.email || "—") + '</div>';
+    html += '<div><strong>Encarregado:</strong> ' + esc(insc.nome_encarregado) + ' (' + esc(insc.telefone_encarregado) + ')</div>';
+    html += '<div><strong>Classe pretendida:</strong> ' + esc(insc.classe_pretendida) + '</div>';
+    if (insc.curso_pretendido) html += '<div><strong>Curso pretendido:</strong> ' + esc(insc.curso_pretendido) + '</div>';
+    html += '<div style="grid-column: 1 / -1; background:var(--cor-fundo); padding:8px 12px; border-radius:6px; margin-top:8px;"><strong>Média do Certificado:</strong> <span style="font-size:1.1rem; color:var(--cor-azul);">' + media + ' / 20</span></div></div>';
+
+    if (insc.estado === "rejeitada" && insc.codigo_rejeicao != null) {
+        html += '<div style="background:#fef3c7; border:1px solid #fcd34d; color:#92400e; padding:10px 12px; border-radius:6px; margin-bottom:12px; font-size:0.85rem;"><strong>Rejeitada</strong> (código ' + insc.codigo_rejeicao + '): ' + esc(insc.motivo_rejeicao || "—") + '</div>';
+    }
+
+    html += '<h4 style="margin-bottom:8px; color:var(--cor-azul);">Documentos</h4><div class="docs-grelha">';
+    const docs = [
+        { label: "BI Frente", url: urls.bi_frente }, 
+        { label: "BI Verso", url: urls.bi_verso },
+        { label: "Certificado", url: urls.certificado }, 
+        { label: "Foto", url: urls.foto }
+    ];
+    docs.forEach(function (d) {
+        if (d.url) { html += '<a href="' + d.url + '" target="_blank" class="doc-btn"><i class="fas fa-file-image"></i> ' + d.label + '</a>'; }
+        else { html += '<span class="doc-btn" style="opacity:0.5; cursor:not-allowed;"><i class="fas fa-times"></i> ' + d.label + ' (Erro)</span>'; }
+    });
     html += '</div>';
+    html += '</div>';
+    conteudo.innerHTML = html;
+}
 
-    abrirModal("Detalhes da Inscrição", html, async () => true, "Fechar");
+async function obterUrlsDocumentosDir(insc) {
+    const urls = { bi_frente: null, bi_verso: null, certificado: null, foto: null };
+    const map = { 
+        bi_frente: insc.doc_bi_frente_url, 
+        bi_verso: insc.doc_bi_verso_url, 
+        certificado: insc.doc_certificado_url, 
+        foto: insc.doc_foto_url 
+    };
+    for (const chave in map) {
+        const path = map[chave];
+        if (!path) continue;
+        try {
+            const res = await fetch(API.SUPABASE_URL + "/functions/v1/gerar-url-assinada", {
+                method: "POST",
+                headers: { "apikey": API.SUPABASE_ANON_KEY, "Authorization": "Bearer " + API.SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+                body: JSON.stringify({ caminho: path })
+            });
+            if (res.ok) { const data = await res.json(); if (data.ok && data.url) urls[chave] = data.url; }
+        } catch (e) { console.error("Erro de rede:", chave, e); }
+    }
+    return urls;
 }
