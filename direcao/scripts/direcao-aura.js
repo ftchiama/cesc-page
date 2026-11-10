@@ -96,59 +96,77 @@ async function carregarAuraDir() {
         }
 
         // Botão TRANSIÇÃO
-        const btnTransicao = document.getElementById("btn-executar-transicao");
-        if (btnTransicao) {
-            btnTransicao.addEventListener("click", function () {
-                const htmlModal = `
-                    <p>Vais preparar os alunos para o próximo ano letivo.</p>
-                    <div class="campo-grupo">
-                        <label>Ano Letivo Atual</label>
-                        <input type="text" id="trans-ano-atual" value="2026/2027" placeholder="Ex: 2026/2027">
-                    </div>
-                    <div class="campo-grupo">
-                        <label>Novo Ano Letivo</label>
-                        <input type="text" id="trans-ano-novo" value="2027/2028" placeholder="Ex: 2027/2028">
-                    </div>
-                    <p style="font-size:0.8rem; color:#64748b; margin-top:8px;">Os alunos da 9ª e 12ª não transitam automaticamente (concluem o ciclo).</p>
-                    <p id="msg-transicao-modal" class="msg-form" style="margin-top:10px; display:none;"></p>
-                `;
-
-                abrirModal("Executar Transição de Ano", htmlModal, async function () {
-                    const msg = document.getElementById("msg-transicao-modal");
-                    const anoAtual = document.getElementById("trans-ano-atual").value.trim();
-                    const anoNovo = document.getElementById("trans-ano-novo").value.trim();
-
-                    if (!anoAtual || !anoNovo) {
-                        msg.textContent = "Preenche os dois anos.";
-                        msg.className = "msg-form erro";
-                        msg.style.display = "block";
-                        return false;
-                    }
-
-                    const res = await chamarRPC("cesc_aura_transicao", {
-                        p_token: obterToken(),
-                        p_ano_lectivo_actual: anoAtual,
-                        p_novo_ano_lectivo: anoNovo
-                    });
-
-                    if (res.ok) {
-                          const msgFinal = document.getElementById("msg-executar-aura");
-                           msgFinal.className = "msg-form sucesso";
-                           msgFinal.textContent = `Transição concluída! Analisados: ${res.total_analisados}. Novas inscrições: ${res.novas_inscricoes_criadas}. O ano letivo atual passou a ser ${res.novo_ano_actual}.`;
-    
-                             // Recarregar a página ao fim de 2.5s para todos os sítios mostrarem o novo ano
-                            setTimeout(() => window.location.reload(), 2500);
-    
-                             return true;
-                           }else {
-                        msg.textContent = res.erro || "Erro na transição.";
-                        msg.className = "msg-form erro";
-                        msg.style.display = "block";
-                        return false;
-                    }
-                }, "Confirmar Transição");
-            });
+        // Botão TRANSIÇÃO
+const btnTransicao = document.getElementById("btn-executar-transicao");
+if (btnTransicao) {
+    btnTransicao.addEventListener("click", async function () {
+        // Obter o ano atual das configurações
+        const cfg = await chamarRPC("cesc_diretor_listar_configuracoes", { p_token: token });
+        let anoAtual = "2026/2027";
+        if (cfg.ok) {
+            const item = (cfg.configuracoes || []).find(c => c.chave === "ano_lectivo_actual");
+            if (item && item.valor) anoAtual = item.valor;
         }
+
+        // Calcular o próximo ano (ex: 2026/2027 -> 2027/2028)
+        let anoNovo = "";
+        if (anoAtual.includes("/")) {
+            const partes = anoAtual.split("/");
+            const anoInicio = parseInt(partes[0], 10);
+            const anoFim = parseInt(partes[1], 10);
+            if (!isNaN(anoInicio) && !isNaN(anoFim)) {
+                anoNovo = (anoInicio + 1) + "/" + (anoFim + 1);
+            }
+        }
+
+        const htmlModal = `
+            <p>Vais preparar os alunos para o próximo ano letivo.</p>
+            <div class="campo-grupo">
+                <label>Ano Letivo Atual</label>
+                <input type="text" id="trans-ano-atual" value="${esc(anoAtual)}" placeholder="Ex: 2026/2027">
+            </div>
+            <div class="campo-grupo">
+                <label>Novo Ano Letivo</label>
+                <input type="text" id="trans-ano-novo" value="${esc(anoNovo)}" placeholder="Ex: 2027/2028">
+            </div>
+            <p style="font-size:0.8rem; color:#64748b; margin-top:8px;">Os alunos da 9ª e 12ª não transitam automaticamente (concluem o ciclo).</p>
+            <p id="msg-transicao-modal" class="msg-form" style="margin-top:10px; display:none;"></p>
+        `;
+
+        abrirModal("Executar Transição de Ano", htmlModal, async function () {
+            const msg = document.getElementById("msg-transicao-modal");
+            const anoAtualInput = document.getElementById("trans-ano-atual").value.trim();
+            const anoNovoInput = document.getElementById("trans-ano-novo").value.trim();
+
+            if (!anoAtualInput || !anoNovoInput) {
+                msg.textContent = "Preenche os dois anos.";
+                msg.className = "msg-form erro";
+                msg.style.display = "block";
+                return false;
+            }
+
+            const res = await chamarRPC("cesc_aura_transicao", {
+                p_token: obterToken(),
+                p_ano_lectivo_actual: anoAtualInput,
+                p_novo_ano_lectivo: anoNovoInput
+            });
+
+            if (res.ok) {
+                const msgFinal = document.getElementById("msg-executar-aura");
+                msgFinal.className = "msg-form sucesso";
+                msgFinal.textContent = `Transição concluída! Analisados: ${res.total_analisados}. Novas inscrições: ${res.novas_inscricoes_criadas}. O ano letivo atual passou a ser ${res.novo_ano_actual}.`;
+                
+                setTimeout(() => window.location.reload(), 2500);
+                return true;
+            } else {
+                msg.textContent = res.erro || "Erro na transição.";
+                msg.className = "msg-form erro";
+                msg.style.display = "block";
+                return false;
+            }
+        }, "Confirmar Transição");
+    });
+}
     }
 }
 
