@@ -1,6 +1,8 @@
 async function carregarInscricoesDir() {
     const token = obterToken();
     const container = document.getElementById("lista-dir-inscricoes");
+    if (!container) return; // Segurança extra
+
     container.innerHTML = '<div class="loader-container" style="min-height:180px;"><div class="loader"></div></div>';
 
     const selAno = document.getElementById("filtro-dir-inscricoes-ano");
@@ -80,7 +82,7 @@ async function carregarInscricoesDir() {
 
     // Tabela
     let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec">';
-    html += '<thead><tr><th>Referência</th><th>Candidato</th><th>Classe</th><th>Média</th><th>Data</th><th>Estado</th><th>AURA</th></tr></thead><tbody>';
+    html += '<thead><tr><th>Referência</th><th>Candidato</th><th>Classe</th><th>Média</th><th>Data</th><th>Estado</th><th>AURA</th><th>Acções</th></tr></thead><tbody>';
 
     lista.forEach((i) => {
         const media = i.media_certificado != null ? Number(i.media_certificado).toFixed(1) : "—";
@@ -104,6 +106,7 @@ async function carregarInscricoesDir() {
         html += '  <td>' + fmtData(i.data_submissao) + '</td>';
         html += '  <td>' + estadoHtml + '</td>';
         html += '  <td>' + auraHtml + '</td>';
+        html += '  <td><button class="btn-acao btn-acao-secundario" onclick="verDetalheInscricaoDir(\'' + i.id + '\')"><i class="fas fa-eye"></i> Ver</button></td>';
         html += '</tr>';
     });
     html += '</tbody></table></div>';
@@ -132,6 +135,7 @@ async function carregarInscricoesDir() {
         html += '    <div class="meta-item"><span class="meta-rotulo">Média</span><span class="meta-valor ' + mediaClasse + '">' + media + '</span></div>';
         html += '    <div class="meta-item"><span class="meta-rotulo">AURA</span><span class="meta-valor">' + auraHtml + '</span></div>';
         html += '  </div>';
+        html += '  <div class="cartao-sec-acoes"><button class="btn-acao btn-acao-primario" onclick="verDetalheInscricaoDir(\'' + i.id + '\')"><i class="fas fa-eye"></i> Ver detalhes</button></div>';
         html += '</div>';
     });
     html += '</div>';
@@ -139,5 +143,6 @@ async function carregarInscricoesDir() {
     container.innerHTML = html;
 }
 
-
-//
+function verDetalheInscricaoDir(inscricaoId) {
+    abrirModal("Detalhes da Inscrição", '<p>A ficha detalhada com documentos e histórico está disponível na secção "Alunos".</p>', async () => true, "Fechar");
+}
