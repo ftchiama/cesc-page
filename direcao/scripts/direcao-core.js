@@ -52,7 +52,7 @@ function mostrarSeccaoDir(id) {
     });
 
     if (id === "alunos" && typeof carregarAlunos === "function") carregarAlunos();
-    else if (id === "inscricoes" && typeof inicializarInscricoes === "function") inicializarInscricoes();
+    else if (id === "inscricoes" && typeof carregarInscricoesDir === "function") carregarInscricoesDir();
     else if (id === "matriculas" && typeof carregarMatriculas === "function") carregarMatriculas();
     else if (id === "documentos" && typeof carregarDocumentos === "function") carregarDocumentos();
     else if (id === "salas" && typeof carregarSalasDir === "function") carregarSalasDir();
@@ -63,7 +63,6 @@ function mostrarSeccaoDir(id) {
     else if (id === "academico" && typeof carregarAcademico === "function") carregarAcademico();
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
-
 async function carregarEstatisticas(token) {
     const stats = await chamarRPC("cesc_diretor_estatisticas_globais", { p_token: token });
     if (stats.ok) {
