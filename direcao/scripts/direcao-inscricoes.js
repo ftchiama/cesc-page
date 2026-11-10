@@ -138,3 +138,6 @@ async function carregarInscricoesDir() {
 
     container.innerHTML = html;
 }
+
+
+//
