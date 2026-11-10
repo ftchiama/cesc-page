@@ -24,7 +24,7 @@ async function carregarAuraDir() {
         }
     }
 
-    // 2. CARREGAR ALOCAÇÕES (Usando a RPC do Diretor que já existe no public)
+    // 2. CARREGAR ALOCAÇÕES
     const selAno = document.getElementById("filtro-aura-ano-alocacao");
     if (selAno && !selAno.value) {
         selAno.innerHTML = '<option value="2026/2027">2026/2027</option>';
@@ -52,6 +52,7 @@ async function carregarAuraDir() {
         const selAnoAloc = document.getElementById("filtro-aura-ano-alocacao");
         if (selAnoAloc) selAnoAloc.addEventListener("change", carregarAuraDir);
 
+        // Botão JUIZ
         const btnJuiz = document.getElementById("btn-executar-juiz");
         if (btnJuiz) {
             btnJuiz.addEventListener("click", function () {
@@ -62,6 +63,7 @@ async function carregarAuraDir() {
             });
         }
 
+        // Botão DISTRIBUIDOR
         const btnDist = document.getElementById("btn-executar-distribuidor");
         if (btnDist) {
             btnDist.addEventListener("click", function () {
@@ -69,6 +71,57 @@ async function carregarAuraDir() {
                     await executarAura("cesc_aura_distribuir", "DISTRIBUIDOR");
                     return true;
                 }, "Confirmar");
+            });
+        }
+
+        // Botão TRANSIÇÃO
+        const btnTransicao = document.getElementById("btn-executar-transicao");
+        if (btnTransicao) {
+            btnTransicao.addEventListener("click", function () {
+                const htmlModal = `
+                    <p>Vais preparar os alunos para o próximo ano letivo.</p>
+                    <div class="campo-grupo">
+                        <label>Ano Letivo Atual</label>
+                        <input type="text" id="trans-ano-atual" value="2026/2027" placeholder="Ex: 2026/2027">
+                    </div>
+                    <div class="campo-grupo">
+                        <label>Novo Ano Letivo</label>
+                        <input type="text" id="trans-ano-novo" value="2027/2028" placeholder="Ex: 2027/2028">
+                    </div>
+                    <p style="font-size:0.8rem; color:#64748b; margin-top:8px;">Os alunos da 9ª e 12ª não transitam automaticamente (concluem o ciclo).</p>
+                    <p id="msg-transicao-modal" class="msg-form" style="margin-top:10px; display:none;"></p>
+                `;
+
+                abrirModal("Executar Transição de Ano", htmlModal, async function () {
+                    const msg = document.getElementById("msg-transicao-modal");
+                    const anoAtual = document.getElementById("trans-ano-atual").value.trim();
+                    const anoNovo = document.getElementById("trans-ano-novo").value.trim();
+
+                    if (!anoAtual || !anoNovo) {
+                        msg.textContent = "Preenche os dois anos.";
+                        msg.className = "msg-form erro";
+                        msg.style.display = "block";
+                        return false;
+                    }
+
+                    const res = await chamarRPC("cesc_aura_transicao", {
+                        p_token: obterToken(),
+                        p_ano_lectivo_actual: anoAtual,
+                        p_novo_ano_lectivo: anoNovo
+                    });
+
+                    if (res.ok) {
+                        const msgFinal = document.getElementById("msg-executar-aura");
+                        msgFinal.className = "msg-form sucesso";
+                        msgFinal.textContent = `Transição concluída! Analisados: ${res.total_analisados}. Novas inscrições: ${res.novas_inscricoes_criadas}.`;
+                        return true;
+                    } else {
+                        msg.textContent = res.erro || "Erro na transição.";
+                        msg.className = "msg-form erro";
+                        msg.style.display = "block";
+                        return false;
+                    }
+                }, "Confirmar Transição");
             });
         }
     }
