@@ -13,23 +13,9 @@
     <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/paginas.css">
+    <link rel="stylesheet" href="../css/home.css">
 </head>
 <body>
-    <!--
-     Autor: Francisco Tchiama
-     Companhia: TCLabs
-     Data: 18/10/2026
-     Versão: 1.0
-     Descrição:
-     Página pública de acesso à biblioteca digital (Fase 1 - apenas apresentação).
-    
-     Como faz:
-     - Apresenta o conceito da biblioteca e o seu valor para os alunos.
-     - Terá um botão "Entrar na Biblioteca" que, na Fase 2, redirecionará para o login.
-    
-     Porque faz:
-     - Valoriza o trabalho dos alunos e preserva o conhecimento gerado na escola.
-    -->
 
     <header class="cabecalho">
         <div class="container cabecalho-conteudo">
@@ -43,6 +29,7 @@
 
             <nav class="menu-desktop">
                 <a href="../index.html">Início</a>
+                <a href="noticias.html">Notícias</a>
                 <a href="biblioteca.html" class="ativo">Biblioteca</a>
                 <a href="sobre.html">O Complexo</a>
                 <a href="contacto.html">Contacto</a>
@@ -55,18 +42,27 @@
         </div>
     </header>
 
-    <div class="menu-mobile-overlay" id="menuOverlay"></div>
-    <aside class="menu-mobile" id="menuMobile">
-        <div class="menu-mobile-topo">
-            <span>Menu</span>
-            <button id="menuFechar"><i class="fas fa-times"></i></button>
+    <!-- Drawer Mobile -->
+    <div class="sidebar-overlay" id="menuOverlay"></div>
+    <aside class="sidebar" id="menuMobile">
+        <div class="sidebar-topo">
+            <div class="sidebar-logo">
+                <div class="logo-icone"><i class="fas fa-graduation-cap"></i></div>
+                <div class="logo-texto">
+                    <span class="logo-nome">CESC</span>
+                    <span class="logo-sub">Santa Catarina</span>
+                </div>
+            </div>
+            <button class="sidebar-fechar" id="menuFechar"><i class="fas fa-times"></i></button>
         </div>
-        <nav class="menu-mobile-links">
-            <a href="../index.html">Início</a>
-            <a href="biblioteca.html">Biblioteca Digital</a>
-            <a href="sobre.html">O Complexo</a>
-            <a href="contacto.html">Contacto</a>
-            <a href="login.html" class="botao-secundario" style="margin-top: 16px; text-align: center;">Área Reservada</a>
+
+        <nav class="sidebar-nav">
+            <a href="../index.html" class="nav-item"><i class="fas fa-home"></i> Início</a>
+            <a href="noticias.html" class="nav-item"><i class="fas fa-newspaper"></i> Notícias</a>
+            <a href="biblioteca.html" class="nav-item ativo"><i class="fas fa-book-open"></i> Biblioteca</a>
+            <a href="sobre.html" class="nav-item"><i class="fas fa-school"></i> O Complexo</a>
+            <a href="contacto.html" class="nav-item"><i class="fas fa-envelope"></i> Contacto</a>
+            <a href="login.html" class="nav-item"><i class="fas fa-lock"></i> Área Reservada</a>
         </nav>
     </aside>
 
@@ -86,7 +82,7 @@
                     <i class="fas fa-book-open"></i>
                     <h2>Acesso Restrito</h2>
                     <p>A biblioteca está disponível apenas para alunos e professores do CESC.</p>
-                    <a href="#" class="botao-primario" style="margin-top: 16px;">Iniciar Sessão para Entrar</a>
+                    <a href="login.html" class="botao-primario" style="margin-top: 16px;">Iniciar Sessão para Entrar</a>
                 </div>
             </div>
         </section>
@@ -99,6 +95,7 @@
         </div>
     </footer>
 
+    <script src="../scripts/api.js"></script>
     <script src="../scripts/main.js"></script>
 </body>
 </html>
