@@ -44,7 +44,6 @@
             <span class="nav-rotulo">Escola</span>
             <a href="#" class="nav-item" data-seccao="alunos"><i class="fas fa-user-graduate"></i> Alunos</a>
             <a href="#" class="nav-item" data-seccao="inscricoes"><i class="fas fa-inbox"></i> Inscrições</a>
-            <a href="#" class="nav-item" data-seccao="matriculas"><i class="fas fa-file-signature"></i> Matrículas</a>
             <a href="#" class="nav-item" data-seccao="salas"><i class="fas fa-school"></i> Salas</a>
             
             <span class="nav-rotulo">Gestão</span>
@@ -114,12 +113,11 @@
                 </div>
                 <div id="lista-alunos-container"></div>
             </section>
-
-            <!-- INSCRIÇÕES -->
+   
+      <!-- INSCRIÇÕES -->
 <section class="pagina-seccao" id="seccao-inscricoes">
     <div class="pagina-cabecalho"><h1>Inscrições</h1></div>
-    
-    <!-- Filtro de Ano (fica por cima dos cards) -->
+
     <div class="barra-acoes" style="margin-bottom: 16px;">
         <label for="filtro-dir-inscricoes-ano">Ano letivo:</label>
         <select id="filtro-dir-inscricoes-ano" class="campo-select"></select>
@@ -134,73 +132,31 @@
         <div class="stat-card"><div class="stat-header"><i class="fas fa-times-circle"></i> Rejeitadas</div><div class="stat-valor" id="stat-inscricoes-rejeitadas">—</div><div class="stat-subtexto" id="stat-rejeitadas-detalhe"></div></div>
     </div>
 
-    <!-- Filtros da Lista -->
-    <div class="barra-acoes" style="flex-direction: column; align-items: stretch; gap: 12px;">
-        <div style="display: flex; gap: 12px; flex-wrap: wrap; width: 100%;">
-            <select id="filtro-inscricoes-estado" class="campo-select" style="flex: 1 1 180px;">
-                <option value="">Todos os estados</option>
-                <option value="pendente">Pendentes</option>
-                <option value="aprovada">Aprovadas</option>
-                <option value="matricula_paga">Matrícula Paga</option>
-                <option value="matriculado">Matriculado</option>
-                <option value="rejeitada">Rejeitadas</option>
-            </select>
-            <select id="filtro-dir-inscricoes-classe" class="campo-select" style="flex: 1 1 180px;">
-                <option value="">Todas as classes</option>
-            </select>
-            <select id="filtro-inscricoes-ordem" class="campo-select" style="flex: 1 1 220px;">
-                <option value="data_desc">Mais recentes primeiro</option>
-                <option value="nome_asc">Ordem alfabética (A-Z)</option>
-            </select>
-        </div>
+    <!-- Pesquisa -->
+    <div class="barra-acoes" style="margin-bottom: 16px;">
+        <input type="text" id="filtro-dir-inscricoes-pesquisa" class="campo-input" placeholder="Pesquisar por nome, BI ou referência..." style="width: 100%;">
+    </div>
+
+    <!-- Filtros -->
+    <div class="barra-acoes" style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <select id="filtro-inscricoes-estado" class="campo-select" style="flex: 1 1 180px;">
+            <option value="">Todos os estados</option>
+            <option value="pendente">Pendentes</option>
+            <option value="aprovada">Aprovadas</option>
+            <option value="matricula_paga">Matrícula Paga</option>
+            <option value="matriculado">Matriculado</option>
+            <option value="rejeitada">Rejeitadas</option>
+        </select>
+        <select id="filtro-dir-inscricoes-classe" class="campo-select" style="flex: 1 1 180px;">
+            <option value="">Todas as classes</option>
+        </select>
+        <select id="filtro-inscricoes-ordem" class="campo-select" style="flex: 1 1 220px;">
+            <option value="data_desc">Mais recentes primeiro</option>
+            <option value="nome_asc">Ordem alfabética (A-Z)</option>
+        </select>
     </div>
     <div id="lista-dir-inscricoes"></div>
 </section>
-
-            <!-- MATRÍCULAS -->
-            <section class="pagina-seccao" id="seccao-matriculas">
-                <div class="pagina-cabecalho"><h1>Matrículas</h1></div>
-                
-                <div class="barra-acoes" style="margin-bottom: 16px;">
-                    <label for="filtro-matriculas-ano">Ano letivo:</label>
-                    <select id="filtro-matriculas-ano" class="campo-select"></select>
-                </div>
-
-                <div class="stats-grelha" style="margin-bottom: 24px;">
-                    <div class="stat-card"><div class="stat-header"><i class="fas fa-file-signature"></i> Total</div><div class="stat-valor" id="stat-matriculas-total">—</div></div>
-                    <div class="stat-card"><div class="stat-header"><i class="fas fa-user-check"></i> Activos</div><div class="stat-valor" id="stat-matriculas-activos">—</div></div>
-                    <div class="stat-card stat-card-alerta"><div class="stat-header"><i class="fas fa-clock"></i> Aguardam Sala</div><div class="stat-valor" id="stat-matriculas-pendentes">—</div></div>
-                </div>
-
-                <div class="barra-acoes" style="margin-bottom: 16px;">
-                    <input type="text" id="filtro-matriculas-nome" class="campo-input" placeholder="Pesquisar por nome ou BI...">
-                </div>
-                <div id="lista-matriculas-container"></div>
-            </section>
-
-            <!-- SALAS -->
-            <section class="pagina-seccao" id="seccao-salas">
-                <div class="pagina-cabecalho"><h1>Salas</h1></div>
-                <div class="stats-grelha" style="margin-bottom: 24px;">
-                    <div class="stat-card"><div class="stat-header"><i class="fas fa-door-open"></i> Total de Salas</div><div class="stat-valor" id="stat-total-salas">0</div></div>
-                    <div class="stat-card"><div class="stat-header"><i class="fas fa-school"></i> Pavilhões</div><div class="stat-valor" id="stat-total-pavilhoes">0</div></div>
-                    <div class="stat-card"><div class="stat-header"><i class="fas fa-clock"></i> Turnos</div><div class="stat-valor" id="stat-total-turnos">0</div></div>
-                </div>
-
-                <div class="barra-acoes" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px;">
-                    <select id="dir-filtro-sala-turno" class="campo-select" style="flex: 1; min-width: 130px;">
-                        <option value="">Todos os Turnos</option>
-                        <option value="Matinal">Matinal</option>
-                        <option value="Vespertino">Vespertino</option>
-                        <option value="Noturno">Noturno</option>
-                    </select>
-                    <select id="dir-filtro-sala-pavilhao" class="campo-select" style="flex: 1; min-width: 130px;">
-                        <option value="">Todos os Pavilhões</option>
-                    </select>
-                </div>
-                <div id="lista-dir-salas"></div>
-            </section>
-
             <!-- FINANCEIRO -->
             <section class="pagina-seccao" id="seccao-financeiro">
                 <div class="pagina-cabecalho"><h1>Financeiro</h1></div>

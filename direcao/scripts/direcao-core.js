@@ -53,7 +53,6 @@ function mostrarSeccaoDir(id) {
 
     if (id === "alunos" && typeof carregarAlunos === "function") carregarAlunos();
     else if (id === "inscricoes" && typeof carregarInscricoesDir === "function") carregarInscricoesDir();
-    else if (id === "matriculas" && typeof carregarMatriculas === "function") carregarMatriculas();
     else if (id === "documentos" && typeof carregarDocumentos === "function") carregarDocumentos();
     else if (id === "salas" && typeof carregarSalasDir === "function") carregarSalasDir();
     else if (id === "financeiro" && typeof carregarFinanceiroDir === "function") carregarFinanceiroDir();

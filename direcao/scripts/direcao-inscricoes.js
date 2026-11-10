@@ -9,22 +9,27 @@ async function carregarInscricoesDir() {
     const selClasse = document.getElementById("filtro-dir-inscricoes-classe");
     const selEstado = document.getElementById("filtro-inscricoes-estado");
     const selOrdem = document.getElementById("filtro-inscricoes-ordem");
+    const inputPesquisa = document.getElementById("filtro-dir-inscricoes-pesquisa");
 
+    // 1. Carregar anos (só uma vez) e selecionar o ano atual
     if (selAno && !selAno.dataset.ligado) {
         const rAnos = await chamarRPC("cesc_secretaria_listar_anos_inscricoes", { p_token: token });
         if (rAnos.ok && rAnos.anos && rAnos.anos.length > 0) {
             selAno.innerHTML = "";
             rAnos.anos.forEach(a => { selAno.innerHTML += `<option value="${a}">${a}</option>`; });
+            
             const cfg = await chamarRPC("cesc_diretor_listar_configuracoes", { p_token: token });
             if (cfg.ok) {
                 const anoAtual = (cfg.configuracoes || []).find(c => c.chave === "ano_lectivo_actual");
                 if (anoAtual && rAnos.anos.includes(anoAtual.valor)) selAno.value = anoAtual.valor;
+                else selAno.value = rAnos.anos[0]; // fallback: o mais recente
             }
         }
         selAno.dataset.ligado = "1";
         selAno.addEventListener("change", carregarInscricoesDir);
     }
 
+    // 2. Carregar classes (só uma vez)
     if (selClasse && !selClasse.dataset.ligado) {
         const rClasses = await chamarRPC("cesc_diretor_listar_classes", { p_token: token });
         if (rClasses.ok) {
@@ -36,12 +41,15 @@ async function carregarInscricoesDir() {
 
     if (selEstado && !selEstado.dataset.ligado) { selEstado.dataset.ligado = "1"; selEstado.addEventListener("change", carregarInscricoesDir); }
     if (selOrdem && !selOrdem.dataset.ligado) { selOrdem.dataset.ligado = "1"; selOrdem.addEventListener("change", carregarInscricoesDir); }
+    if (inputPesquisa && !inputPesquisa.dataset.ligado) { inputPesquisa.dataset.ligado = "1"; inputPesquisa.addEventListener("input", carregarInscricoesDir); }
 
     const ano = selAno ? selAno.value : "";
     const classeFiltro = selClasse ? selClasse.value : "";
     const estadoFiltro = selEstado ? selEstado.value : "";
     const ordemFiltro = selOrdem ? selOrdem.value : "data_desc";
+    const termo = inputPesquisa ? inputPesquisa.value.trim().toLowerCase() : "";
 
+    // 3. Cards de resumo
     if (ano) {
         const stats = await chamarRPC("cesc_secretaria_stats_inscricoes", { p_token: token, p_ano_lectivo: ano });
         if (stats.ok) {
@@ -54,18 +62,25 @@ async function carregarInscricoesDir() {
         }
     }
 
+    // 4. Lista
     const dados = await chamarRPC("cesc_diretor_listar_inscricoes", { p_token: token, p_ano_lectivo: ano || null });
     if (!dados.ok) { container.innerHTML = '<div class="estado-vazio">' + esc(dados.erro) + '</div>'; return; }
 
     let lista = dados.inscricoes || [];
     if (classeFiltro) lista = lista.filter(i => i.classe_pretendida === classeFiltro);
     if (estadoFiltro) lista = lista.filter(i => i.estado === estadoFiltro);
+    if (termo) lista = lista.filter(i => 
+        (i.nome_completo || "").toLowerCase().includes(termo) || 
+        (i.bi_numero || "").toLowerCase().includes(termo) || 
+        (i.referencia || "").toLowerCase().includes(termo)
+    );
 
     if (ordemFiltro === "nome_asc") lista.sort((a, b) => (a.nome_completo || "").localeCompare(b.nome_completo || ""));
     else lista.sort((a, b) => (b.data_submissao || "").localeCompare(a.data_submissao || ""));
 
     if (lista.length === 0) { container.innerHTML = '<div class="estado-vazio">Sem inscrições registadas com estes filtros.</div>'; return; }
 
+    // Tabela
     let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec">';
     html += '<thead><tr><th>Referência</th><th>Candidato</th><th>Classe</th><th>Média</th><th>Data</th><th>Estado</th><th>Acções</th></tr></thead><tbody>';
 
@@ -90,6 +105,7 @@ async function carregarInscricoesDir() {
     });
     html += '</tbody></table></div>';
 
+    // Mobile
     html += '<div class="cartoes-sec">';
     lista.forEach((i) => {
         const media = i.media_certificado != null ? Number(i.media_certificado).toFixed(1) : "—";
@@ -115,6 +131,30 @@ async function carregarInscricoesDir() {
     container.innerHTML = html;
 }
 
-function verDetalheInscricaoDir(inscricaoId) {
-    abrirModal("Detalhes da Inscrição", '<p>A ficha detalhada com documentos e histórico está disponível na secção "Alunos".</p>', async () => true, "Fechar");
+async function verDetalheInscricaoDir(inscricaoId) {
+    const token = obterToken();
+    const dados = await chamarRPC("cesc_diretor_listar_inscricoes", { p_token: token, p_ano_lectivo: null });
+    if (!dados.ok) { alert("Erro ao carregar detalhes."); return; }
+    
+    const insc = (dados.inscricoes || []).find(i => i.id === inscricaoId);
+    if (!insc) { alert("Inscrição não encontrada."); return; }
+
+    let html = '<div style="font-size:0.9rem; line-height:1.8;">';
+    html += '<h4 style="margin:0 0 8px 0; color:var(--cor-azul);">Dados do Candidato</h4>';
+    html += `<div><strong>Referência:</strong> ${esc(insc.referencia)}</div>`;
+    html += `<div><strong>Nome:</strong> ${esc(insc.nome_completo)}</div>`;
+    html += `<div><strong>BI:</strong> ${esc(insc.bi_numero)}</div>`;
+    html += `<div><strong>Data de Nascimento:</strong> ${fmtData(insc.data_nascimento || '')}</div>`;
+    html += `<div><strong>Género:</strong> ${insc.genero === 'M' ? 'Masculino' : 'Feminino'}</div>`;
+    html += `<div><strong>Telefone:</strong> ${esc(insc.telefone || '—')}</div>`;
+    html += `<div><strong>Email:</strong> ${esc(insc.email || '—')}</div>`;
+    html += `<div><strong>Encarregado:</strong> ${esc(insc.nome_encarregado || '—')} (${esc(insc.telefone_encarregado || '—')})</div>`;
+    html += `<div><strong>Classe pretendida:</strong> ${esc(insc.classe_pretendida)}</div>`;
+    html += `<div><strong>Curso pretendido:</strong> ${esc(insc.curso_pretendido || '—')}</div>`;
+    html += `<div><strong>Média do Certificado:</strong> ${insc.media_certificado != null ? Number(insc.media_certificado).toFixed(1) + ' / 20' : '—'}</div>`;
+    html += `<div><strong>Estado:</strong> <span class="badge badge-${esc(insc.estado)}">${esc(capitalizar(insc.estado))}</span></div>`;
+    if (insc.motivo_rejeicao) html += `<div><strong>Motivo de Rejeição:</strong> ${esc(insc.motivo_rejeicao)}</div>`;
+    html += '</div>';
+
+    abrirModal("Detalhes da Inscrição", html, async () => true, "Fechar");
 }
