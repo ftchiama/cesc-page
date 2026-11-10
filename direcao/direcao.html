@@ -113,7 +113,28 @@
                 </div>
                 <div id="lista-alunos-container"></div>
             </section>
-   
+   <!-- SALAS -->
+<section class="pagina-seccao" id="seccao-salas">
+    <div class="pagina-cabecalho"><h1>Salas</h1></div>
+    <div class="stats-grelha" style="margin-bottom: 24px;">
+        <div class="stat-card"><div class="stat-header"><i class="fas fa-door-open"></i> Total de Salas</div><div class="stat-valor" id="stat-total-salas">0</div></div>
+        <div class="stat-card"><div class="stat-header"><i class="fas fa-school"></i> Pavilhões</div><div class="stat-valor" id="stat-total-pavilhoes">0</div></div>
+        <div class="stat-card"><div class="stat-header"><i class="fas fa-clock"></i> Turnos</div><div class="stat-valor" id="stat-total-turnos">0</div></div>
+    </div>
+
+    <div class="barra-acoes" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px;">
+        <select id="dir-filtro-sala-turno" class="campo-select" style="flex: 1; min-width: 130px;">
+            <option value="">Todos os Turnos</option>
+            <option value="Matinal">Matinal</option>
+            <option value="Vespertino">Vespertino</option>
+            <option value="Noturno">Noturno</option>
+        </select>
+        <select id="dir-filtro-sala-pavilhao" class="campo-select" style="flex: 1; min-width: 130px;">
+            <option value="">Todos os Pavilhões</option>
+        </select>
+    </div>
+    <div id="lista-dir-salas"></div>
+</section>
       <!-- INSCRIÇÕES -->
 <section class="pagina-seccao" id="seccao-inscricoes">
     <div class="pagina-cabecalho"><h1>Inscrições</h1></div>
