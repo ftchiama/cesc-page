@@ -15,6 +15,9 @@
 // ARRANQUE
 // ============================================================
 async function inicializarInscricoes() {
+    // Se NÃO estivermos na página da secretária (ex: estamos no diretor), para aqui.
+    if (!document.getElementById("sec-avatar")) return;
+
     const token = obterToken();
     if (!token) return;
 
@@ -93,7 +96,11 @@ function configurarFiltrosInscricoes() {
 // LISTA
 // ============================================================
 async function carregarInscricoes() {
+    // Se não for a página da secretária, para aqui.
+    if (!document.getElementById("sec-avatar")) return;
+
     const token = obterToken();
+    
     if (!token) return;
     const container = document.getElementById("lista-inscricoes-container");
     container.innerHTML = '<div class="loader-container" style="min-height:180px;"><div class="loader"></div></div>';
