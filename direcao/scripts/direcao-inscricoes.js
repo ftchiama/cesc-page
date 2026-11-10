@@ -5,6 +5,8 @@ async function carregarInscricoesDir() {
 
     const selAno = document.getElementById("filtro-dir-inscricoes-ano");
     const selClasse = document.getElementById("filtro-dir-inscricoes-classe");
+    const selEstado = document.getElementById("filtro-inscricoes-estado");
+    const selOrdem = document.getElementById("filtro-inscricoes-ordem");
 
     // 1. Carregar anos e classes (só uma vez)
     if (selAno && !selAno.dataset.ligado) {
@@ -32,16 +34,49 @@ async function carregarInscricoesDir() {
         selClasse.addEventListener("change", carregarInscricoesDir);
     }
 
+    if (selEstado && !selEstado.dataset.ligado) {
+        selEstado.dataset.ligado = "1";
+        selEstado.addEventListener("change", carregarInscricoesDir);
+    }
+
+    if (selOrdem && !selOrdem.dataset.ligado) {
+        selOrdem.dataset.ligado = "1";
+        selOrdem.addEventListener("change", carregarInscricoesDir);
+    }
+
     const ano = selAno ? selAno.value : "";
     const classeFiltro = selClasse ? selClasse.value : "";
+    const estadoFiltro = selEstado ? selEstado.value : "";
+    const ordemFiltro = selOrdem ? selOrdem.value : "data_desc";
 
+    // 2. Carregar os cards de resumo (stats)
+    if (ano) {
+        const stats = await chamarRPC("cesc_secretaria_stats_inscricoes", { p_token: token, p_ano_lectivo: ano });
+        if (stats.ok) {
+            document.getElementById("stat-total-inscricoes").textContent = stats.total || 0;
+            document.getElementById("stat-inscricoes-aprovadas").textContent = stats.aprovadas || 0;
+            document.getElementById("stat-inscricoes-por-aprovar").textContent = stats.por_aprovar || 0;
+            document.getElementById("stat-inscricoes-matricula-paga").textContent = stats.matricula_paga || 0;
+            document.getElementById("stat-inscricoes-rejeitadas").textContent = (stats.rejeitadas_c0 || 0) + (stats.rejeitadas_c1 || 0);
+            document.getElementById("stat-rejeitadas-detalhe").textContent = "Cód. 0: " + (stats.rejeitadas_c0 || 0) + " · Cód. 1: " + (stats.rejeitadas_c1 || 0);
+        }
+    }
+
+    // 3. Carregar a lista
     const dados = await chamarRPC("cesc_diretor_listar_inscricoes", { p_token: token, p_ano_lectivo: ano || null });
     if (!dados.ok) { container.innerHTML = '<div class="estado-vazio">' + esc(dados.erro) + '</div>'; return; }
 
     let lista = dados.inscricoes || [];
-    if (classeFiltro) lista = lista.filter(i => i.classe_pretendida === classeFiltro);
 
-    if (lista.length === 0) { container.innerHTML = '<div class="estado-vazio">Sem inscrições registadas.</div>'; return; }
+    // Filtros
+    if (classeFiltro) lista = lista.filter(i => i.classe_pretendida === classeFiltro);
+    if (estadoFiltro) lista = lista.filter(i => i.estado === estadoFiltro);
+
+    // Ordenação
+    if (ordemFiltro === "nome_asc") lista.sort((a, b) => (a.nome_completo || "").localeCompare(b.nome_completo || ""));
+    else lista.sort((a, b) => (b.data_submissao || "").localeCompare(a.data_submissao || ""));
+
+    if (lista.length === 0) { container.innerHTML = '<div class="estado-vazio">Sem inscrições registadas com estes filtros.</div>'; return; }
 
     // Tabela
     let html = '<div class="tabela-wrapper tabela-sec-wrapper"><table class="tabela-sec">';

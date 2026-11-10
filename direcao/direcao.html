@@ -116,42 +116,46 @@
             </section>
 
             <!-- INSCRIÇÕES -->
-            <section class="pagina-seccao" id="seccao-inscricoes">
-                <div class="pagina-cabecalho"><h1>Inscrições</h1></div>
-                
-                <div class="barra-acoes" style="margin-bottom: 16px;">
-                    <label for="filtro-inscricoes-ano">Ano letivo:</label>
-                    <select id="filtro-inscricoes-ano" class="campo-select"></select>
-                </div>
+<section class="pagina-seccao" id="seccao-inscricoes">
+    <div class="pagina-cabecalho"><h1>Inscrições</h1></div>
+    
+    <!-- Filtro de Ano (fica por cima dos cards) -->
+    <div class="barra-acoes" style="margin-bottom: 16px;">
+        <label for="filtro-dir-inscricoes-ano">Ano letivo:</label>
+        <select id="filtro-dir-inscricoes-ano" class="campo-select"></select>
+    </div>
 
-                <div class="stats-grelha" id="stats-inscricoes-container" style="margin-bottom: 24px;">
-                    <div class="stat-card"><div class="stat-header"><i class="fas fa-inbox"></i> Total</div><div class="stat-valor" id="stat-total-inscricoes">—</div></div>
-                    <div class="stat-card"><div class="stat-header"><i class="fas fa-check-circle"></i> Aprovadas</div><div class="stat-valor" id="stat-inscricoes-aprovadas">—</div></div>
-                    <div class="stat-card stat-card-alerta"><div class="stat-header"><i class="fas fa-clock"></i> Por Aprovar</div><div class="stat-valor" id="stat-inscricoes-por-aprovar">—</div></div>
-                    <div class="stat-card"><div class="stat-header"><i class="fas fa-credit-card"></i> Matrícula Paga</div><div class="stat-valor" id="stat-inscricoes-matricula-paga">—</div></div>
-                    <div class="stat-card"><div class="stat-header"><i class="fas fa-times-circle"></i> Rejeitadas</div><div class="stat-valor" id="stat-inscricoes-rejeitadas">—</div><div class="stat-subtexto" id="stat-rejeitadas-detalhe"></div></div>
-                </div>
+    <!-- Cards de Resumo -->
+    <div class="stats-grelha" id="stats-inscricoes-container" style="margin-bottom: 24px;">
+        <div class="stat-card"><div class="stat-header"><i class="fas fa-inbox"></i> Total</div><div class="stat-valor" id="stat-total-inscricoes">—</div></div>
+        <div class="stat-card"><div class="stat-header"><i class="fas fa-check-circle"></i> Aprovadas</div><div class="stat-valor" id="stat-inscricoes-aprovadas">—</div></div>
+        <div class="stat-card stat-card-alerta"><div class="stat-header"><i class="fas fa-clock"></i> Por Aprovar</div><div class="stat-valor" id="stat-inscricoes-por-aprovar">—</div></div>
+        <div class="stat-card"><div class="stat-header"><i class="fas fa-credit-card"></i> Matrícula Paga</div><div class="stat-valor" id="stat-inscricoes-matricula-paga">—</div></div>
+        <div class="stat-card"><div class="stat-header"><i class="fas fa-times-circle"></i> Rejeitadas</div><div class="stat-valor" id="stat-inscricoes-rejeitadas">—</div><div class="stat-subtexto" id="stat-rejeitadas-detalhe"></div></div>
+    </div>
 
-                <div class="barra-acoes" style="flex-direction: column; align-items: stretch; gap: 12px;">
-                    <div style="display: flex; gap: 12px; flex-wrap: wrap; width: 100%;">
-                        <select id="filtro-inscricoes-estado" class="campo-select" style="flex: 1 1 180px;">
-                            <option value="">Todos os estados</option>
-                            <option value="pendente">Pendentes</option>
-                            <option value="aprovada">Aprovadas</option>
-                            <option value="rejeitada">Rejeitadas</option>
-                            <option value="matricula_paga">Matrícula Paga</option>
-                        </select>
-                        <select id="filtro-inscricoes-classe" class="campo-select" style="flex: 1 1 180px;">
-                            <option value="">Todas as classes</option>
-                        </select>
-                        <select id="filtro-inscricoes-ordem" class="campo-select" style="flex: 1 1 220px;">
-                            <option value="data_desc">Mais recentes primeiro</option>
-                            <option value="nome_asc">Ordem alfabética (A-Z)</option>
-                        </select>
-                    </div>
-                </div>
-                <div id="lista-inscricoes-container"></div>
-            </section>
+    <!-- Filtros da Lista -->
+    <div class="barra-acoes" style="flex-direction: column; align-items: stretch; gap: 12px;">
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; width: 100%;">
+            <select id="filtro-inscricoes-estado" class="campo-select" style="flex: 1 1 180px;">
+                <option value="">Todos os estados</option>
+                <option value="pendente">Pendentes</option>
+                <option value="aprovada">Aprovadas</option>
+                <option value="matricula_paga">Matrícula Paga</option>
+                <option value="matriculado">Matriculado</option>
+                <option value="rejeitada">Rejeitadas</option>
+            </select>
+            <select id="filtro-dir-inscricoes-classe" class="campo-select" style="flex: 1 1 180px;">
+                <option value="">Todas as classes</option>
+            </select>
+            <select id="filtro-inscricoes-ordem" class="campo-select" style="flex: 1 1 220px;">
+                <option value="data_desc">Mais recentes primeiro</option>
+                <option value="nome_asc">Ordem alfabética (A-Z)</option>
+            </select>
+        </div>
+    </div>
+    <div id="lista-dir-inscricoes"></div>
+</section>
 
             <!-- MATRÍCULAS -->
             <section class="pagina-seccao" id="seccao-matriculas">
