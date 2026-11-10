@@ -132,11 +132,15 @@ async function carregarAuraDir() {
                     });
 
                     if (res.ok) {
-                        const msgFinal = document.getElementById("msg-executar-aura");
-                        msgFinal.className = "msg-form sucesso";
-                        msgFinal.textContent = `Transição concluída! Analisados: ${res.total_analisados}. Novas inscrições: ${res.novas_inscricoes_criadas}.`;
-                        return true;
-                    } else {
+                          const msgFinal = document.getElementById("msg-executar-aura");
+                           msgFinal.className = "msg-form sucesso";
+                           msgFinal.textContent = `Transição concluída! Analisados: ${res.total_analisados}. Novas inscrições: ${res.novas_inscricoes_criadas}. O ano letivo atual passou a ser ${res.novo_ano_actual}.`;
+    
+                             // Recarregar a página ao fim de 2.5s para todos os sítios mostrarem o novo ano
+                            setTimeout(() => window.location.reload(), 2500);
+    
+                             return true;
+                           }else {
                         msg.textContent = res.erro || "Erro na transição.";
                         msg.className = "msg-form erro";
                         msg.style.display = "block";
