@@ -21,18 +21,10 @@
 
     <main class="container" id="perfil-conteudo" style="display: none; padding: 24px 0; max-width: 1100px;">
         
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:10px;">
+        <div style="display:flex; justify-content:flex-start; align-items:center; margin-bottom: 16px;">
             <a href="javascript:history.back()" id="btn-voltar" class="botao-secundario" style="padding: 8px 16px;">
                 <i class="fas fa-arrow-left"></i> Voltar atrás
             </a>
-            
-            <!-- Filtro Global de Ano -->
-            <div style="display:flex; align-items:center; gap:8px;">
-                <label style="font-size:0.85rem; font-weight:600; color:var(--cor-texto-suave);">Ano Letivo:</label>
-                <select id="filtro-ano-global" class="campo-select" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--cor-borda); font-weight:bold; color:var(--cor-azul);">
-                    <option value="">Todos os anos</option>
-                </select>
-            </div>
         </div>
 
         <!-- Capa e Avatar -->
@@ -50,50 +42,70 @@
         <!-- Grelha de Conteúdo -->
         <div class="perfil-grelha" style="margin-top: 20px;">
             
-            <!-- Coluna Esquerda -->
+            <!-- COLUNA ESQUERDA -->
             <div>
                 <div class="perfil-card">
                     <h3><i class="fas fa-info-circle"></i> Sobre o Aluno</h3>
                     <div id="perf-sobre"></div>
                 </div>
 
-                <!-- Linha do Tempo (Histórico Escolar + Inscrições) -->
                 <div class="perfil-card">
                     <h3><i class="fas fa-history"></i> Linha do Tempo</h3>
                     <div id="perf-historico"></div>
                 </div>
+
+                <!-- Cartões Colapsáveis -->
+                <div class="perfil-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3 style="margin:0; border:none; padding:0;"><i class="fas fa-file-alt"></i> Documentos</h3>
+                        <button class="btn-toggle-card btn-acao btn-acao-secundario" style="font-size:0.75rem; padding:4px 8px;">Ver</button>
+                    </div>
+                    <div id="perf-documentos" class="docs-grelha toggle-conteudo" style="display:none; margin-top:16px; grid-template-columns: 1fr 1fr; gap: 8px;"></div>
+                </div>
+
+                <div class="perfil-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3 style="margin:0; border:none; padding:0;"><i class="fas fa-user-clock"></i> Faltas</h3>
+                        <button class="btn-toggle-card btn-acao btn-acao-secundario" style="font-size:0.75rem; padding:4px 8px;">Ver</button>
+                    </div>
+                    <div id="perf-faltas" class="toggle-conteudo" style="display:none; margin-top:16px;"></div>
+                </div>
+
+                <div class="perfil-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3 style="margin:0; border:none; padding:0;"><i class="fas fa-money-bill-wave"></i> Pagamentos</h3>
+                        <button class="btn-toggle-card btn-acao btn-acao-secundario" style="font-size:0.75rem; padding:4px 8px;">Ver</button>
+                    </div>
+                    <div id="perf-pagamentos" class="toggle-conteudo" style="display:none; margin-top:16px;"></div>
+                </div>
+
+                <div class="perfil-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3 style="margin:0; border:none; padding:0;"><i class="fas fa-edit"></i> Alterações</h3>
+                        <button class="btn-toggle-card btn-acao btn-acao-secundario" style="font-size:0.75rem; padding:4px 8px;">Ver</button>
+                    </div>
+                    <div id="perf-historico-alt" class="toggle-conteudo" style="display:none; margin-top:16px;"></div>
+                </div>
             </div>
 
-            <!-- Coluna Direita -->
+            <!-- COLUNA DIREITA -->
             <div>
                 <div class="perfil-card">
-                    <h3><i class="fas fa-school"></i> Situação no Ano</h3>
+                    <h3><i class="fas fa-school"></i> Situação Atual</h3>
                     <div id="perf-turma"></div>
                 </div>
 
                 <div class="perfil-card">
-                    <h3><i class="fas fa-chart-line"></i> Notas</h3>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom: 1px solid var(--cor-borda); padding-bottom: 8px;">
+                        <h3 style="margin:0; border:none; padding:0;"><i class="fas fa-chart-line"></i> Notas</h3>
+                        <select id="filtro-trimestre" class="campo-select" style="width:auto; padding:4px 8px; font-size:0.8rem; border:1px solid var(--cor-borda); border-radius:4px;">
+                            <option value="">Todos</option>
+                            <option value="1">1º Trimestre</option>
+                            <option value="2">2º Trimestre</option>
+                            <option value="3">3º Trimestre</option>
+                        </select>
+                    </div>
                     <div id="perf-notas" style="overflow-x:auto;"></div>
-                </div>
-
-                <div class="perfil-card">
-                    <h3><i class="fas fa-file-alt"></i> Documentos da Inscrição</h3>
-                    <div id="perf-documentos" class="docs-grelha" style="grid-template-columns: 1fr 1fr; gap: 8px;"></div>
-                </div>
-
-                <div class="perfil-card">
-                    <h3><i class="fas fa-user-clock"></i> Faltas Registadas</h3>
-                    <div id="perf-faltas"></div>
-                </div>
-
-                <div class="perfil-card">
-                    <h3><i class="fas fa-money-bill-wave"></i> Histórico de Pagamentos</h3>
-                    <div id="perf-pagamentos"></div>
-                </div>
-
-                <div class="perfil-card">
-                    <h3><i class="fas fa-edit"></i> Histórico de Alterações</h3>
-                    <div id="perf-historico-alt"></div>
                 </div>
             </div>
 
