@@ -22,7 +22,7 @@
     <main class="container" id="perfil-conteudo" style="display: none; padding: 24px 0; max-width: 1100px;">
         
         <div style="display:flex; justify-content:flex-start; align-items:center; margin-bottom: 16px;">
-            <a href="javascript:history.back()" id="btn-voltar" class="botao-secundario" style="padding: 8px 16px;">
+            <a href="#" id="btn-voltar" class="botao-secundario" style="padding: 8px 16px;">
                 <i class="fas fa-arrow-left"></i> Voltar atrás
             </a>
         </div>
@@ -90,20 +90,27 @@
 
             <!-- COLUNA DIREITA -->
             <div>
+                <!-- Barra de Filtros Global -->
+                <div class="perfil-card" style="padding:12px 16px; display:flex; justify-content:flex-end; gap:12px; align-items:center; background:transparent; border:none; box-shadow:none; margin-bottom:0;">
+                    <label style="font-size:0.85rem; font-weight:600; color:var(--cor-texto-suave);">Filtrar por:</label>
+                    <select id="filtro-ano" class="campo-select" style="width:auto; padding:6px 12px; font-size:0.85rem; border:1px solid var(--cor-borda); border-radius:6px; font-weight:bold; color:var(--cor-azul);">
+                        <!-- Preenchido via JS -->
+                    </select>
+                    <select id="filtro-trimestre" class="campo-select" style="width:auto; padding:6px 12px; font-size:0.85rem; border:1px solid var(--cor-borda); border-radius:6px; font-weight:bold; color:var(--cor-azul);">
+                        <option value="1">1º Trimestre</option>
+                        <option value="2">2º Trimestre</option>
+                        <option value="3">3º Trimestre</option>
+                    </select>
+                </div>
+
                 <div class="perfil-card">
-                    <h3><i class="fas fa-school"></i> Situação Atual</h3>
+                    <h3><i class="fas fa-school"></i> Situação no Ano</h3>
                     <div id="perf-turma"></div>
                 </div>
 
                 <div class="perfil-card">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom: 1px solid var(--cor-borda); padding-bottom: 8px;">
                         <h3 style="margin:0; border:none; padding:0;"><i class="fas fa-chart-line"></i> Notas</h3>
-                        <select id="filtro-trimestre" class="campo-select" style="width:auto; padding:4px 8px; font-size:0.8rem; border:1px solid var(--cor-borda); border-radius:4px;">
-                            <option value="">Todos</option>
-                            <option value="1">1º Trimestre</option>
-                            <option value="2">2º Trimestre</option>
-                            <option value="3">3º Trimestre</option>
-                        </select>
                     </div>
                     <div id="perf-notas" style="overflow-x:auto;"></div>
                 </div>

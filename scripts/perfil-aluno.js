@@ -8,10 +8,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     const alunoId = urlParams.get("id");
     const roleOrigem = urlParams.get("role");
 
+    // Configurar botão de voltar com base na origem
     const btnVoltar = document.getElementById("btn-voltar");
-    if (roleOrigem === "diretor") btnVoltar.href = "../direcao/direcao.html";
-    else if (roleOrigem === "secretaria") btnVoltar.href = "../secretaria/secretaria.html";
-    else btnVoltar.href = "javascript:history.back()";
+    btnVoltar.addEventListener("click", function(e) {
+        e.preventDefault();
+        if (roleOrigem === "diretor") window.location.href = "../direcao/direcao.html";
+        else if (roleOrigem === "secretaria") window.location.href = "../secretaria/secretaria.html";
+        else window.location.href = "../index.html";
+    });
 
     if (!alunoId) {
         document.getElementById("loader").innerHTML = "<p>ID do aluno não fornecido.</p>";
@@ -39,18 +43,42 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     dadosGlobais = res;
+    configurarFiltros(res);
     renderizarPerfil();
-
-    // Filtro de Trimestre
-    document.getElementById("filtro-trimestre").addEventListener("change", renderizarNotas);
 
     document.getElementById("loader").style.display = "none";
     document.getElementById("perfil-conteudo").style.display = "block";
 });
 
+function configurarFiltros(dados) {
+    const selAno = document.getElementById("filtro-ano");
+    const anos = new Set();
+    dados.historico_matriculas.forEach(m => anos.add(m.ano_lectivo));
+    dados.historico_inscricoes.forEach(i => anos.add(i.ano_lectivo));
+    
+    const anosOrdenados = Array.from(anos).sort().reverse();
+    
+    anosOrdenados.forEach(ano => {
+        const opt = document.createElement("option");
+        opt.value = ano;
+        opt.textContent = ano;
+        selAno.appendChild(opt);
+    });
+
+    // Se houver um ano, seleciona o mais recente por defeito
+    if (anosOrdenados.length > 0) {
+        selAno.value = anosOrdenados[0];
+    }
+
+    selAno.addEventListener("change", renderizarPerfil);
+    document.getElementById("filtro-trimestre").addEventListener("change", renderizarPerfil);
+}
+
 async function renderizarPerfil() {
     const dados = dadosGlobais;
     const a = dados.aluno;
+    const anoFiltro = document.getElementById("filtro-ano").value;
+    const trimestreFiltro = parseInt(document.getElementById("filtro-trimestre").value, 10);
     
     // Header e Sobre
     document.getElementById("perf-avatar").textContent = (a.nome_completo || "?").charAt(0).toUpperCase();
@@ -68,31 +96,34 @@ async function renderizarPerfil() {
     htmlSobre += linha("Conta de Aluno", a.tem_conta ? "Criada" : "Não criada");
     document.getElementById("perf-sobre").innerHTML = htmlSobre;
 
-    // Situação Atual (Sempre o ano mais recente)
-    const m = dados.historico_matriculas && dados.historico_matriculas.length > 0 ? dados.historico_matriculas[0] : null;
-    const iAtual = dados.historico_inscricoes && dados.historico_inscricoes.length > 0 ? dados.historico_inscricoes[0] : null;
-    
+    // Situação no Ano (Filtrada)
+    const mat = dados.historico_matriculas.find(m => m.ano_lectivo === anoFiltro);
     let htmlTurma = "";
-    if (m) {
-        htmlTurma += linha("Ano Letivo", m.ano_lectivo);
-        htmlTurma += linha("Classe", m.classe);
-        htmlTurma += linha("Curso", m.curso || "—");
-        htmlTurma += linha("Sala", m.sala || "—");
-        htmlTurma += linha("Pavilhão", m.pavilhao || "—");
-        htmlTurma += linha("Turno", m.turno || "—");
-        htmlTurma += linha("Nº Aluno", m.numero_aluno || "—");
-    } else {
-        htmlTurma = "<p style='font-size:0.9rem; color:#64748b;'>Sem matrícula ativa.</p>";
-    }
     
-    if (iAtual && iAtual.estado !== 'matriculado') {
-        htmlTurma += `<h4 style="margin-top:16px; font-size:0.85rem; color:var(--cor-dourado);">Próxima Inscrição</h4>`;
-        htmlTurma += linha("Classe", iAtual.classe_pretendida);
-        htmlTurma += linha("Estado", capitalizar(iAtual.estado));
+    if (mat) {
+        htmlTurma += linha("Ano Letivo", mat.ano_lectivo);
+        htmlTurma += linha("Classe", mat.classe);
+        htmlTurma += linha("Curso", mat.curso || "—");
+        htmlTurma += linha("Sala", mat.sala || "—");
+        htmlTurma += linha("Pavilhão", mat.pavilhao || "—");
+        htmlTurma += linha("Turno", mat.turno || "—");
+        htmlTurma += linha("Nº Aluno", mat.numero_aluno || "—");
+    } else {
+        // Se não há matrícula, vê se há inscrição futura para o ano filtrado
+        const ins = dados.historico_inscricoes.find(i => i.ano_lectivo === anoFiltro);
+        if (ins) {
+            htmlTurma += `<h4 style="margin:0 0 8px 0; font-size:0.85rem; color:var(--cor-dourado);">Inscrição Futura</h4>`;
+            htmlTurma += linha("Ano Letivo", ins.ano_lectivo);
+            htmlTurma += linha("Classe", ins.classe_pretendida);
+            htmlTurma += linha("Curso", ins.curso_pretendido || "—");
+            htmlTurma += linha("Estado", capitalizar(ins.estado));
+        } else {
+            htmlTurma = "<p style='font-size:0.9rem; color:#64748b;'>Sem dados para este ano.</p>";
+        }
     }
     document.getElementById("perf-turma").innerHTML = htmlTurma;
 
-    // Linha do Tempo (Atemporal)
+    // Linha do Tempo (Sempre Completa)
     const histMat = dados.historico_matriculas || [];
     const histIns = dados.historico_inscricoes || [];
     const todosAnos = [...new Set([...histMat.map(m => m.ano_lectivo), ...histIns.map(i => i.ano_lectivo)])].sort().reverse();
@@ -103,25 +134,30 @@ async function renderizarPerfil() {
         htmlHist = "<p style='font-size:0.9rem; color:#64748b;'>Sem histórico.</p>";
     } else {
         todosAnos.forEach(ano => {
-            const mat = histMat.find(m => m.ano_lectivo === ano);
-            const ins = histIns.find(i => i.ano_lectivo === ano);
+            const m = histMat.find(x => x.ano_lectivo === ano);
+            const i = histIns.find(x => x.ano_lectivo === ano);
             
             htmlHist += `<div style="position:relative; margin-bottom: 12px;">`;
             htmlHist += `<div style="position:absolute; left:-26px; top:4px; width:10px; height:10px; background:var(--cor-azul); border-radius:50%;"></div>`;
             htmlHist += `<strong style="color:var(--cor-azul); font-size:1rem;">${esc(ano)}</strong>`;
             
-            if (mat) {
+            if (m) {
                 htmlHist += `<div style="font-size:0.85rem; margin-top:4px; line-height:1.5;">
-                    <div><strong>${esc(mat.classe)}</strong> ${mat.curso ? '('+esc(mat.curso)+')' : ''}</div>
-                    <div style="color:#64748b;">${esc(mat.sala || '—')} · Nº ${mat.numero_aluno || '—'} · ${esc(mat.turno || '—')}</div>`;
+                    <div><strong>${esc(m.classe)}</strong> ${m.curso ? '('+esc(m.curso)+')' : ''}</div>
+                    <div style="color:#64748b;">${esc(m.sala || '—')} · Nº ${m.numero_aluno || '—'} · ${esc(m.turno || '—')}</div>`;
                 
-                if (ins) {
-                    const veredito = ins.tipo === 'aprovado' ? '<span style="color:#059669; font-weight:bold;">Aprovado</span>' : 
-                                     ins.tipo === 'reprovado' ? '<span style="color:#dc2626; font-weight:bold;">Reprovado</span>' : 
+                if (i) {
+                    const veredito = i.tipo === 'aprovado' ? '<span style="color:#059669; font-weight:bold;">Aprovado</span>' : 
+                                     i.tipo === 'reprovado' ? '<span style="color:#dc2626; font-weight:bold;">Reprovado</span>' : 
                                      '<span style="color:#64748b;">Em avaliação</span>';
                     htmlHist += `<div style="font-size:0.8rem; margin-top:4px; background:var(--cor-fundo); padding:4px 8px; border-radius:4px;">Veredito AURA: ${veredito}</div>`;
                 }
                 htmlHist += `</div>`;
+            } else if (i) {
+                htmlHist += `<div style="font-size:0.85rem; margin-top:4px; line-height:1.5;">
+                    <div><strong>Inscrição:</strong> ${esc(i.classe_pretendida)} ${i.curso_pretendido ? '('+esc(i.curso_pretendido)+')' : ''}</div>
+                    <div style="color:#64748b;">Estado: ${esc(capitalizar(i.estado))}</div>
+                </div>`;
             }
             htmlHist += `</div>`;
         });
@@ -129,14 +165,49 @@ async function renderizarPerfil() {
     htmlHist += `</div>`;
     document.getElementById("perf-historico").innerHTML = htmlHist;
 
-    // Documentos (Usa a inscrição mais recente)
+    // Notas (Filtradas)
+    const notasAno = dados.notas.filter(n => n.ano_lectivo === anoFiltro && n.trimestre === trimestreFiltro);
+    
+    if (notasAno.length > 0) {
+        const agrupado = {};
+        notasAno.forEach(n => {
+            if (!agrupado[n.disciplina]) agrupado[n.disciplina] = [];
+            agrupado[n.disciplina].push(n);
+        });
+
+        const fmtNotaColor = (v) => {
+            if (v == null || v === '') return '—';
+            const n = Number(v);
+            if (n < 10) return `<span style="color:#dc2626; font-weight:bold;">${n.toFixed(1)}</span>`;
+            return n.toFixed(1);
+        };
+
+        let htmlNotas = '<table class="tabela-perfil"><thead><tr><th>Disciplina</th><th>MAC</th><th>NPT</th><th>MT</th><th>MFD</th></tr></thead><tbody>';
+        for (const disc in agrupado) {
+            const n = agrupado[disc][0]; // Só há 1 por trimestre
+            htmlNotas += `<tr>
+                <td><strong>${esc(disc)}</strong></td>
+                <td>${fmtNotaColor(n.mac)}</td>
+                <td>${fmtNotaColor(n.npt)}</td>
+                <td>${fmtNotaColor(n.mt)}</td>
+                <td>${fmtNotaColor(n.mfd)}</td>
+            </tr>`;
+        }
+        htmlNotas += '</tbody></table>';
+        document.getElementById("perf-notas").innerHTML = htmlNotas;
+    } else {
+        document.getElementById("perf-notas").innerHTML = "<p style='font-size:0.9rem; color:#64748b;'>Sem notas lançadas para este período.</p>";
+    }
+
+    // Documentos (Usa a inscrição do ano filtrado, ou a mais recente)
+    const insDoAno = dados.historico_inscricoes.find(i => i.ano_lectivo === anoFiltro) || dados.historico_inscricoes[0];
     const containerDocs = document.getElementById("perf-documentos");
-    if (iAtual && iAtual.id) {
+    if (insDoAno && insDoAno.id) {
         const docs = [
-            { label: "BI Frente", path: iAtual.doc_bi_frente_url },
-            { label: "BI Verso", path: iAtual.doc_bi_verso_url },
-            { label: "Certificado", path: iAtual.doc_certificado_url },
-            { label: "Foto", path: iAtual.doc_foto_url }
+            { label: "BI Frente", path: insDoAno.doc_bi_frente_url },
+            { label: "BI Verso", path: insDoAno.doc_bi_verso_url },
+            { label: "Certificado", path: insDoAno.doc_certificado_url },
+            { label: "Foto", path: insDoAno.doc_foto_url }
         ];
         let htmlDocs = "";
         for (const d of docs) {
@@ -153,8 +224,8 @@ async function renderizarPerfil() {
         containerDocs.innerHTML = "<p style='font-size:0.9rem; color:#64748b; grid-column: 1/-1;'>Sem documentos.</p>";
     }
 
-    // Faltas (Filtrado pelo ano mais recente para não misturar)
-    const faltasAno = (dados.faltas || []).filter(f => f.ano_lectivo === (m ? m.ano_lectivo : null));
+    // Faltas (Filtrado pelo ano)
+    const faltasAno = dados.faltas.filter(f => f.ano_lectivo === anoFiltro);
     if (faltasAno.length > 0) {
         let htmlFaltas = '<table class="tabela-perfil"><thead><tr><th>Disciplina</th><th>Mês</th><th>Qtd</th><th>Justificada</th></tr></thead><tbody>';
         faltasAno.forEach(f => {
@@ -166,8 +237,8 @@ async function renderizarPerfil() {
         document.getElementById("perf-faltas").innerHTML = "<p style='font-size:0.9rem; color:#64748b;'>Sem faltas registadas.</p>";
     }
 
-    // Pagamentos (Filtrado pelo ano mais recente)
-    const pagAno = (dados.pagamentos || []).filter(p => p.ano_lectivo === (m ? m.ano_lectivo : null));
+    // Pagamentos (Filtrado pelo ano)
+    const pagAno = dados.pagamentos.filter(p => p.ano_lectivo === anoFiltro);
     if (pagAno.length > 0) {
         let htmlPag = '<table class="tabela-perfil"><thead><tr><th>Tipo</th><th>Valor</th><th>Data</th><th>Estado</th></tr></thead><tbody>';
         pagAno.forEach(p => {
@@ -190,46 +261,6 @@ async function renderizarPerfil() {
         document.getElementById("perf-historico-alt").innerHTML = htmlAlt;
     } else {
         document.getElementById("perf-historico-alt").innerHTML = "<p style='font-size:0.9rem; color:#64748b;'>Sem alterações.</p>";
-    }
-
-    // Renderizar Notas pela primeira vez
-    renderizarNotas();
-}
-
-function renderizarNotas() {
-    const dados = dadosGlobais;
-    const filtro = document.getElementById("filtro-trimestre").value;
-    
-    // Buscar a matrícula mais recente para filtrar as notas
-    const m = dados.historico_matriculas && dados.historico_matriculas.length > 0 ? dados.historico_matriculas[0] : null;
-    const anoAtual = m ? m.ano_lectivo : null;
-
-    let notasAno = (dados.notas || []).filter(n => n.ano_lectivo === anoAtual);
-    
-    if (filtro) {
-        notasAno = notasAno.filter(n => n.trimestre === parseInt(filtro, 10));
-    }
-
-    if (notasAno.length > 0) {
-        const agrupado = {};
-        notasAno.forEach(n => {
-            const key = n.disciplina;
-            if (!agrupado[key]) agrupado[key] = [];
-            agrupado[key].push(n);
-        });
-
-        let htmlNotas = '<table class="tabela-perfil"><thead><tr><th>Disciplina</th><th>Trim.</th><th>MAC</th><th>NPT</th><th>MT</th><th>MFD</th></tr></thead><tbody>';
-        for (const disc in agrupado) {
-            agrupado[disc].forEach((n, idx) => {
-                htmlNotas += `<tr>`;
-                if (idx === 0) htmlNotas += `<td rowspan="${agrupado[disc].length}"><strong>${esc(disc)}</strong></td>`;
-                htmlNotas += `<td>${n.trimestre}º</td><td>${n.mac || '—'}</td><td>${n.npt || '—'}</td><td>${n.mt || '—'}</td><td><strong>${n.mfd || '—'}</strong></td></tr>`;
-            });
-        }
-        htmlNotas += '</tbody></table>';
-        document.getElementById("perf-notas").innerHTML = htmlNotas;
-    } else {
-        document.getElementById("perf-notas").innerHTML = "<p style='font-size:0.9rem; color:#64748b;'>Sem notas para este período.</p>";
     }
 }
 
