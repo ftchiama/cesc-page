@@ -47,6 +47,7 @@
             <a href="#" class="nav-item" data-seccao="salas"><i class="fas fa-school"></i> Salas</a>
             
             <span class="nav-rotulo">Gestão</span>
+            <a href="#" class="nav-item" data-seccao="publicacoes"><i class="fas fa-newspaper"></i> Publicações</a>
             <a href="#" class="nav-item" data-seccao="financeiro"><i class="fas fa-money-bill-wave"></i> Financeiro</a>
             <a href="#" class="nav-item" data-seccao="documentos"><i class="fas fa-file-alt"></i> Documentos</a>
             <a href="#" class="nav-item" data-seccao="equipa"><i class="fas fa-users-cog"></i> Equipa</a>
@@ -289,7 +290,37 @@
                     </div>
                 </div>
             </section>
+            <!-- PUBLICAÇÕES -->
+<section class="pagina-seccao" id="seccao-publicacoes">
+    <div class="pagina-cabecalho"><h1>Publicações</h1><p>Gere as notícias e eventos que aparecem no site.</p></div>
 
+    <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--cor-borda); padding-bottom: 10px;">
+        <button class="botao-primario" id="btn-aba-noticias" onclick="mudarAbaPublicacoes('noticias')" style="background: var(--cor-azul); color: #fff; border: 1px solid var(--cor-azul);">Notícias</button>
+        <button class="botao-secundario" id="btn-aba-eventos" onclick="mudarAbaPublicacoes('eventos')" style="background: transparent; color: var(--cor-texto-suave); border: 1px solid var(--cor-borda);">Eventos</button>
+    </div>
+
+    <!-- Notícias -->
+    <div id="aba-noticias" style="display: block;">
+        <div class="card-info">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3><i class="fas fa-newspaper"></i> Notícias</h3>
+                <button class="btn-acao btn-acao-primario" onclick="abrirModalNoticia()">+ Nova Notícia</button>
+            </div>
+            <div id="lista-noticias-container"></div>
+        </div>
+    </div>
+
+    <!-- Eventos -->
+    <div id="aba-eventos" style="display: none;">
+        <div class="card-info">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3><i class="fas fa-calendar-alt"></i> Eventos</h3>
+                <button class="btn-acao btn-acao-primario" onclick="abrirModalEvento()">+ Novo Evento</button>
+            </div>
+            <div id="lista-eventos-container"></div>
+        </div>
+    </div>
+</section>
             <!-- AURA -->
             <section class="pagina-seccao" id="seccao-aura">
                 <div class="pagina-cabecalho"><h1>AURA — Algoritmo de Distribuição</h1></div>
