@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notícia - CESC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/paginas.css">
+    <link rel="stylesheet" href="../css/home.css">
+    <link rel="icon" type="image/png" href="../favicon.png">
+</head>
+<body>
+
+    <header class="cabecalho">
+        <div class="container cabecalho-conteudo">
+            <a href="../index.html" class="logo">
+                <div class="logo-icone"><i class="fas fa-graduation-cap"></i></div>
+                <div class="logo-texto">
+                    <span class="logo-nome">CESC</span>
+                    <span class="logo-sub">Santa Catarina</span>
+                </div>
+            </a>
+            <nav class="menu-desktop">
+                <a href="../index.html">Início</a>
+                <a href="noticias.html" class="ativo">Notícias</a>
+                <a href="biblioteca.html">Biblioteca</a>
+                <a href="sobre.html">O Complexo</a>
+                <a href="contacto.html">Contacto</a>
+                <a href="login.html" class="botao-secundario" style="padding: 8px 16px;">Área Reservada</a>
+            </nav>
+            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+        </div>
+    </header>
+
+    <div class="sidebar-overlay" id="menuOverlay"></div>
+    <aside class="sidebar" id="menuMobile">
+        <div class="sidebar-topo">
+            <div class="sidebar-logo">
+                <div class="logo-icone"><i class="fas fa-graduation-cap"></i></div>
+                <div class="logo-texto"><span class="logo-nome">CESC</span><span class="logo-sub">Santa Catarina</span></div>
+            </div>
+            <button class="sidebar-fechar" id="menuFechar"><i class="fas fa-times"></i></button>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="../index.html" class="nav-item"><i class="fas fa-home"></i> Início</a>
+            <a href="noticias.html" class="nav-item ativo"><i class="fas fa-newspaper"></i> Notícias</a>
+            <a href="biblioteca.html" class="nav-item"><i class="fas fa-book-open"></i> Biblioteca</a>
+            <a href="sobre.html" class="nav-item"><i class="fas fa-school"></i> O Complexo</a>
+            <a href="contacto.html" class="nav-item"><i class="fas fa-envelope"></i> Contacto</a>
+            <a href="login.html" class="nav-item"><i class="fas fa-lock"></i> Área Reservada</a>
+        </nav>
+    </aside>
+
+    <main>
+        <section class="seccao" style="padding-top: 140px; min-height: 80vh;">
+            <div class="container" style="max-width: 800px;">
+                <div id="noticia-conteudo">
+                    <div class="loader-container" style="min-height:200px;"><div class="loader"></div></div>
+                </div>
+                <div style="margin-top: 32px;">
+                    <a href="noticias.html" class="botao-secundario"><i class="fas fa-arrow-left"></i> Voltar às notícias</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="rodape">
+        <div class="container rodape-base">
+            <p>&copy; <span id="currentYear">2026</span> CESC. Todos os direitos reservados.</p>
+            <p>Desenvolvido por <a href="#">TCLabs</a></p>
+        </div>
+    </footer>
+
+    <script src="../scripts/api.js"></script>
+    <script src="../scripts/main.js"></script>
+    <script src="../scripts/noticia-detalhe.js"></script>
+</body>
+</html>

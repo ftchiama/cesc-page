@@ -78,14 +78,6 @@
 
     <script src="../scripts/api.js"></script>
     <script src="../scripts/main.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", async function () {
-            const res = await chamarRPC("cesc_home_dados", {});
-            if (!res.ok) return;
-            const container = document.getElementById("lista-noticias-publicas");
-            // Aqui podes carregar todas as notícias públicas (não só as de destaque)
-            // (Precisas de uma RPC cesc_noticias_publicas para listar todas)
-        });
-    </script>
+    <script src="../scripts/noticias.js"></script>
 </body>
 </html>
