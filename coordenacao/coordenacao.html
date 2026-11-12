@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coordenação — CESC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../secretaria/css/secretaria.css">
+    <link rel="stylesheet" href="../direcao/css/direcao.css">
+    <link rel="icon" type="image/png" href="../favicon.png">
+</head>
+<body class="dashboard-body">
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-topo">
+            <div class="sidebar-logo">
+                <div class="logo-icone"><i class="fas fa-chalkboard-teacher"></i></div>
+                <div class="logo-texto">
+                    <span class="logo-nome">CESC</span>
+                    <span class="logo-sub">Coordenação</span>
+                </div>
+            </div>
+            <button class="sidebar-fechar" id="sidebarFechar"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="sidebar-perfil">
+            <div class="perfil-avatar" id="coord-avatar">-</div>
+            <div class="perfil-info">
+                <strong id="coord-nome-sidebar">A carregar...</strong>
+                <span id="coord-role-sidebar">-</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <span class="nav-rotulo">Gestão</span>
+            <a href="#" class="nav-item ativo" data-seccao="tempos"><i class="fas fa-clock"></i> Tempos</a>
+            <a href="#" class="nav-item" data-seccao="disponibilidade"><i class="fas fa-user-check"></i> Disponibilidade</a>
+            <a href="#" class="nav-item" data-seccao="horarios"><i class="fas fa-calendar-alt"></i> Horários</a>
+        </nav>
+
+        <div class="sidebar-rodape">
+            <a href="../index.html" class="nav-item"><i class="fas fa-globe"></i> Voltar ao site</a>
+            <a href="#" class="nav-item nav-sair" id="link-sair"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        </div>
+    </aside>
+
+    <main class="dashboard-main">
+        <header class="dashboard-header-mobile">
+            <button class="menu-mobile-btn" id="menuMobileBtn"><i class="fas fa-bars"></i></button>
+            <span>CESC · Coordenação</span>
+            <a href="../index.html" class="header-voltar"><i class="fas fa-globe"></i></a>
+        </header>
+
+        <div class="loader-container" id="loader">
+            <div class="loader"></div>
+            <p>A carregar...</p>
+        </div>
+
+        <div class="dashboard-conteudo" id="dashboard-conteudo" style="display:none;">
+
+            <!-- TEMPOS -->
+            <section class="pagina-seccao ativa" id="seccao-tempos">
+                <div class="pagina-cabecalho"><h1>Tempos de Aula</h1><p>Configura os tempos de cada turno.</p></div>
+                <div class="card-info">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                        <h3><i class="fas fa-clock"></i> Tempos</h3>
+                        <button class="btn-acao btn-acao-primario" onclick="abrirModalTempo()">+ Novo Tempo</button>
+                    </div>
+                    <div id="lista-tempos-container"></div>
+                </div>
+            </section>
+
+            <!-- DISPONIBILIDADE -->
+            <section class="pagina-seccao" id="seccao-disponibilidade">
+                <div class="pagina-cabecalho"><h1>Disponibilidade</h1><p>Define quem dá o quê e em que período.</p></div>
+                <div class="card-info">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                        <h3><i class="fas fa-user-check"></i> Professores</h3>
+                        <button class="btn-acao btn-acao-primario" onclick="abrirModalDisponibilidade()">+ Adicionar</button>
+                    </div>
+                    <div id="lista-disponibilidade-container"></div>
+                </div>
+            </section>
+
+            <!-- HORÁRIOS -->
+            <section class="pagina-seccao" id="seccao-horarios">
+                <div class="pagina-cabecalho"><h1>Horários</h1><p>Gera e consulta os horários.</p></div>
+                <div class="card-info" style="margin-bottom:20px; border:2px solid var(--cor-azul); background:#f0f9ff;">
+                    <h3 style="color:var(--cor-azul);"><i class="fas fa-magic"></i> Gerar Horários</h3>
+                    <p style="font-size:0.9rem; color:var(--cor-texto-suave); margin:10px 0;">O algoritmo distribui as aulas respeitando as regras (dia livre, carga mínima, etc.).</p>
+                    <button class="botao-primario" id="btn-gerar-horarios"><i class="fas fa-play"></i> Gerar Horários</button>
+                    <p id="msg-gerar-horarios" class="msg-form" style="margin-top:16px;"></p>
+                </div>
+                <div class="card-info">
+                    <h3><i class="fas fa-calendar-alt"></i> Horários Gerados</h3>
+                    <div class="barra-acoes" style="margin-bottom:16px;">
+                        <label for="filtro-horario-turma">Turma:</label>
+                        <select id="filtro-horario-turma" class="campo-select"></select>
+                    </div>
+                    <div id="lista-horarios-container"></div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <div class="modal-overlay" id="modal-overlay" style="display: none;">
+        <div class="modal-card" id="modal-card">
+            <div class="modal-header"><h3 id="modal-titulo">Confirmar</h3><button class="modal-fechar" id="modal-fechar"><i class="fas fa-times"></i></button></div>
+            <div class="modal-body" id="modal-corpo"></div>
+            <div class="modal-footer" id="modal-rodape"><button class="botao-secundario" id="modal-cancelar">Cancelar</button><button class="botao-primario" id="modal-confirmar">Confirmar</button></div>
+        </div>
+    </div>
+
+    <script src="../scripts/api.js"></script>
+    <script src="scripts/coordenacao-core.js"></script>
+    <script src="scripts/coordenacao-tempos.js"></script>
+    <script src="scripts/coordenacao-disponibilidade.js"></script>
+    <script src="scripts/coordenacao-horarios.js"></script>
+</body>
+</html>
