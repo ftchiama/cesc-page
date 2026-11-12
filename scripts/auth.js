@@ -37,7 +37,7 @@ async function redirecionarPorRole(token) {
     } else if (role === "diretor" || role === "sub_diretor") {
         window.location.href = "../direcao/direcao.html";
     } else if (role === "coordenador") {
-        window.location.href = ".html";
+        window.location.href = "coordenacao.html";
     } else if (role === "encarregado") {
         window.location.href = "dashboard.html";
     } else {
@@ -311,3 +311,5 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 });
+
+
