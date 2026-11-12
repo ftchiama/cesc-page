@@ -47,7 +47,7 @@ async function carregarNoticias() {
     html += '<thead><tr><th>Título</th><th>Categoria</th><th>Data</th><th>Destaque</th><th>Publicado</th><th>Acções</th></tr></thead><tbody>';
     noticiasCache.forEach(n => {
         html += `<tr>
-            <td><strong>${esc(n.titulo)}</strong><br><span style="font-size:0.8rem; color:var(--cor-texto-suave);">${esc(n.resumo).substring(0, 80)}...</span></td>
+            <td><strong>${esc(n.titulo)}</strong><br><span style="font-size:0.8rem; color:var(--cor-texto-suave);">${esc((n.resumo || '').substring(0, 80))}...</span></td>
             <td>${esc(n.categoria || '—')}</td>
             <td>${fmtData(n.data_publicacao)}</td>
             <td>${n.destaque ? '⭐ Sim' : 'Não'}</td>
@@ -79,13 +79,14 @@ async function carregarNoticias() {
 
 function abrirModalNoticia(id = null) {
     const noticia = id ? noticiasCache.find(n => n.id === id) : null;
+    const dataPadrao = new Date().toISOString().slice(0,10);
     const html = `
         <div class="campo-grupo"><label>Título *</label><input type="text" id="not-titulo" value="${noticia ? esc(noticia.titulo) : ''}"></div>
         <div class="campo-grupo"><label>Resumo *</label><textarea id="not-resumo" rows="2">${noticia ? esc(noticia.resumo) : ''}</textarea></div>
         <div class="campo-grupo"><label>Conteúdo</label><textarea id="not-conteudo" rows="4">${noticia ? esc(noticia.conteudo) : ''}</textarea></div>
         <div class="form-grelha">
             <div class="campo-grupo"><label>Categoria</label><input type="text" id="not-categoria" value="${noticia ? esc(noticia.categoria || '') : 'Notícia'}" placeholder="Ex: Aviso, Evento, Feito Notável"></div>
-            <div class="campo-grupo"><label>Data de Publicação</label><input type="date" id="not-data" value="${noticia ? noticia.data_publicacao : new Date().toISOString().slice(0,10)}"></div>
+            <div class="campo-grupo"><label>Data de Publicação</label><input type="date" id="not-data" value="${noticia ? noticia.data_publicacao : dataPadrao}"></div>
             <div class="campo-grupo"><label>Destaque</label><select id="not-destaque" class="campo-select"><option value="false">Não</option><option value="true" ${noticia && noticia.destaque ? 'selected' : ''}>Sim</option></select></div>
             <div class="campo-grupo"><label>Publicado</label><select id="not-publicado" class="campo-select"><option value="true" ${!noticia || noticia.publicado ? 'selected' : ''}>Sim</option><option value="false" ${noticia && !noticia.publicado ? 'selected' : ''}>Não</option></select></div>
         </div>
@@ -114,11 +115,13 @@ function abrirModalNoticia(id = null) {
     }, "Guardar");
 }
 
-async function apagarNoticia(id) {
-    if (!confirm("Apagar esta notícia?")) return;
-    const res = await chamarRPC("cesc_diretor_apagar_noticia", { p_token: obterToken(), p_id: id });
-    if (res.ok) carregarNoticias();
-    else alert(res.erro);
+function apagarNoticia(id) {
+    const html = `<p>Tens a certeza que queres apagar esta notícia?</p>`;
+    abrirModal("Apagar Notícia", html, async function () {
+        const res = await chamarRPC("cesc_diretor_apagar_noticia", { p_token: obterToken(), p_id: id });
+        if (res.ok) { carregarNoticias(); return true; }
+        return false;
+    }, "Apagar");
 }
 
 // ============================================================
@@ -140,7 +143,7 @@ async function carregarEventos() {
     html += '<thead><tr><th>Título</th><th>Data</th><th>Publicado</th><th>Acções</th></tr></thead><tbody>';
     eventosCache.forEach(e => {
         html += `<tr>
-            <td><strong>${esc(e.titulo)}</strong><br><span style="font-size:0.8rem; color:var(--cor-texto-suave);">${esc(e.descricao || '').substring(0, 60)}</span></td>
+            <td><strong>${esc(e.titulo)}</strong><br><span style="font-size:0.8rem; color:var(--cor-texto-suave);">${esc((e.descricao || '').substring(0, 60))}</span></td>
             <td>${fmtData(e.data_evento)}</td>
             <td>${e.publicado ? '✅ Sim' : '❌ Não'}</td>
             <td>
@@ -169,11 +172,12 @@ async function carregarEventos() {
 
 function abrirModalEvento(id = null) {
     const evento = id ? eventosCache.find(e => e.id === id) : null;
+    const dataPadrao = new Date().toISOString().slice(0,10);
     const html = `
         <div class="campo-grupo"><label>Título *</label><input type="text" id="ev-titulo" value="${evento ? esc(evento.titulo) : ''}"></div>
         <div class="campo-grupo"><label>Descrição</label><textarea id="ev-descricao" rows="3">${evento ? esc(evento.descricao || '') : ''}</textarea></div>
         <div class="form-grelha">
-            <div class="campo-grupo"><label>Data do Evento *</label><input type="date" id="ev-data" value="${evento ? evento.data_evento : new Date().toISOString().slice(0,10)}"></div>
+            <div class="campo-grupo"><label>Data do Evento *</label><input type="date" id="ev-data" value="${evento ? evento.data_evento : dataPadrao}"></div>
             <div class="campo-grupo"><label>Publicado</label><select id="ev-publicado" class="campo-select"><option value="true" ${!evento || evento.publicado ? 'selected' : ''}>Sim</option><option value="false" ${evento && !evento.publicado ? 'selected' : ''}>Não</option></select></div>
         </div>
         <p id="msg-modal-evento" class="msg-form" style="display:none;"></p>
@@ -198,9 +202,11 @@ function abrirModalEvento(id = null) {
     }, "Guardar");
 }
 
-async function apagarEvento(id) {
-    if (!confirm("Apagar este evento?")) return;
-    const res = await chamarRPC("cesc_diretor_apagar_evento", { p_token: obterToken(), p_id: id });
-    if (res.ok) carregarEventos();
-    else alert(res.erro);
+function apagarEvento(id) {
+    const html = `<p>Tens a certeza que queres apagar este evento?</p>`;
+    abrirModal("Apagar Evento", html, async function () {
+        const res = await chamarRPC("cesc_diretor_apagar_evento", { p_token: obterToken(), p_id: id });
+        if (res.ok) { carregarEventos(); return true; }
+        return false;
+    }, "Apagar");
 }
